@@ -1,0 +1,43 @@
+{
+  "dataset_name": "Sample Real Paired NWP-Observation Dataset",
+  "creation_timestamp_utc": "2026-09-22T17:50:39.339470+00:00",
+  "nwp_source": "NOAA NCEP GFS 0.25 Operational Numerical Forecasts (via Open-Meteo)",
+  "observation_source": "IMD Official Daily District Rainfall Bulletin (mausam.imd.gov.in)",
+  "observation_date": "2026-09-22",
+  "lead_time_days": 1,
+  "record_count": 7,
+  "matched_districts": [
+    "KOLKATA",
+    "LUCKNOW",
+    "BHOPAL",
+    "PUNE",
+    "NAGPUR",
+    "HYDERABAD",
+    "CHENNAI"
+  ],
+  "columns": [
+    "timestamp",
+    "latitude",
+    "longitude",
+    "district_name",
+    "district_id",
+    "forecast_initialization",
+    "forecast_valid_time",
+    "forecast_lead_time",
+    "nwp_rainfall",
+    "observed_rainfall",
+    "temperature_2m",
+    "relative_humidity_2m",
+    "surface_pressure",
+    "wind_speed_10m",
+    "wind_direction_10m"
+  ],
+  "summary_statistics": {
+    "nwp_rainfall_min": 0.0,
+    "nwp_rainfall_max": 35.0,
+    "nwp_rainfall_mean": 12.585714285714285,
+    "observed_rainfall_min": 0.0,
+    "observed_rainfall_max": 18.4,
+    "observed_rainfall_mean": 6.728571428571428
+  }
+}

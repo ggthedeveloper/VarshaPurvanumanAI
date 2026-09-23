@@ -1,0 +1,438 @@
+import React from 'react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Header } from '../components/Header';
+import { ForecastSummaryCards } from '../components/Cards/ForecastSummaryCards';
+import { WeatherRegimePanel } from '../components/Panels/WeatherRegimePanel';
+import { ProbabilityPanel } from '../components/Panels/ProbabilityPanel';
+import { DistrictDetailPanel } from '../components/Panels/DistrictDetailPanel';
+import { ForecastTable } from '../components/Tables/ForecastTable';
+import { VerificationDashboard } from '../components/Verification/VerificationDashboard';
+import { LimitationsPanel } from '../components/Panels/LimitationsPanel';
+import {
+  CombinedForecastResponse,
+  DistrictItem,
+  DistrictForecastResponse,
+  VerificationSummaryResponse,
+} from '../types/api';
+
+// Sample Fixtures
+const mockForecast: CombinedForecastResponse = {
+  raw_nwp_rainfall_mm: 5.4,
+  predicted_regime: 'OTHER',
+  regime_probabilities: {
+    ACTIVE_MONSOON: 0.01,
+    BREAK_MONSOON: 0.01,
+    COASTAL_OROGRAPHIC: 0.01,
+    DEPRESSION: 0.02,
+    OTHER: 0.95,
+  },
+  selected_model: 'dedicated_other',
+  corrected_rainfall_mm: 3.26,
+  heavy_rainfall_probabilities: [
+    {
+      threshold_mm: 2.5,
+      threshold_name: 'Rainy Day',
+      category: 'OPERATIONAL',
+      exceedance_probability: 0.2885,
+      decision_threshold_tau: 0.3,
+      advisory_status: 'NORMAL_ADVISORY',
+    },
+    {
+      threshold_mm: 7.5,
+      threshold_name: 'Surge Proxy',
+      category: 'EXPERIMENTAL',
+      exceedance_probability: 0.2313,
+      decision_threshold_tau: 0.2,
+      advisory_status: 'ELEVATED_RISK',
+    },
+    {
+      threshold_mm: 15.6,
+      threshold_name: 'Moderate Rain',
+      category: 'OPERATIONAL',
+      exceedance_probability: 0.0787,
+      decision_threshold_tau: 0.1,
+      advisory_status: 'NORMAL_ADVISORY',
+    },
+    {
+      threshold_mm: 64.5,
+      threshold_name: 'Heavy Rain',
+      category: 'OPERATIONAL',
+      exceedance_probability: 0.0002,
+      decision_threshold_tau: 0.5,
+      advisory_status: 'NORMAL_ADVISORY',
+    },
+    {
+      threshold_mm: 115.6,
+      threshold_name: 'Very Heavy Rain',
+      category: 'OPERATIONAL',
+      exceedance_probability: 0.0,
+      decision_threshold_tau: 0.5,
+      advisory_status: 'NORMAL_ADVISORY',
+    },
+  ],
+  model_metadata: {
+    regime_classifier: 'Phase 4 GradientBoosting',
+    deterministic_postprocessor: 'Phase 6 RegimeAware',
+    probability_engine: 'Phase 7 Platt-Calibrated',
+  },
+  data_status: 'REAL_DATA',
+  prediction_source: 'verified_model_artifacts',
+  timestamp: '2026-09-22T00:00:00Z',
+};
+
+const mockDistricts: DistrictItem[] = [
+  {
+    district_id: 'pune',
+    name: 'PUNE BENCHMARK STATION',
+    state: 'Maharashtra',
+    latitude: 18.5204,
+    longitude: 73.8567,
+    coverage_status: 'BENCHMARK_ACTIVE',
+  },
+  {
+    district_id: 'nagpur',
+    name: 'Nagpur',
+    state: 'Maharashtra',
+    latitude: 21.1458,
+    longitude: 79.0882,
+    coverage_status: 'REFERENCE_ONLY',
+  },
+  {
+    district_id: 'bhopal',
+    name: 'Bhopal',
+    state: 'Madhya Pradesh',
+    latitude: 23.2599,
+    longitude: 77.4126,
+    coverage_status: 'REFERENCE_ONLY',
+  },
+];
+
+const mockVerificationSummary: VerificationSummaryResponse = {
+  test_period: 'June 1 - June 30, 2024',
+  test_sample_count: 31,
+  continuous_metrics: {
+    'Raw NWP': {
+      rmse: 11.62,
+      mae: 8.35,
+      mean_bias: 2.76,
+      pearson_r: 0.41,
+      mean_forecast: 9.2,
+      mean_observed: 6.44,
+      sample_count: 31,
+    },
+    'Global ML': {
+      rmse: 9.03,
+      mae: 6.63,
+      mean_bias: -1.57,
+      pearson_r: 0.29,
+      mean_forecast: 4.86,
+      mean_observed: 6.44,
+      sample_count: 31,
+    },
+    'Regime-Aware ML': {
+      rmse: 9.61,
+      mae: 6.66,
+      mean_bias: -2.35,
+      pearson_r: 0.1,
+      mean_forecast: 4.09,
+      mean_observed: 6.44,
+      sample_count: 31,
+    },
+  },
+  categorical_metrics: {
+    'Raw NWP': {
+      '2.5': {
+        threshold_mm: 2.5,
+        category: 'OPERATIONAL',
+        contingency_table: { H: 10, F: 8, M: 3, C: 10, total: 31, observed_events: 13, forecast_events: 18 },
+        POD: 0.769,
+        FAR: 0.444,
+        CSI: 0.476,
+        ETS: 0.182,
+      },
+    },
+    'Global ML': {
+      '2.5': {
+        threshold_mm: 2.5,
+        category: 'OPERATIONAL',
+        contingency_table: { H: 10, F: 4, M: 3, C: 14, total: 31, observed_events: 13, forecast_events: 14 },
+        POD: 0.769,
+        FAR: 0.286,
+        CSI: 0.588,
+        ETS: 0.386,
+      },
+    },
+    'Regime-Aware ML': {
+      '2.5': {
+        threshold_mm: 2.5,
+        category: 'OPERATIONAL',
+        contingency_table: { H: 9, F: 4, M: 4, C: 14, total: 31, observed_events: 13, forecast_events: 13 },
+        POD: 0.692,
+        FAR: 0.308,
+        CSI: 0.529,
+        ETS: 0.312,
+      },
+    },
+  },
+  uncertainty_intervals_95: {},
+  fss: {
+    metric: 'FSS',
+    status: 'NOT_COMPUTABLE',
+    reason: 'Current evaluation data is point-based and lacks the required 2-D spatial forecast/observation grid.',
+  },
+  scientific_conclusion: 'Global ML achieves lowest overall RMSE (9.03 mm vs Raw NWP 11.62 mm).',
+  data_status: 'REAL_DATA',
+};
+
+describe('VarshaPurvanumanAI Frontend Component Suite', () => {
+  it('1. Header renders SIH branding and REAL DATA badge by default', () => {
+    render(
+      <Header
+        apiConnected={true}
+        dataStatus="REAL_DATA"
+        isDarkMode={false}
+        onToggleTheme={vi.fn()}
+        isDemoMode={false}
+        onToggleDemoMode={vi.fn()}
+        onRefresh={vi.fn()}
+        isRefreshing={false}
+      />
+    );
+
+    expect(screen.getByText('VarshaPurvanumanAI')).toBeInTheDocument();
+    expect(screen.getByText('SIH26080')).toBeInTheDocument();
+    expect(screen.getByText('REAL DATA')).toBeInTheDocument();
+    expect(screen.getByText('API Connected')).toBeInTheDocument();
+  });
+
+  it('2. Header displays DEMO DATA badge when demo mode is active', () => {
+    render(
+      <Header
+        apiConnected={true}
+        dataStatus="DEMO_DATA"
+        isDarkMode={false}
+        onToggleTheme={vi.fn()}
+        isDemoMode={true}
+        onToggleDemoMode={vi.fn()}
+        onRefresh={vi.fn()}
+        isRefreshing={false}
+      />
+    );
+
+    expect(screen.getByText('DEMO DATA')).toBeInTheDocument();
+  });
+
+  it('3. ForecastSummaryCards renders station-level benchmark labeling', () => {
+    render(
+      <ForecastSummaryCards
+        forecast={mockForecast}
+        stationName="PUNE BENCHMARK STATION"
+        isStationLevelBenchmark={true}
+      />
+    );
+
+    expect(screen.getByText(/Target Location: PUNE BENCHMARK STATION/i)).toBeInTheDocument();
+    expect(screen.getByText(/Station-level benchmark/i)).toBeInTheDocument();
+    expect(screen.getByText('5.4')).toBeInTheDocument(); // Raw NWP
+    expect(screen.getByText('3.3')).toBeInTheDocument(); // Corrected (toFixed(1))
+  });
+
+  it('4. WeatherRegimePanel displays PREDICTED REGIME and class posterior distribution', () => {
+    render(
+      <WeatherRegimePanel
+        predictedRegime="OTHER"
+        probabilities={mockForecast.regime_probabilities}
+        confidence={0.95}
+        selectedModel="dedicated_other"
+      />
+    );
+
+    expect(screen.getByText('PREDICTED REGIME')).toBeInTheDocument();
+    expect(screen.getAllByText('Other / Transitional').length).toBe(2);
+    expect(screen.getByText('Confidence: 95.0%')).toBeInTheDocument();
+    expect(screen.getByText('dedicated_other')).toBeInTheDocument();
+  });
+
+  it('5. ProbabilityPanel renders 5 thresholds, official disclaimer, and limited validation alert', () => {
+    render(
+      <ProbabilityPanel
+        probabilities={mockForecast.heavy_rainfall_probabilities}
+        disclaimer="MODEL EXCEEDANCE PROBABILITIES ARE SCIENTIFIC NUMERICAL ESTIMATES AND DO NOT CONSTITUTE OFFICIAL IMD WEATHER WARNINGS."
+      />
+    );
+
+    expect(screen.getByText('MODEL EXCEEDANCE PROBABILITY')).toBeInTheDocument();
+    expect(screen.getByText('Official warning data unavailable')).toBeInTheDocument();
+    expect(screen.getByText('≥ 2.5 mm')).toBeInTheDocument();
+    expect(screen.getByText('≥ 64.5 mm')).toBeInTheDocument();
+    expect(screen.getByText('≥ 115.6 mm')).toBeInTheDocument();
+
+    // Check limited validation notices for 64.5 and 115.6
+    const alertNotices = screen.getAllByText(/Limited validation data \(0 test events\)/i);
+    expect(alertNotices.length).toBe(2);
+  });
+
+  it('6. VerificationDashboard displays 3-model comparison and FSS NOT_COMPUTABLE', () => {
+    render(
+      <VerificationDashboard
+        summary={mockVerificationSummary}
+        probabilityMetrics={null}
+        regimeMetrics={null}
+        isLoading={false}
+      />
+    );
+
+    expect(screen.getByText('11.62 mm')).toBeInTheDocument(); // Raw NWP
+    expect(screen.getAllByText(/9.03 mm/).length).toBeGreaterThanOrEqual(1); // Global ML
+    expect(screen.getAllByText(/9.61 mm/).length).toBeGreaterThanOrEqual(1); // Regime-Aware ML
+
+    // Strict FSS NOT_COMPUTABLE check
+    expect(screen.getByText('NOT_COMPUTABLE')).toBeInTheDocument();
+    expect(screen.getByText(/Current evaluation data is point-based/i)).toBeInTheDocument();
+  });
+
+  it('7. ForecastTable renders rows, allows search filtering, and handles unavailable data', () => {
+    const onSelectDistrict = vi.fn();
+    render(
+      <ForecastTable
+        districts={mockDistricts}
+        selectedDistrictId="pune"
+        onSelectDistrict={onSelectDistrict}
+        activeForecast={mockForecast}
+      />
+    );
+
+    expect(screen.getByText('PUNE BENCHMARK STATION')).toBeInTheDocument();
+    expect(screen.getByText('Nagpur')).toBeInTheDocument();
+
+    // Search filter test
+    const searchInput = screen.getByPlaceholderText('Search district...');
+    fireEvent.change(searchInput, { target: { value: 'Bhopal' } });
+
+    expect(screen.getByText('Bhopal')).toBeInTheDocument();
+    expect(screen.queryByText('Nagpur')).not.toBeInTheDocument();
+  });
+
+  it('8. DistrictDetailPanel handles unmonitored district with DATA UNAVAILABLE notice', () => {
+    const unmonitoredResp: DistrictForecastResponse = {
+      district_id: 'nagpur',
+      name: 'Nagpur',
+      latitude: 21.1458,
+      longitude: 79.0882,
+      coverage_status: 'DATA_UNAVAILABLE',
+      forecast: null,
+      message: "District-level data unavailable for 'Nagpur'. Real forecast data is currently available only for the PUNE BENCHMARK STATION.",
+      data_status: 'REAL_DATA',
+    };
+
+    render(
+      <DistrictDetailPanel
+        districtForecast={unmonitoredResp}
+        isLoading={false}
+      />
+    );
+
+    expect(screen.getByText('DISTRICT-LEVEL DATA UNAVAILABLE')).toBeInTheDocument();
+    expect(screen.getByText(/District-level data unavailable for 'Nagpur'/i)).toBeInTheDocument();
+  });
+
+  it('9. LimitationsPanel displays mandatory scientific caveats', () => {
+    render(<LimitationsPanel />);
+
+    expect(screen.getByText(/Held-Out Test Window \(June 2024\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Zero ≥64.5 mm Events/i)).toBeInTheDocument();
+    expect(screen.getByText(/Spatial Verification: FSS Not Computable/i)).toBeInTheDocument();
+    expect(screen.getByText(/Station-Level Benchmark vs Regional Aggregates/i)).toBeInTheDocument();
+  });
+
+  it('10. Fix 1 Regression: ForecastSummaryCards renders explicit DATA UNAVAILABLE and no Pune values when forecast is null', () => {
+    const onSelectPuneBenchmark = vi.fn();
+    render(
+      <ForecastSummaryCards
+        forecast={null}
+        stationName="Nagpur"
+        isStationLevelBenchmark={false}
+        onSelectPuneBenchmark={onSelectPuneBenchmark}
+      />
+    );
+
+    // Confirm explicit unavailable state & message
+    expect(screen.getAllByText('DISTRICT-LEVEL DATA UNAVAILABLE').length).toBeGreaterThanOrEqual(1);
+    expect(
+      screen.getByText(/No verified forecast is currently available for this district/i)
+    ).toBeInTheDocument();
+
+    // Confirm Pune rainfall numbers are NOT rendered
+    expect(screen.queryByText('5.4')).not.toBeInTheDocument();
+    expect(screen.queryByText('3.3')).not.toBeInTheDocument();
+    expect(screen.queryByText('0.0 mm')).not.toBeInTheDocument();
+
+    // Confirm navigation button exists and identifies Pune benchmark station
+    const returnBtn = screen.getByText(/View Pune Benchmark Station Telemetry \(Station-level benchmark • 18.50°N, 73.80°E\)/i);
+    expect(returnBtn).toBeInTheDocument();
+
+    // Click button and confirm callback fires
+    fireEvent.click(returnBtn);
+    expect(onSelectPuneBenchmark).toHaveBeenCalledTimes(1);
+  });
+
+  it('11. Fix 1 Regression Flow: Pune Benchmark -> Unmonitored (Nagpur/Mumbai) -> Return to Pune', () => {
+    // 1. Initial State: Pune Benchmark Active
+    const { rerender } = render(
+      <ForecastSummaryCards
+        forecast={mockForecast}
+        stationName="PUNE BENCHMARK STATION"
+        isStationLevelBenchmark={true}
+      />
+    );
+
+    expect(screen.getByText('5.4')).toBeInTheDocument();
+    expect(screen.getByText('3.3')).toBeInTheDocument();
+    expect(screen.getByText(/Station-level benchmark/i)).toBeInTheDocument();
+
+    // 2. Select Unmonitored District (Nagpur): forecast becomes null
+    const onReturnToPune = vi.fn();
+    rerender(
+      <ForecastSummaryCards
+        forecast={null}
+        stationName="Nagpur"
+        isStationLevelBenchmark={false}
+        onSelectPuneBenchmark={onReturnToPune}
+      />
+    );
+
+    expect(screen.queryByText('5.4')).not.toBeInTheDocument();
+    expect(screen.queryByText('3.3')).not.toBeInTheDocument();
+    expect(screen.getAllByText('DISTRICT-LEVEL DATA UNAVAILABLE').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/Target Location: Nagpur/i)).toBeInTheDocument();
+
+    // 3. Test another unmonitored district (Mumbai)
+    rerender(
+      <ForecastSummaryCards
+        forecast={null}
+        stationName="Mumbai"
+        isStationLevelBenchmark={false}
+        onSelectPuneBenchmark={onReturnToPune}
+      />
+    );
+
+    expect(screen.queryByText('5.4')).not.toBeInTheDocument();
+    expect(screen.queryByText('3.3')).not.toBeInTheDocument();
+    expect(screen.getByText(/Target Location: Mumbai/i)).toBeInTheDocument();
+
+    // 4. Return to Pune Benchmark
+    rerender(
+      <ForecastSummaryCards
+        forecast={mockForecast}
+        stationName="PUNE BENCHMARK STATION"
+        isStationLevelBenchmark={true}
+      />
+    );
+
+    // Confirm Pune forecast values correctly reappear
+    expect(screen.getByText('5.4')).toBeInTheDocument();
+    expect(screen.getByText('3.3')).toBeInTheDocument();
+    expect(screen.getByText(/Target Location: PUNE BENCHMARK STATION/i)).toBeInTheDocument();
+  });
+});

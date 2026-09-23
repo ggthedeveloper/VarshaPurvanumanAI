@@ -1,0 +1,797 @@
+{
+  "test_period": "June 1 - June 30, 2024",
+  "test_sample_count": 31,
+  "continuous_metrics": {
+    "Raw NWP": {
+      "rmse": 11.620498296235326,
+      "mae": 8.34663290851613,
+      "mean_bias": 2.7581671138709662,
+      "pearson_r": 0.40896732101722055,
+      "mean_forecast": 9.196774193548388,
+      "mean_observed": 6.438607079677419,
+      "sample_count": 31
+    },
+    "Global ML": {
+      "rmse": 9.028789572555368,
+      "mae": 6.629389951444808,
+      "mean_bias": -1.5740536853978293,
+      "pearson_r": 0.29279866108096964,
+      "mean_forecast": 4.86455339427959,
+      "mean_observed": 6.438607079677419,
+      "sample_count": 31
+    },
+    "Regime-Aware ML": {
+      "rmse": 9.606095553213088,
+      "mae": 6.66098123820223,
+      "mean_bias": -2.351713222769261,
+      "pearson_r": 0.10197422686500693,
+      "mean_forecast": 4.0868938569081585,
+      "mean_observed": 6.438607079677419,
+      "sample_count": 31
+    }
+  },
+  "categorical_metrics": {
+    "Raw NWP": {
+      "2.5": {
+        "threshold_mm": 2.5,
+        "category": "OPERATIONAL",
+        "contingency_table": {
+          "H": 10,
+          "F": 8,
+          "M": 3,
+          "C": 10,
+          "total": 31,
+          "observed_events": 13,
+          "forecast_events": 18
+        },
+        "POD": 0.7692307692307693,
+        "FAR": 0.4444444444444444,
+        "CSI": 0.47619047619047616,
+        "ETS": 0.18225419664268583,
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+        "sample_sufficiency": "SUFFICIENT"
+      },
+      "7.5": {
+        "threshold_mm": 7.5,
+        "category": "EXPERIMENTAL",
+        "contingency_table": {
+          "H": 6,
+          "F": 7,
+          "M": 4,
+          "C": 14,
+          "total": 31,
+          "observed_events": 10,
+          "forecast_events": 13
+        },
+        "POD": 0.6,
+        "FAR": 0.5384615384615384,
+        "CSI": 0.35294117647058826,
+        "ETS": 0.14105793450881612,
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+        "sample_sufficiency": "SUFFICIENT"
+      },
+      "15.6": {
+        "threshold_mm": 15.6,
+        "category": "OPERATIONAL",
+        "contingency_table": {
+          "H": 2,
+          "F": 5,
+          "M": 4,
+          "C": 20,
+          "total": 31,
+          "observed_events": 6,
+          "forecast_events": 7
+        },
+        "POD": 0.3333333333333333,
+        "FAR": 0.7142857142857143,
+        "CSI": 0.18181818181818182,
+        "ETS": 0.06688963210702342,
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+        "sample_sufficiency": "SUFFICIENT"
+      },
+      "64.5": {
+        "threshold_mm": 64.5,
+        "category": "OPERATIONAL",
+        "contingency_table": {
+          "H": 0,
+          "F": 0,
+          "M": 0,
+          "C": 31,
+          "total": 31,
+          "observed_events": 0,
+          "forecast_events": 0
+        },
+        "POD": "NOT COMPUTABLE",
+        "FAR": "NOT COMPUTABLE",
+        "CSI": "NOT COMPUTABLE",
+        "ETS": "NOT COMPUTABLE",
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+        "sample_sufficiency": "INSUFFICIENT TEST EVENTS"
+      },
+      "115.6": {
+        "threshold_mm": 115.6,
+        "category": "OPERATIONAL",
+        "contingency_table": {
+          "H": 0,
+          "F": 0,
+          "M": 0,
+          "C": 31,
+          "total": 31,
+          "observed_events": 0,
+          "forecast_events": 0
+        },
+        "POD": "NOT COMPUTABLE",
+        "FAR": "NOT COMPUTABLE",
+        "CSI": "NOT COMPUTABLE",
+        "ETS": "NOT COMPUTABLE",
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+        "sample_sufficiency": "INSUFFICIENT TEST EVENTS"
+      }
+    },
+    "Global ML": {
+      "2.5": {
+        "threshold_mm": 2.5,
+        "category": "OPERATIONAL",
+        "contingency_table": {
+          "H": 11,
+          "F": 12,
+          "M": 2,
+          "C": 6,
+          "total": 31,
+          "observed_events": 13,
+          "forecast_events": 23
+        },
+        "POD": 0.8461538461538461,
+        "FAR": 0.5217391304347826,
+        "CSI": 0.44,
+        "ETS": 0.08823529411764709,
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+        "sample_sufficiency": "SUFFICIENT"
+      },
+      "7.5": {
+        "threshold_mm": 7.5,
+        "category": "EXPERIMENTAL",
+        "contingency_table": {
+          "H": 3,
+          "F": 5,
+          "M": 7,
+          "C": 16,
+          "total": 31,
+          "observed_events": 10,
+          "forecast_events": 8
+        },
+        "POD": 0.3,
+        "FAR": 0.625,
+        "CSI": 0.2,
+        "ETS": 0.03376623376623377,
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+        "sample_sufficiency": "SUFFICIENT"
+      },
+      "15.6": {
+        "threshold_mm": 15.6,
+        "category": "OPERATIONAL",
+        "contingency_table": {
+          "H": 0,
+          "F": 0,
+          "M": 6,
+          "C": 25,
+          "total": 31,
+          "observed_events": 6,
+          "forecast_events": 0
+        },
+        "POD": 0.0,
+        "FAR": "NOT COMPUTABLE",
+        "CSI": 0.0,
+        "ETS": 0.0,
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+        "sample_sufficiency": "SUFFICIENT"
+      },
+      "64.5": {
+        "threshold_mm": 64.5,
+        "category": "OPERATIONAL",
+        "contingency_table": {
+          "H": 0,
+          "F": 0,
+          "M": 0,
+          "C": 31,
+          "total": 31,
+          "observed_events": 0,
+          "forecast_events": 0
+        },
+        "POD": "NOT COMPUTABLE",
+        "FAR": "NOT COMPUTABLE",
+        "CSI": "NOT COMPUTABLE",
+        "ETS": "NOT COMPUTABLE",
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+        "sample_sufficiency": "INSUFFICIENT TEST EVENTS"
+      },
+      "115.6": {
+        "threshold_mm": 115.6,
+        "category": "OPERATIONAL",
+        "contingency_table": {
+          "H": 0,
+          "F": 0,
+          "M": 0,
+          "C": 31,
+          "total": 31,
+          "observed_events": 0,
+          "forecast_events": 0
+        },
+        "POD": "NOT COMPUTABLE",
+        "FAR": "NOT COMPUTABLE",
+        "CSI": "NOT COMPUTABLE",
+        "ETS": "NOT COMPUTABLE",
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+        "sample_sufficiency": "INSUFFICIENT TEST EVENTS"
+      }
+    },
+    "Regime-Aware ML": {
+      "2.5": {
+        "threshold_mm": 2.5,
+        "category": "OPERATIONAL",
+        "contingency_table": {
+          "H": 11,
+          "F": 12,
+          "M": 2,
+          "C": 6,
+          "total": 31,
+          "observed_events": 13,
+          "forecast_events": 23
+        },
+        "POD": 0.8461538461538461,
+        "FAR": 0.5217391304347826,
+        "CSI": 0.44,
+        "ETS": 0.08823529411764709,
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+        "sample_sufficiency": "SUFFICIENT"
+      },
+      "7.5": {
+        "threshold_mm": 7.5,
+        "category": "EXPERIMENTAL",
+        "contingency_table": {
+          "H": 0,
+          "F": 2,
+          "M": 10,
+          "C": 19,
+          "total": 31,
+          "observed_events": 10,
+          "forecast_events": 2
+        },
+        "POD": 0.0,
+        "FAR": 1.0,
+        "CSI": 0.0,
+        "ETS": -0.056818181818181816,
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+        "sample_sufficiency": "SUFFICIENT"
+      },
+      "15.6": {
+        "threshold_mm": 15.6,
+        "category": "OPERATIONAL",
+        "contingency_table": {
+          "H": 0,
+          "F": 0,
+          "M": 6,
+          "C": 25,
+          "total": 31,
+          "observed_events": 6,
+          "forecast_events": 0
+        },
+        "POD": 0.0,
+        "FAR": "NOT COMPUTABLE",
+        "CSI": 0.0,
+        "ETS": 0.0,
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+        "sample_sufficiency": "SUFFICIENT"
+      },
+      "64.5": {
+        "threshold_mm": 64.5,
+        "category": "OPERATIONAL",
+        "contingency_table": {
+          "H": 0,
+          "F": 0,
+          "M": 0,
+          "C": 31,
+          "total": 31,
+          "observed_events": 0,
+          "forecast_events": 0
+        },
+        "POD": "NOT COMPUTABLE",
+        "FAR": "NOT COMPUTABLE",
+        "CSI": "NOT COMPUTABLE",
+        "ETS": "NOT COMPUTABLE",
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+        "sample_sufficiency": "INSUFFICIENT TEST EVENTS"
+      },
+      "115.6": {
+        "threshold_mm": 115.6,
+        "category": "OPERATIONAL",
+        "contingency_table": {
+          "H": 0,
+          "F": 0,
+          "M": 0,
+          "C": 31,
+          "total": 31,
+          "observed_events": 0,
+          "forecast_events": 0
+        },
+        "POD": "NOT COMPUTABLE",
+        "FAR": "NOT COMPUTABLE",
+        "CSI": "NOT COMPUTABLE",
+        "ETS": "NOT COMPUTABLE",
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+        "sample_sufficiency": "INSUFFICIENT TEST EVENTS"
+      }
+    }
+  },
+  "uncertainty_intervals_95": {
+    "Raw NWP": {
+      "rmse_ci": [
+        8.312022379153756,
+        15.114893848198854
+      ],
+      "mae_ci": [
+        5.342256852687903,
+        12.343762230236285
+      ],
+      "bias_ci": [
+        -0.7335956388532248,
+        6.447149416191934
+      ]
+    },
+    "Global ML": {
+      "rmse_ci": [
+        5.481989429539022,
+        12.4030388591213
+      ],
+      "mae_ci": [
+        4.513660961938117,
+        9.601397664018357
+      ],
+      "bias_ci": [
+        -5.788188908720794,
+        1.7718170277899856
+      ]
+    },
+    "Regime-Aware ML": {
+      "rmse_ci": [
+        5.517183115340949,
+        13.354169412384241
+      ],
+      "mae_ci": [
+        4.420232302230408,
+        9.878132389766945
+      ],
+      "bias_ci": [
+        -6.923360381037716,
+        1.2572635427814842
+      ]
+    }
+  },
+  "regime_wise_metrics": {
+    "ACTIVE_MONSOON": {
+      "sample_count": 0,
+      "status": "NOT COMPUTABLE (NO TEST SAMPLES)",
+      "models": {}
+    },
+    "BREAK_MONSOON": {
+      "sample_count": 0,
+      "status": "NOT COMPUTABLE (NO TEST SAMPLES)",
+      "models": {}
+    },
+    "COASTAL_OROGRAPHIC": {
+      "sample_count": 1,
+      "status": "INSUFFICIENT SAMPLE SIZE",
+      "models": {
+        "Raw NWP": {
+          "rmse": 2.351251638,
+          "mean_obs": 0.748748362
+        },
+        "Global ML": {
+          "rmse": 2.722425503504299,
+          "mean_obs": 0.748748362
+        },
+        "Regime-Aware ML": {
+          "rmse": 4.671580928653833,
+          "mean_obs": 0.748748362
+        }
+      }
+    },
+    "DEPRESSION": {
+      "sample_count": 0,
+      "status": "NOT COMPUTABLE (NO TEST SAMPLES)",
+      "models": {}
+    },
+    "OTHER": {
+      "sample_count": 30,
+      "status": "EVALUATED",
+      "models": {
+        "Raw NWP": {
+          "rmse": 11.804782951515675,
+          "mae": 8.546478950866666,
+          "bias": 2.7717309630666653
+        },
+        "Global ML": {
+          "rmse": 9.16456704721667,
+          "mae": 6.759622099709492,
+          "bias": -1.7172696583612335
+        },
+        "Regime-Aware ML": {
+          "rmse": 9.72756488323826,
+          "mae": 6.727294581853843,
+          "bias": -2.5858230278166974
+        }
+      }
+    }
+  },
+  "probability_metrics": {
+    "global_probability_model": {
+      "2.5": {
+        "threshold_mm": 2.5,
+        "decision_threshold": 0.3,
+        "sample_count": 31,
+        "positive_count": 13,
+        "negative_count": 18,
+        "base_rate": 0.41935483870967744,
+        "brier_score": 0.23244432787576988,
+        "reliability": 0.005059581936803574,
+        "resolution": 0.010358528048434396,
+        "uncertainty": 0.24349635796045785,
+        "brier_skill_score": 0.04538889278369718,
+        "roc_auc": 0.6581196581196582,
+        "pr_auc": 0.6116920729192503,
+        "expected_calibration_error": 0.05401581956084793,
+        "maximum_calibration_error": 0.1145882549972595,
+        "POD": 0.9230769230769231,
+        "FAR": 0.5714285714285714,
+        "CSI": 0.41379310344827586,
+        "ETS": 0.01495327102803737,
+        "precision": 0.42857142857142855,
+        "recall": 0.9230769230769231,
+        "f1": 0.5853658536585366,
+        "contingency_table": {
+          "H": 12,
+          "F": 16,
+          "M": 1,
+          "C": 2,
+          "total": 31,
+          "observed_events": 13,
+          "forecast_events": 28
+        },
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED PROBABILITY DATA"
+      },
+      "7.5": {
+        "threshold_mm": 7.5,
+        "decision_threshold": 0.3,
+        "sample_count": 31,
+        "positive_count": 10,
+        "negative_count": 21,
+        "base_rate": 0.3225806451612903,
+        "brier_score": 0.2210850711249159,
+        "reliability": 0.03355381691965561,
+        "resolution": 0.03227045240572816,
+        "uncertainty": 0.21852237252861603,
+        "brier_skill_score": -0.011727396909734233,
+        "roc_auc": 0.6333333333333333,
+        "pr_auc": 0.4802380952380952,
+        "expected_calibration_error": 0.12688937279245613,
+        "maximum_calibration_error": 0.47871336321665625,
+        "POD": 0.3,
+        "FAR": 0.4,
+        "CSI": 0.25,
+        "ETS": 0.13354037267080746,
+        "precision": 0.6,
+        "recall": 0.3,
+        "f1": 0.4,
+        "contingency_table": {
+          "H": 3,
+          "F": 2,
+          "M": 7,
+          "C": 19,
+          "total": 31,
+          "observed_events": 10,
+          "forecast_events": 5
+        },
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED PROBABILITY DATA"
+      },
+      "15.6": {
+        "threshold_mm": 15.6,
+        "decision_threshold": 0.1,
+        "sample_count": 31,
+        "positive_count": 6,
+        "negative_count": 25,
+        "base_rate": 0.1935483870967742,
+        "brier_score": 0.1642708765241538,
+        "reliability": 0.009743539461208636,
+        "resolution": 0.0021161430232863178,
+        "uncertainty": 0.15608740894901144,
+        "brier_skill_score": -0.05242874893141214,
+        "roc_auc": 0.5666666666666667,
+        "pr_auc": 0.27200577200577203,
+        "expected_calibration_error": 0.09264758344364371,
+        "maximum_calibration_error": 0.12355494636392719,
+        "POD": 0.6666666666666666,
+        "FAR": 0.7647058823529411,
+        "CSI": 0.21052631578947367,
+        "ETS": 0.04517453798767966,
+        "precision": 0.23529411764705882,
+        "recall": 0.6666666666666666,
+        "f1": 0.3478260869565218,
+        "contingency_table": {
+          "H": 4,
+          "F": 13,
+          "M": 2,
+          "C": 12,
+          "total": 31,
+          "observed_events": 6,
+          "forecast_events": 17
+        },
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED PROBABILITY DATA"
+      },
+      "64.5": {
+        "threshold_mm": 64.5,
+        "decision_threshold": 0.5,
+        "sample_count": 31,
+        "positive_count": 0,
+        "negative_count": 31,
+        "base_rate": 0.0,
+        "brier_score": 4.287019680291949e-08,
+        "reliability": 4.2828173263832814e-08,
+        "resolution": 0.0,
+        "uncertainty": 0.0,
+        "brier_skill_score": null,
+        "roc_auc": "INSUFFICIENT CLASS VARIATION",
+        "pr_auc": "INSUFFICIENT CLASS VARIATION",
+        "expected_calibration_error": 0.0002069496877596891,
+        "maximum_calibration_error": 0.0002069496877596891,
+        "POD": null,
+        "FAR": null,
+        "CSI": null,
+        "ETS": null,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "contingency_table": {
+          "H": 0,
+          "F": 0,
+          "M": 0,
+          "C": 31,
+          "total": 31,
+          "observed_events": 0,
+          "forecast_events": 0
+        },
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED PROBABILITY DATA"
+      },
+      "115.6": {
+        "threshold_mm": 115.6,
+        "decision_threshold": 0.5,
+        "sample_count": 31,
+        "positive_count": 0,
+        "negative_count": 31,
+        "base_rate": 0.0,
+        "brier_score": 0.0,
+        "reliability": 0.0,
+        "resolution": 0.0,
+        "uncertainty": 0.0,
+        "brier_skill_score": null,
+        "roc_auc": "INSUFFICIENT CLASS VARIATION",
+        "pr_auc": "INSUFFICIENT CLASS VARIATION",
+        "expected_calibration_error": 0.0,
+        "maximum_calibration_error": 0.0,
+        "POD": null,
+        "FAR": null,
+        "CSI": null,
+        "ETS": null,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "contingency_table": {
+          "H": 0,
+          "F": 0,
+          "M": 0,
+          "C": 31,
+          "total": 31,
+          "observed_events": 0,
+          "forecast_events": 0
+        },
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED PROBABILITY DATA"
+      }
+    },
+    "regime_aware_probability_model": {
+      "2.5": {
+        "threshold_mm": 2.5,
+        "decision_threshold": 0.3,
+        "sample_count": 31,
+        "positive_count": 13,
+        "negative_count": 18,
+        "base_rate": 0.41935483870967744,
+        "brier_score": 0.24179746524045756,
+        "reliability": 0.01039995117375674,
+        "resolution": 0.010049838435839857,
+        "uncertainty": 0.24349635796045785,
+        "brier_skill_score": 0.006977076512479807,
+        "roc_auc": 0.5940170940170941,
+        "pr_auc": 0.5583102441074577,
+        "expected_calibration_error": 0.0889094642868214,
+        "maximum_calibration_error": 0.12854993813919707,
+        "POD": 0.8461538461538461,
+        "FAR": 0.5217391304347826,
+        "CSI": 0.44,
+        "ETS": 0.08823529411764709,
+        "precision": 0.4782608695652174,
+        "recall": 0.8461538461538461,
+        "f1": 0.6111111111111112,
+        "contingency_table": {
+          "H": 11,
+          "F": 12,
+          "M": 2,
+          "C": 6,
+          "total": 31,
+          "observed_events": 13,
+          "forecast_events": 23
+        },
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED PROBABILITY DATA"
+      },
+      "7.5": {
+        "threshold_mm": 7.5,
+        "decision_threshold": 0.2,
+        "sample_count": 31,
+        "positive_count": 10,
+        "negative_count": 21,
+        "base_rate": 0.3225806451612903,
+        "brier_score": 0.24761805093191044,
+        "reliability": 0.06046623341220271,
+        "resolution": 0.03017111804832929,
+        "uncertainty": 0.21852237252861603,
+        "brier_skill_score": -0.13314736640745672,
+        "roc_auc": 0.34285714285714286,
+        "pr_auc": 0.26218871589758513,
+        "expected_calibration_error": 0.23267397570909926,
+        "maximum_calibration_error": 0.3320163392377625,
+        "POD": 0.1,
+        "FAR": 0.9090909090909091,
+        "CSI": 0.05,
+        "ETS": -0.1549019607843137,
+        "precision": 0.09090909090909091,
+        "recall": 0.1,
+        "f1": 0.09523809523809525,
+        "contingency_table": {
+          "H": 1,
+          "F": 10,
+          "M": 9,
+          "C": 11,
+          "total": 31,
+          "observed_events": 10,
+          "forecast_events": 11
+        },
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED PROBABILITY DATA"
+      },
+      "15.6": {
+        "threshold_mm": 15.6,
+        "decision_threshold": 0.1,
+        "sample_count": 31,
+        "positive_count": 6,
+        "negative_count": 25,
+        "base_rate": 0.1935483870967742,
+        "brier_score": 0.17122528751008412,
+        "reliability": 0.014432963256085132,
+        "resolution": 0.0,
+        "uncertainty": 0.15608740894901144,
+        "brier_skill_score": -0.09698334198127223,
+        "roc_auc": 0.41333333333333333,
+        "pr_auc": 0.18411952483354282,
+        "expected_calibration_error": 0.1201372683894766,
+        "maximum_calibration_error": 0.1201372683894766,
+        "POD": 0.0,
+        "FAR": null,
+        "CSI": 0.0,
+        "ETS": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "contingency_table": {
+          "H": 0,
+          "F": 0,
+          "M": 6,
+          "C": 25,
+          "total": 31,
+          "observed_events": 6,
+          "forecast_events": 0
+        },
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED PROBABILITY DATA"
+      },
+      "64.5": {
+        "threshold_mm": 64.5,
+        "decision_threshold": 0.5,
+        "sample_count": 31,
+        "positive_count": 0,
+        "negative_count": 31,
+        "base_rate": 0.0,
+        "brier_score": 4.287019680291949e-08,
+        "reliability": 4.2828173263832814e-08,
+        "resolution": 0.0,
+        "uncertainty": 0.0,
+        "brier_skill_score": null,
+        "roc_auc": "INSUFFICIENT CLASS VARIATION",
+        "pr_auc": "INSUFFICIENT CLASS VARIATION",
+        "expected_calibration_error": 0.0002069496877596891,
+        "maximum_calibration_error": 0.0002069496877596891,
+        "POD": null,
+        "FAR": null,
+        "CSI": null,
+        "ETS": null,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "contingency_table": {
+          "H": 0,
+          "F": 0,
+          "M": 0,
+          "C": 31,
+          "total": 31,
+          "observed_events": 0,
+          "forecast_events": 0
+        },
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED PROBABILITY DATA"
+      },
+      "115.6": {
+        "threshold_mm": 115.6,
+        "decision_threshold": 0.5,
+        "sample_count": 31,
+        "positive_count": 0,
+        "negative_count": 31,
+        "base_rate": 0.0,
+        "brier_score": 0.0,
+        "reliability": 0.0,
+        "resolution": 0.0,
+        "uncertainty": 0.0,
+        "brier_skill_score": null,
+        "roc_auc": "INSUFFICIENT CLASS VARIATION",
+        "pr_auc": "INSUFFICIENT CLASS VARIATION",
+        "expected_calibration_error": 0.0,
+        "maximum_calibration_error": 0.0,
+        "POD": null,
+        "FAR": null,
+        "CSI": null,
+        "ETS": null,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "contingency_table": {
+          "H": 0,
+          "F": 0,
+          "M": 0,
+          "C": 31,
+          "total": 31,
+          "observed_events": 0,
+          "forecast_events": 0
+        },
+        "fss": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED PROBABILITY DATA"
+      }
+    }
+  },
+  "error_analysis": {
+    "Raw NWP": {
+      "overprediction_days": 17,
+      "underprediction_days": 7,
+      "neutral_days": 7,
+      "max_overprediction_mm": 27.998262024,
+      "max_underprediction_mm": -23.64752464
+    },
+    "Global ML": {
+      "overprediction_days": 20,
+      "underprediction_days": 11,
+      "neutral_days": 0,
+      "max_overprediction_mm": 9.149937572170801,
+      "max_underprediction_mm": -25.57624170904877
+    },
+    "Regime-Aware ML": {
+      "overprediction_days": 18,
+      "underprediction_days": 11,
+      "neutral_days": 2,
+      "max_overprediction_mm": 8.508080359961536,
+      "max_underprediction_mm": -26.229360050824834
+    }
+  },
+  "spatial_fss_status": "FSS NOT COMPUTABLE FOR CURRENT POINT-BASED DATA",
+  "scientific_conclusion": "MIXED RESULTS"
+}

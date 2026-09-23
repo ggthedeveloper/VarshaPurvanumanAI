@@ -1,0 +1,26 @@
+{
+  "dataset_version": "v1.0.0-real-paired-monsoon",
+  "observation_source": "IMD 0.25\u00b0 Gridded Daily Precipitation (Zenodo Benchmark ID: 14725350)",
+  "nwp_source": "NOAA GFS 0.25\u00b0 Seamless Daily Forecast via Open-Meteo REST API",
+  "station_coordinates": {
+    "latitude": 18.5,
+    "longitude": 73.8,
+    "district": "Pune, Maharashtra"
+  },
+  "forecast_lead_time": "24-48 hours (Day 1 accumulation)",
+  "model_versions": {
+    "raw_nwp": "NOAA GFS operational 0.25\u00b0",
+    "global_ml": "RandomForestRegressor (v1.0.0-phase5)",
+    "regime_aware_ml": "RegimeAwarePostProcessor (v1.0.0-phase6)",
+    "probability_model": "CalibratedClassifierCV-GradientBoosting (v1.0.0-phase7)"
+  },
+  "metric_versions": {
+    "continuous": "RMSE, MAE, Mean Bias, Pearson r",
+    "categorical": "CSI, POD, FAR, ETS (Gilbert Skill Score)",
+    "spatial": "Roberts and Lean (2008) Fractions Skill Score (FSS)",
+    "probabilistic": "Brier Score, Murphy (1973) Decomposition, ROC-AUC, PR-AUC, ECE"
+  },
+  "random_seed": 42,
+  "python_version": "3.13.3",
+  "resampling_method": "Stationary Block Bootstrap (block length = 3 days, B = 1000, 95% CI)"
+}

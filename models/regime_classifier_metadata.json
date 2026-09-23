@@ -1,0 +1,50 @@
+{
+  "model_type": "gradient_boosting",
+  "random_state": 42,
+  "class_weight": "balanced",
+  "feature_names": [
+    "nwp_rainfall",
+    "log_nwp_rainfall",
+    "wind_speed_ms",
+    "u_wind_10m",
+    "v_wind_10m",
+    "temperature_2m",
+    "relative_humidity_2m",
+    "dew_point_depression",
+    "surface_pressure",
+    "cape",
+    "w_max_convective",
+    "month",
+    "day_of_year",
+    "sin_doy",
+    "cos_doy",
+    "sin_month",
+    "cos_month",
+    "is_monsoon_season",
+    "is_monsoon_core",
+    "is_ne_monsoon",
+    "forecast_lead_time",
+    "latitude",
+    "longitude",
+    "in_core_monsoon_zone",
+    "in_western_ghats_belt",
+    "in_northeast_hills",
+    "dist_to_coast_approx_km",
+    "nwp_rainfall_lag1",
+    "nwp_rainfall_rolling3"
+  ],
+  "feature_count": 29,
+  "classes": [
+    "ACTIVE_MONSOON",
+    "BREAK_MONSOON",
+    "COASTAL_OROGRAPHIC",
+    "DEPRESSION",
+    "OTHER"
+  ],
+  "is_fitted": true,
+  "model_kwargs": {
+    "n_estimators": 50,
+    "max_depth": 3,
+    "learning_rate": 0.05
+  }
+}

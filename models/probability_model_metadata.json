@@ -1,0 +1,150 @@
+{
+  "model_name": "Calibrated Probability of Exceedance Post-Processor",
+  "model_version": "v1.0.0-phase7",
+  "random_seed": 42,
+  "algorithm": "GradientBoostingClassifier with CalibratedClassifierCV",
+  "hyperparameters": {
+    "n_estimators": 60,
+    "max_depth_standard": 3,
+    "max_depth_rare": 2,
+    "learning_rate": 0.05,
+    "subsample": 0.8,
+    "calibration_method": "sigmoid (Platt scaling)",
+    "calibration_cv": 3
+  },
+  "features": [
+    "nwp_rainfall",
+    "log_nwp_rainfall",
+    "wind_speed_ms",
+    "u_wind_10m",
+    "v_wind_10m",
+    "temperature_2m",
+    "relative_humidity_2m",
+    "dew_point_depression",
+    "surface_pressure",
+    "cape",
+    "w_max_convective",
+    "month",
+    "day_of_year",
+    "sin_doy",
+    "cos_doy",
+    "sin_month",
+    "cos_month",
+    "is_monsoon_season",
+    "is_monsoon_core",
+    "is_ne_monsoon",
+    "forecast_lead_time",
+    "latitude",
+    "longitude",
+    "in_core_monsoon_zone",
+    "in_western_ghats_belt",
+    "in_northeast_hills",
+    "dist_to_coast_approx_km",
+    "nwp_rainfall_lag1",
+    "nwp_rainfall_rolling3"
+  ],
+  "n_features": 29,
+  "dataset_split": {
+    "training_period": "JJAS 2021 - 2022",
+    "training_samples": 244,
+    "validation_period": "JJAS 2023",
+    "validation_samples": 122,
+    "test_period": "June 2024",
+    "test_samples": 31
+  },
+  "threshold_definitions": {
+    "2.5": {
+      "name": "Rainy Day",
+      "category": "OPERATIONAL",
+      "official_source": "IMD Official Standard: Daily rainfall >= 2.5 mm constitutes a rainy day."
+    },
+    "7.5": {
+      "name": "Surge Proxy",
+      "category": "EXPERIMENTAL",
+      "official_source": "Experimental Monsoon Surge / Moderate Showers indicator (clearly distinguished from IMD standard)."
+    },
+    "15.6": {
+      "name": "Moderate Rain",
+      "category": "OPERATIONAL",
+      "official_source": "IMD Classification: 15.6 - 64.4 mm/day corresponds to Moderate Rainfall."
+    },
+    "64.5": {
+      "name": "Heavy Rain",
+      "category": "OPERATIONAL",
+      "official_source": "IMD Classification: 64.5 - 115.5 mm/day corresponds to Heavy Rainfall."
+    },
+    "115.6": {
+      "name": "Very Heavy Rain",
+      "category": "OPERATIONAL",
+      "official_source": "IMD Classification: 115.6 - 204.4 mm/day corresponds to Very Heavy Rainfall."
+    }
+  },
+  "threshold_sample_counts": {
+    "2.5": {
+      "name": "Rainy Day",
+      "category": "OPERATIONAL",
+      "train_pos": 92,
+      "train_rate": 0.3770491803278688,
+      "val_pos": 31,
+      "val_rate": 0.2540983606557377,
+      "test_pos": 13,
+      "test_rate": 0.41935483870967744
+    },
+    "7.5": {
+      "name": "Surge Proxy",
+      "category": "EXPERIMENTAL",
+      "train_pos": 52,
+      "train_rate": 0.21311475409836064,
+      "val_pos": 16,
+      "val_rate": 0.13114754098360656,
+      "test_pos": 10,
+      "test_rate": 0.3225806451612903
+    },
+    "15.6": {
+      "name": "Moderate Rain",
+      "category": "OPERATIONAL",
+      "train_pos": 26,
+      "train_rate": 0.10655737704918032,
+      "val_pos": 9,
+      "val_rate": 0.07377049180327869,
+      "test_pos": 6,
+      "test_rate": 0.1935483870967742
+    },
+    "64.5": {
+      "name": "Heavy Rain",
+      "category": "OPERATIONAL",
+      "train_pos": 1,
+      "train_rate": 0.004098360655737705,
+      "val_pos": 0,
+      "val_rate": 0.0,
+      "test_pos": 0,
+      "test_rate": 0.0
+    },
+    "115.6": {
+      "name": "Very Heavy Rain",
+      "category": "OPERATIONAL",
+      "train_pos": 0,
+      "train_rate": 0.0,
+      "val_pos": 0,
+      "val_rate": 0.0,
+      "test_pos": 0,
+      "test_rate": 0.0
+    }
+  },
+  "tuned_decision_thresholds": {
+    "global_optimal_thresholds": {
+      "2.5": 0.3,
+      "7.5": 0.3,
+      "15.6": 0.1,
+      "64.5": 0.5,
+      "115.6": 0.5
+    },
+    "regime_optimal_thresholds": {
+      "2.5": 0.3,
+      "7.5": 0.2,
+      "15.6": 0.1,
+      "64.5": 0.5,
+      "115.6": 0.5
+    }
+  }
+}

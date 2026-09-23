@@ -1,0 +1,417 @@
+{
+  "experiment": "Phase 5 Baseline Comparison",
+  "train_period": "2021-06-01 to 2022-09-30 (JJAS 2021 + JJAS 2022)",
+  "val_period": "2023-06-01 to 2023-09-30 (JJAS 2023)",
+  "test_period": "2024-06-01 to 2024-06-30 (June 2024)",
+  "sample_counts": {
+    "train": 244,
+    "val": 122,
+    "test": 31
+  },
+  "baseline_a_raw_nwp": {
+    "validation": {
+      "continuous": {
+        "rmse": 8.86697790627175,
+        "mae": 4.0097045524590165,
+        "mean_bias": 0.7546746563606557,
+        "pearson_r": 0.4671834898178449,
+        "sample_count": 122,
+        "mean_observed": 3.487128622327869,
+        "mean_forecast": 4.241803278688525
+      },
+      "categorical": {
+        "thresh_2.5mm": {
+          "threshold_mm": 2.5,
+          "contingency_table": {
+            "H": 19,
+            "F": 16,
+            "M": 12,
+            "C": 75,
+            "total": 122,
+            "observed_events": 31,
+            "forecast_events": 35
+          },
+          "POD": 0.6129032258064516,
+          "FAR": 0.45714285714285713,
+          "CSI": 0.40425531914893614,
+          "ETS": 0.26521832652183264,
+          "sufficient_events": true,
+          "FSS": 0.750733137829912
+        },
+        "thresh_15.6mm": {
+          "threshold_mm": 15.6,
+          "contingency_table": {
+            "H": 5,
+            "F": 7,
+            "M": 4,
+            "C": 106,
+            "total": 122,
+            "observed_events": 9,
+            "forecast_events": 12
+          },
+          "POD": 0.5555555555555556,
+          "FAR": 0.5833333333333334,
+          "CSI": 0.3125,
+          "ETS": 0.272234273318872,
+          "sufficient_events": true,
+          "FSS": 0.527859237536657
+        },
+        "thresh_64.5mm": {
+          "threshold_mm": 64.5,
+          "contingency_table": {
+            "H": 0,
+            "F": 0,
+            "M": 0,
+            "C": 122,
+            "total": 122,
+            "observed_events": 0,
+            "forecast_events": 0
+          },
+          "POD": null,
+          "FAR": null,
+          "CSI": null,
+          "ETS": null,
+          "sufficient_events": false,
+          "FSS": 1.0
+        }
+      },
+      "regime_breakdown": {
+        "ACTIVE_MONSOON": {
+          "sample_count": 9,
+          "mean_observed": 10.775314145333333,
+          "mean_forecast": 8.788888888888888,
+          "rmse": 12.22495828375843,
+          "mae": 8.212692128,
+          "mean_bias": -1.986425256444444,
+          "pearson_r": 0.75626542801438
+        },
+        "BREAK_MONSOON": {
+          "sample_count": 18,
+          "mean_observed": 0.39092625966666666,
+          "mean_forecast": 0.46111111111111114,
+          "rmse": 1.13068062283814,
+          "mae": 0.7083047546666665,
+          "mean_bias": 0.07018485144444447,
+          "pearson_r": 0.04563795125964102
+        },
+        "COASTAL_OROGRAPHIC": {
+          "sample_count": 15,
+          "mean_observed": 0.11848431826666665,
+          "mean_forecast": 1.6400000000000003,
+          "rmse": 4.5480808253885385,
+          "mae": 1.5215156817333337,
+          "mean_bias": 1.5215156817333337,
+          "pearson_r": 0.5784869782940298
+        },
+        "DEPRESSION": {
+          "sample_count": 7,
+          "mean_observed": 0.537905114,
+          "mean_forecast": 0.32857142857142857,
+          "rmse": 0.7794923388125689,
+          "mae": 0.49504797114285715,
+          "mean_bias": -0.20933368542857142,
+          "pearson_r": 0.717915805581244
+        },
+        "OTHER": {
+          "sample_count": 73,
+          "mean_observed": 4.327021799589041,
+          "mean_forecast": 5.523287671232876,
+          "rmse": 10.409068142024703,
+          "mae": 5.1538653375342465,
+          "mean_bias": 1.1962658716438352,
+          "pearson_r": 0.42428466894071704
+        }
+      }
+    },
+    "test": {
+      "continuous": {
+        "rmse": 11.620498296235326,
+        "mae": 8.34663290851613,
+        "mean_bias": 2.7581671138709662,
+        "pearson_r": 0.40896732101722055,
+        "sample_count": 31,
+        "mean_observed": 6.438607079677419,
+        "mean_forecast": 9.196774193548388
+      },
+      "categorical": {
+        "thresh_2.5mm": {
+          "threshold_mm": 2.5,
+          "contingency_table": {
+            "H": 10,
+            "F": 8,
+            "M": 3,
+            "C": 10,
+            "total": 31,
+            "observed_events": 13,
+            "forecast_events": 18
+          },
+          "POD": 0.7692307692307693,
+          "FAR": 0.4444444444444444,
+          "CSI": 0.47619047619047616,
+          "ETS": 0.18225419664268583,
+          "sufficient_events": true,
+          "FSS": 0.842603550295858
+        },
+        "thresh_15.6mm": {
+          "threshold_mm": 15.6,
+          "contingency_table": {
+            "H": 2,
+            "F": 5,
+            "M": 4,
+            "C": 20,
+            "total": 31,
+            "observed_events": 6,
+            "forecast_events": 7
+          },
+          "POD": 0.3333333333333333,
+          "FAR": 0.7142857142857143,
+          "CSI": 0.18181818181818182,
+          "ETS": 0.06688963210702342,
+          "sufficient_events": true,
+          "FSS": 0.49180327868852447
+        },
+        "thresh_64.5mm": {
+          "threshold_mm": 64.5,
+          "contingency_table": {
+            "H": 0,
+            "F": 0,
+            "M": 0,
+            "C": 31,
+            "total": 31,
+            "observed_events": 0,
+            "forecast_events": 0
+          },
+          "POD": null,
+          "FAR": null,
+          "CSI": null,
+          "ETS": null,
+          "sufficient_events": false,
+          "FSS": 1.0
+        }
+      },
+      "regime_breakdown": {
+        "COASTAL_OROGRAPHIC": {
+          "sample_count": 3,
+          "mean_observed": 0.4944088656666666,
+          "mean_forecast": 7.699999999999999,
+          "rmse": 10.296639371090718,
+          "mae": 7.205591134333333,
+          "mean_bias": 7.205591134333333,
+          "pearson_r": -0.9983494781687872
+        },
+        "OTHER": {
+          "sample_count": 28,
+          "mean_observed": 7.075485459749999,
+          "mean_forecast": 9.357142857142858,
+          "rmse": 11.753499559739286,
+          "mae": 8.468887384321429,
+          "mean_bias": 2.281657397392856,
+          "pearson_r": 0.4196080326563088
+        }
+      }
+    }
+  },
+  "baseline_b_global_ml": {
+    "validation": {
+      "continuous": {
+        "rmse": 7.086173776876363,
+        "mae": 3.806994409719383,
+        "mean_bias": 0.22486029680573957,
+        "pearson_r": 0.4963496244836884,
+        "sample_count": 122,
+        "mean_observed": 3.487128622327869,
+        "mean_forecast": 3.7119889191336086
+      },
+      "categorical": {
+        "thresh_2.5mm": {
+          "threshold_mm": 2.5,
+          "contingency_table": {
+            "H": 23,
+            "F": 25,
+            "M": 8,
+            "C": 66,
+            "total": 122,
+            "observed_events": 31,
+            "forecast_events": 48
+          },
+          "POD": 0.7419354838709677,
+          "FAR": 0.5208333333333334,
+          "CSI": 0.4107142857142857,
+          "ETS": 0.24663173652694612,
+          "sufficient_events": true,
+          "FSS": 0.7236180904522613
+        },
+        "thresh_15.6mm": {
+          "threshold_mm": 15.6,
+          "contingency_table": {
+            "H": 2,
+            "F": 3,
+            "M": 7,
+            "C": 110,
+            "total": 122,
+            "observed_events": 9,
+            "forecast_events": 5
+          },
+          "POD": 0.2222222222222222,
+          "FAR": 0.6,
+          "CSI": 0.16666666666666666,
+          "ETS": 0.14023960535588442,
+          "sufficient_events": true,
+          "FSS": 0.31428571428571417
+        },
+        "thresh_64.5mm": {
+          "threshold_mm": 64.5,
+          "contingency_table": {
+            "H": 0,
+            "F": 0,
+            "M": 0,
+            "C": 122,
+            "total": 122,
+            "observed_events": 0,
+            "forecast_events": 0
+          },
+          "POD": null,
+          "FAR": null,
+          "CSI": null,
+          "ETS": null,
+          "sufficient_events": false,
+          "FSS": 1.0
+        }
+      },
+      "regime_breakdown": {
+        "ACTIVE_MONSOON": {
+          "sample_count": 9,
+          "mean_observed": 10.775314145333333,
+          "mean_forecast": 4.984210102129793,
+          "rmse": 15.861083284899193,
+          "mae": 10.031180145840558,
+          "mean_bias": -5.791104043203542,
+          "pearson_r": 0.5331142580157381
+        },
+        "BREAK_MONSOON": {
+          "sample_count": 18,
+          "mean_observed": 0.39092625966666666,
+          "mean_forecast": 1.364880058144481,
+          "rmse": 1.8012089308591448,
+          "mae": 1.4776853380159924,
+          "mean_bias": 0.9739537984778145,
+          "pearson_r": -0.10187309141233847
+        },
+        "COASTAL_OROGRAPHIC": {
+          "sample_count": 15,
+          "mean_observed": 0.11848431826666665,
+          "mean_forecast": 1.6470047693005752,
+          "rmse": 2.0540575261954026,
+          "mae": 1.5285204510339088,
+          "mean_bias": 1.5285204510339088,
+          "pearson_r": 0.5243870446954613
+        },
+        "DEPRESSION": {
+          "sample_count": 7,
+          "mean_observed": 0.537905114,
+          "mean_forecast": 1.7598591446575185,
+          "rmse": 2.051625356908505,
+          "mae": 1.858726113699243,
+          "mean_bias": 1.2219540306575187,
+          "pearson_r": -0.6270280154837374
+        },
+        "OTHER": {
+          "sample_count": 73,
+          "mean_observed": 4.327021799589041,
+          "mean_forecast": 4.745381241320824,
+          "rmse": 7.1296941185054505,
+          "mae": 4.26897905517135,
+          "mean_bias": 0.4183594417317832,
+          "pearson_r": 0.4992959547229427
+        }
+      }
+    },
+    "test": {
+      "continuous": {
+        "rmse": 9.028789572555368,
+        "mae": 6.629389951444808,
+        "mean_bias": -1.5740536853978293,
+        "pearson_r": 0.29279866108096964,
+        "sample_count": 31,
+        "mean_observed": 6.438607079677419,
+        "mean_forecast": 4.86455339427959
+      },
+      "categorical": {
+        "thresh_2.5mm": {
+          "threshold_mm": 2.5,
+          "contingency_table": {
+            "H": 11,
+            "F": 12,
+            "M": 2,
+            "C": 6,
+            "total": 31,
+            "observed_events": 13,
+            "forecast_events": 23
+          },
+          "POD": 0.8461538461538461,
+          "FAR": 0.5217391304347826,
+          "CSI": 0.44,
+          "ETS": 0.08823529411764709,
+          "sufficient_events": true,
+          "FSS": 0.7343895619757688
+        },
+        "thresh_15.6mm": {
+          "threshold_mm": 15.6,
+          "contingency_table": {
+            "H": 0,
+            "F": 0,
+            "M": 6,
+            "C": 25,
+            "total": 31,
+            "observed_events": 6,
+            "forecast_events": 0
+          },
+          "POD": 0.0,
+          "FAR": null,
+          "CSI": 0.0,
+          "ETS": 0.0,
+          "sufficient_events": true,
+          "FSS": 0.0
+        },
+        "thresh_64.5mm": {
+          "threshold_mm": 64.5,
+          "contingency_table": {
+            "H": 0,
+            "F": 0,
+            "M": 0,
+            "C": 31,
+            "total": 31,
+            "observed_events": 0,
+            "forecast_events": 0
+          },
+          "POD": null,
+          "FAR": null,
+          "CSI": null,
+          "ETS": null,
+          "sufficient_events": false,
+          "FSS": 1.0
+        }
+      },
+      "regime_breakdown": {
+        "COASTAL_OROGRAPHIC": {
+          "sample_count": 3,
+          "mean_observed": 0.4944088656666666,
+          "mean_forecast": 5.165062593380008,
+          "rmse": 5.241086993993577,
+          "mae": 4.670653727713342,
+          "mean_bias": 4.670653727713342,
+          "pearson_r": -0.9958577369822394
+        },
+        "OTHER": {
+          "sample_count": 28,
+          "mean_observed": 7.075485459749999,
+          "mean_forecast": 4.8323559800902585,
+          "rmse": 9.343988321134983,
+          "mae": 6.839254546844607,
+          "mean_bias": -2.24312947965974,
+          "pearson_r": 0.31904458439362593
+        }
+      }
+    }
+  }
+}

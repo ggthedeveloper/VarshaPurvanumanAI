@@ -1,0 +1,62 @@
+# Configuration for Meteorological Data Ingestion and Preprocessing
+# Problem Statement: SIH26080 (MoES)
+
+domains:
+  india_full:
+    lat_min: 6.5
+    lat_max: 38.5
+    lon_min: 66.5
+    lon_max: 100.0
+  core_monsoon_zone:
+    lat_min: 18.0
+    lat_max: 28.0
+    lon_min: 65.0
+    lon_max: 88.0
+  western_ghats:
+    lat_min: 14.0
+    lat_max: 19.0
+    lon_min: 73.0
+    lon_max: 76.0
+
+gfs:
+  model_name: "gfs_seamless"
+  spatial_resolution_deg: 0.25
+  api_endpoint: "https://previous-runs-api.open-meteo.com/v1/forecast"
+  historical_endpoint: "https://historical-forecast-api.open-meteo.com/v1/forecast"
+  lead_times_days: [1, 2, 3, 4, 5]
+  variables:
+    - "precipitation"
+    - "temperature_2m"
+    - "relative_humidity_2m"
+    - "surface_pressure"
+    - "wind_speed_10m"
+    - "wind_direction_10m"
+    - "cape"
+  units:
+    precipitation: "mm"
+    temperature_2m: "degC"
+    relative_humidity_2m: "percent"
+    surface_pressure: "hPa"
+    wind_speed_10m: "km/h"
+    wind_direction_10m: "degrees"
+    cape: "J/kg"
+
+observations:
+  imd_district:
+    url: "https://mausam.imd.gov.in/responsive/rainfallinformation.php"
+    boundary_geojson: "data/raw/boundaries/DISTRICT_F-2.json"
+    accumulation_window_hours: 24
+    accumulation_end_utc: "03:00"
+  imd_gridded_benchmark:
+    zenodo_doi: "10.5281/zenodo.20177433"
+    date_file: "data/raw/imd_gridded/Daily_Date_0.25x0.25Grid.xlsx"
+    grid_file: "data/raw/imd_gridded/Daily_IMD_0.25x0.25Grid.xlsx"
+    missing_value_code: -9999.0
+
+paths:
+  raw_gfs: "data/raw/gfs"
+  raw_imd_district: "data/raw/imd_district"
+  raw_imd_gridded: "data/raw/imd_gridded"
+  raw_boundaries: "data/raw/boundaries"
+  processed: "data/processed"
+  metadata: "data/metadata"

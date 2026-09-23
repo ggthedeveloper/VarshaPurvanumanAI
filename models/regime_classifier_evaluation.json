@@ -1,0 +1,175 @@
+{
+  "model_type": "gradient_boosting",
+  "n_features": 29,
+  "train_samples": 244,
+  "val_samples": 122,
+  "test_samples": 31,
+  "train_metrics": {
+    "accuracy": 0.9959016393442623,
+    "macro_f1": 0.9953958375158937,
+    "weighted_f1": 0.9958684531273483
+  },
+  "val_metrics": {
+    "accuracy": 0.5819672131147541,
+    "macro_f1": 0.3786284503204319,
+    "weighted_f1": 0.5578527129795002,
+    "class_report": {
+      "ACTIVE_MONSOON": {
+        "precision": 0.5,
+        "recall": 0.5555555555555556,
+        "f1-score": 0.5263157894736842,
+        "support": 9.0
+      },
+      "BREAK_MONSOON": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 18.0
+      },
+      "COASTAL_OROGRAPHIC": {
+        "precision": 0.55,
+        "recall": 0.7333333333333333,
+        "f1-score": 0.6285714285714286,
+        "support": 15.0
+      },
+      "DEPRESSION": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 7.0
+      },
+      "OTHER": {
+        "precision": 0.7236842105263158,
+        "recall": 0.7534246575342466,
+        "f1-score": 0.738255033557047,
+        "support": 73.0
+      },
+      "accuracy": 0.5819672131147541,
+      "macro avg": {
+        "precision": 0.35473684210526313,
+        "recall": 0.408462709284627,
+        "f1-score": 0.3786284503204319,
+        "support": 122.0
+      },
+      "weighted avg": {
+        "precision": 0.5375323554788611,
+        "recall": 0.5819672131147541,
+        "f1-score": 0.5578527129795002,
+        "support": 122.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        5,
+        0,
+        2,
+        0,
+        2
+      ],
+      [
+        0,
+        0,
+        5,
+        0,
+        13
+      ],
+      [
+        0,
+        3,
+        11,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        2,
+        0,
+        5
+      ],
+      [
+        5,
+        11,
+        0,
+        2,
+        55
+      ]
+    ]
+  },
+  "test_metrics": {
+    "accuracy": 0.9354838709677419,
+    "macro_f1": 0.7327586206896552,
+    "weighted_f1": 0.9204671857619577,
+    "class_report": {
+      "COASTAL_OROGRAPHIC": {
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "f1-score": 0.5,
+        "support": 3.0
+      },
+      "OTHER": {
+        "precision": 0.9333333333333333,
+        "recall": 1.0,
+        "f1-score": 0.9655172413793104,
+        "support": 28.0
+      },
+      "accuracy": 0.9354838709677419,
+      "macro avg": {
+        "precision": 0.9666666666666667,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.7327586206896552,
+        "support": 31.0
+      },
+      "weighted avg": {
+        "precision": 0.9397849462365592,
+        "recall": 0.9354838709677419,
+        "f1-score": 0.9204671857619577,
+        "support": 31.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        0,
+        2
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        28
+      ]
+    ]
+  },
+  "classes": [
+    "ACTIVE_MONSOON",
+    "BREAK_MONSOON",
+    "COASTAL_OROGRAPHIC",
+    "DEPRESSION",
+    "OTHER"
+  ]
+}

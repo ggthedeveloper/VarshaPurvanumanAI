@@ -1,0 +1,22 @@
+{
+  "dataset_name": "IMD Daily District Rainfall Bulletin",
+  "provider": "India Meteorological Department (IMD) - Hydromet Division",
+  "source_url": "https://mausam.imd.gov.in/responsive/rainfallinformation.php",
+  "ingestion_timestamp_utc": "2026-09-22T17:50:36.841516+00:00",
+  "spatial_resolution": "District Administrative Polygons (761 districts)",
+  "temporal_resolution": "Daily 24-hour accumulation (ending 08:30 IST / 03:00 UTC)",
+  "variables": [
+    "actual_rainfall_mm",
+    "normal_rainfall_mm",
+    "departure_pct"
+  ],
+  "units": {
+    "actual_rainfall_mm": "mm",
+    "normal_rainfall_mm": "mm",
+    "departure_pct": "%"
+  },
+  "record_count": 761,
+  "raw_filepath": "data/raw/imd_district/imd_district_rainfall_2026-09-22.html",
+  "processed_filepath": null,
+  "notes": "Observation date: 2026-09-22. Parsed 761 districts."
+}

@@ -1,0 +1,92 @@
+## Description of Excel Data Files
+
+### 1. Hourly Data (0.1° × 0.1° Grid)
+
+The following files contain hourly rainfall data at 0.1° × 0.1° spatial resolution:
+
+* `Hourly_Date_Time_0.1x0.1Grid.xlsx`
+* `Hourly_RG_0.1x0.1Grid.xlsx`
+* `Hourly_IMERG_0.1x0.1Grid.xlsx`
+* `Hourly_MSWEP_0.1x0.1Grid.xlsx`
+
+#### File Description
+
+* `Hourly_Date_Time_0.1x0.1Grid.xlsx`
+
+  * Column 1: Date in `YYYYMMDD` format
+  * Column 2: Time in `HH:MM` format (IST)
+
+* `Hourly_RG_0.1x0.1Grid.xlsx`
+
+  * Gauge-based rainfall observations (mm h⁻¹)
+
+* `Hourly_IMERG_0.1x0.1Grid.xlsx`
+
+  * IMERG rainfall estimates (mm h⁻¹)
+
+* `Hourly_MSWEP_0.1x0.1Grid.xlsx`
+
+  * MSWEP rainfall estimates (mm h⁻¹)
+
+Each column in the rainfall files corresponds to an individual grid point.
+
+---
+
+### 2. Daily Data (0.25° × 0.25° Grid)
+
+The following files contain daily rainfall data at 0.25° × 0.25° spatial resolution:
+
+* `Daily_Day_0.25x0.25Grid.xlsx`
+* `Daily_RG_0.25x0.25Grid.xlsx`
+* `Daily_IMD_0.25x0.25Grid.xlsx`
+
+#### File Description
+
+* `Daily_Day_0.25x0.25Grid.xlsx`
+
+  * Date in `YYYYMMDD` format
+
+* `Daily_RG_0.25x0.25Grid.xlsx`
+
+  * Rain gauge observations (mm day⁻¹)
+
+* `Daily_IMD_0.25x0.25Grid.xlsx`
+
+  * IMD gridded rainfall product (mm day⁻¹)
+
+---
+
+### 3. Daily Data (0.1° × 0.1° Grid)
+
+The following files contain daily rainfall data at 0.1° × 0.1° spatial resolution:
+
+* `Daily_Day_0.1x0.1Grid.xlsx`
+* `Daily_RG_0.1x0.1Grid.xlsx`
+* `Daily_IMERG_0.1x0.1Grid.xlsx`
+* `Daily_MSWEP_0.1x0.1Grid.xlsx`
+
+#### File Description
+
+* `Daily_Day_0.1x0.1Grid.xlsx`
+
+  * Date in `YYYYMMDD` format
+
+* `Daily_RG_0.1x0.1Grid.xlsx`
+
+  * Gauge-based rainfall observations (mm day⁻¹)
+
+* `Daily_IMERG_0.1x0.1Grid.xlsx`
+
+  * IMERG rainfall estimates (mm day⁻¹)
+
+* `Daily_MSWEP_0.1x0.1Grid.xlsx`
+
+  * MSWEP rainfall estimates (mm day⁻¹)
+
+---
+
+### Missing Values
+
+Missing or invalid rainfall values are represented by `-9999` in all datasets.
+
+For the satellite and gridded rainfall products (IMERG, MSWEP, and IMD), values are also assigned as `-9999` wherever corresponding rain gauge (RG) observations are unavailable, ensuring consistency among all datasets.
