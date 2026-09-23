@@ -25,7 +25,7 @@ class DistrictListResponse(BaseModel):
     total_districts: int = Field(description="Total count of verified district entries.")
     active_districts: int = Field(description="Count of districts with active live/benchmark data.")
     districts: List[DistrictItem] = Field(description="Array of district entities.")
-    data_status: str = Field(default="REAL_DATA", description="Data provenance status.")
+    data_status: str = Field(default="HISTORICAL_BENCHMARK", description="Data provenance status.")
 
 
 class DistrictForecastResponse(BaseModel):
@@ -37,6 +37,8 @@ class DistrictForecastResponse(BaseModel):
     latitude: float = Field(description="Latitude.")
     longitude: float = Field(description="Longitude.")
     coverage_status: str = Field(description="Status of real forecast data for this district.")
+    forecast_mode: Optional[str] = Field(default=None, description="Operational forecast mode: 'HISTORICAL_BENCHMARK', 'LIVE_NWP', or 'DATA_UNAVAILABLE'.")
+    sample_timestamp: Optional[str] = Field(default=None, description="Timestamp of the benchmark sample.")
     forecast: Optional[CombinedForecastResponse] = Field(default=None, description="Consolidated forecast if available.")
     message: Optional[str] = Field(default=None, description="Informational message or reason for unavailability.")
-    data_status: str = Field(default="REAL_DATA", description="Data provenance status.")
+    data_status: str = Field(default="HISTORICAL_BENCHMARK", description="Data provenance status.")

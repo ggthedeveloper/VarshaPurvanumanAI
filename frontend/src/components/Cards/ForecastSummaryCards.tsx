@@ -57,7 +57,62 @@ export const ForecastSummaryCards: React.FC<ForecastSummaryCardsProps> = ({
           )}
         </div>
 
-        {/* Explicit Unavailable State Cards */}
+        {/* Explicit 4-Card N/A Grid for Unavailable District */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+              <span className="text-xs font-semibold uppercase tracking-wider">Forecast</span>
+              <Droplets className="h-4 w-4 text-slate-400" />
+            </div>
+            <div className="text-lg font-bold text-rose-600 dark:text-rose-400">
+              DATA UNAVAILABLE
+            </div>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+              No verified station telemetry
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+              <span className="text-xs font-semibold uppercase tracking-wider">Regime</span>
+              <Compass className="h-4 w-4 text-slate-400" />
+            </div>
+            <div className="text-2xl font-bold text-slate-400 dark:text-slate-500">
+              N/A
+            </div>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+              Regime routing: N/A
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+              <span className="text-xs font-semibold uppercase tracking-wider">Confidence & Model</span>
+              <ArrowRightLeft className="h-4 w-4 text-slate-400" />
+            </div>
+            <div className="text-2xl font-bold text-slate-400 dark:text-slate-500">
+              N/A
+            </div>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+              Model: N/A • Confidence: N/A
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+              <span className="text-xs font-semibold uppercase tracking-wider">Probabilities</span>
+              <AlertOctagon className="h-4 w-4 text-slate-400" />
+            </div>
+            <div className="text-2xl font-bold text-slate-400 dark:text-slate-500">
+              N/A
+            </div>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+              Exceedance probabilities: N/A
+            </p>
+          </div>
+        </div>
+
+        {/* Explicit Unavailable Notice Banner */}
         <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-sm text-center space-y-3">
           <div className="inline-flex items-center justify-center p-2 rounded-full bg-rose-50 dark:bg-rose-950 text-rose-600 dark:text-rose-400">
             <AlertOctagon className="h-6 w-6" />
@@ -76,7 +131,7 @@ export const ForecastSummaryCards: React.FC<ForecastSummaryCardsProps> = ({
                 onClick={onSelectPuneBenchmark}
                 className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition cursor-pointer"
               >
-                <span>View Pune Benchmark Station Telemetry (Station-level benchmark • 18.50°N, 73.80°E)</span>
+                <span>View Pune Benchmark Station (Station-level benchmark • 18.50°N, 73.80°E)</span>
               </button>
             </div>
           )}

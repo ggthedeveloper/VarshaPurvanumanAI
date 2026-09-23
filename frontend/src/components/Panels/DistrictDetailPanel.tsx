@@ -51,7 +51,7 @@ export const DistrictDetailPanel: React.FC<DistrictDetailPanelProps> = ({
           {isPune ? (
             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
               <ShieldCheck className="h-3.5 w-3.5 mr-1" />
-              STATION-LEVEL BENCHMARK
+              HISTORICAL BENCHMARK REPLAY
             </span>
           ) : (
             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-900 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-700">
@@ -68,14 +68,16 @@ export const DistrictDetailPanel: React.FC<DistrictDetailPanelProps> = ({
           {/* Metadata Row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 dark:bg-slate-800/40 p-3 rounded-lg border border-slate-200 dark:border-slate-800 text-xs">
             <div>
-              <span className="text-slate-400 block text-[10px] uppercase font-semibold">Forecast Timestamp</span>
+              <span className="text-slate-400 block text-[10px] uppercase font-semibold">Benchmark Sample Date</span>
               <span className="font-mono text-slate-700 dark:text-slate-200">
-                {new Date(forecast.timestamp).toLocaleDateString()} 00:00 UTC
+                June 30, 2024 (Held-Out Test)
               </span>
             </div>
             <div>
-              <span className="text-slate-400 block text-[10px] uppercase font-semibold">Forecast Lead Time</span>
-              <span className="font-semibold text-slate-700 dark:text-slate-200">24 Hours (Day 1)</span>
+              <span className="text-slate-400 block text-[10px] uppercase font-semibold">Forecast Mode</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-200">
+                {districtForecast.forecast_mode || 'HISTORICAL_BENCHMARK'}
+              </span>
             </div>
             <div>
               <span className="text-slate-400 block text-[10px] uppercase font-semibold">Model Version</span>

@@ -238,14 +238,14 @@ export const App: React.FC = () => {
           <div className="lg:col-span-4 space-y-6">
             {/* Weather Regime Classification */}
             <WeatherRegimePanel
-              predictedRegime={activeForecast ? activeForecast.predicted_regime : 'OTHER'}
+              predictedRegime={activeForecast ? activeForecast.predicted_regime : null}
               probabilities={activeForecast ? activeForecast.regime_probabilities : {}}
               confidence={
                 activeForecast
-                  ? activeForecast.regime_probabilities[activeForecast.predicted_regime] || 0.94
-                  : 0.94
+                  ? (activeForecast.regime_probabilities[activeForecast.predicted_regime] ?? null)
+                  : null
               }
-              selectedModel={activeForecast ? activeForecast.selected_model : 'dedicated_other'}
+              selectedModel={activeForecast ? activeForecast.selected_model : null}
             />
 
             {/* Heavy Rainfall Probability Suite */}

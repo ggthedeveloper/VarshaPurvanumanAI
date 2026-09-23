@@ -27,7 +27,7 @@ def generate_combined_forecast(request: RainfallPredictionRequest):
         return response
     except ValueError as ve:
         logger.warning(f"Validation error in forecast generation: {ve}")
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(ve))
     except RuntimeError as re:
         logger.error(f"Runtime error in forecast generation: {re}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(re))

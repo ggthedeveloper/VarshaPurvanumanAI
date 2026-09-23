@@ -3,10 +3,10 @@ import { Compass, Cpu, Info, CheckCircle2 } from 'lucide-react';
 import { SynopticRegime } from '../../types/api';
 
 interface WeatherRegimePanelProps {
-  predictedRegime: SynopticRegime;
+  predictedRegime: SynopticRegime | null;
   probabilities: Record<string, number>;
-  confidence: number;
-  selectedModel: string;
+  confidence: number | null;
+  selectedModel: string | null;
 }
 
 const REGIME_METADATA: Record<
@@ -51,7 +51,8 @@ export const WeatherRegimePanel: React.FC<WeatherRegimePanelProps> = ({
   confidence,
   selectedModel,
 }) => {
-  const activeMeta = REGIME_METADATA[predictedRegime] || REGIME_METADATA['OTHER'];
+  const isAvailable = Boolean(predictedRegime);
+  const activeMeta = predictedRegime ? REGIME_METADATA[predictedRegime] : null;
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
@@ -80,17 +81,27 @@ export const WeatherRegimePanel: React.FC<WeatherRegimePanelProps> = ({
         <div className="flex items-baseline justify-between">
           <span className="text-xs font-medium text-slate-500 uppercase">Assigned Category</span>
           <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-            Confidence: {(confidence * 100).toFixed(1)}%
+            Confidence: {isAvailable && confidence !== null ? `${(confidence * 100).toFixed(1)}%` : 'N/A'}
           </span>
         </div>
         <div className="mt-1 flex items-center space-x-2">
-          <CheckCircle2 className={`h-5 w-5 ${activeMeta.color}`} />
-          <span className={`text-lg font-bold tracking-tight ${activeMeta.color}`}>
-            {activeMeta.name}
-          </span>
+          {isAvailable && activeMeta ? (
+            <>
+              <CheckCircle2 className={`h-5 w-5 ${activeMeta.color}`} />
+              <span className={`text-lg font-bold tracking-tight ${activeMeta.color}`}>
+                {activeMeta.name}
+              </span>
+            </>
+          ) : (
+            <span className="text-lg font-bold tracking-tight text-slate-400 dark:text-slate-500">
+              N/A
+            </span>
+          )}
         </div>
         <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
-          {activeMeta.description}
+          {isAvailable && activeMeta
+            ? activeMeta.description
+            : 'Regime classification unavailable for unmonitored location.'}
         </p>
 
         {/* Model Routing Indicator */}
@@ -100,49 +111,55 @@ export const WeatherRegimePanel: React.FC<WeatherRegimePanelProps> = ({
             Operational Submodel:
           </span>
           <span className="font-mono font-semibold text-slate-700 dark:text-slate-200">
-            {selectedModel}
+            {isAvailable && selectedModel ? selectedModel : 'N/A'}
           </span>
         </div>
       </div>
 
       {/* Class Posterior Probabilities */}
-      <div className="space-y-2.5">
-        <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-          <span>Posterior Class Distribution</span>
-          <span>Pr(Regime | X)</span>
-        </div>
-        {(['ACTIVE_MONSOON', 'BREAK_MONSOON', 'COASTAL_OROGRAPHIC', 'DEPRESSION', 'OTHER'] as SynopticRegime[]).map(
-          (regKey) => {
-            const prob = probabilities[regKey] || 0;
-            const pct = (prob * 100).toFixed(1);
-            const isSelected = regKey === predictedRegime;
-            const meta = REGIME_METADATA[regKey];
+      {isAvailable && Object.keys(probabilities).length > 0 ? (
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+            <span>Posterior Class Distribution</span>
+            <span>Pr(Regime | X)</span>
+          </div>
+          {(['ACTIVE_MONSOON', 'BREAK_MONSOON', 'COASTAL_OROGRAPHIC', 'DEPRESSION', 'OTHER'] as SynopticRegime[]).map(
+            (regKey) => {
+              const prob = probabilities[regKey] || 0;
+              const pct = (prob * 100).toFixed(1);
+              const isSelected = regKey === predictedRegime;
+              const meta = REGIME_METADATA[regKey];
 
-            return (
-              <div key={regKey} className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span
-                    className={`font-medium ${
-                      isSelected
-                        ? 'text-slate-900 dark:text-white font-semibold'
-                        : 'text-slate-600 dark:text-slate-400'
-                    }`}
-                  >
-                    {meta.name}
-                  </span>
-                  <span className="font-mono text-slate-700 dark:text-slate-300">{pct}%</span>
+              return (
+                <div key={regKey} className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span
+                      className={`font-medium ${
+                        isSelected
+                          ? 'text-slate-900 dark:text-white font-semibold'
+                          : 'text-slate-600 dark:text-slate-400'
+                      }`}
+                    >
+                      {meta.name}
+                    </span>
+                    <span className="font-mono text-slate-700 dark:text-slate-300">{pct}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-500 rounded-full ${meta.barColor}`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-500 rounded-full ${meta.barColor}`}
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-              </div>
-            );
-          }
-        )}
-      </div>
+              );
+            }
+          )}
+        </div>
+      ) : (
+        <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500">
+          Regime classification probabilities: <strong>N/A</strong> (data unavailable)
+        </div>
+      )}
 
       {/* Scientific Transparency Notice */}
       <div className="flex items-start space-x-2 text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded border border-slate-200/60 dark:border-slate-800">

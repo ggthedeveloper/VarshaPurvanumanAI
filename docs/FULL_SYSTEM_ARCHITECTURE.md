@@ -152,7 +152,7 @@ Implemented in `src/features/feature_pipeline.py` and `backend/app/services/feat
   - `GET /api/verification/probability`: Brier scores and calibration error.
 
 ### 2.8 Interactive Frontend Dashboard (React + TypeScript)
-- **Tech Stack**: React 18, Vite 8, TypeScript 5.9, Tailwind CSS v4, Leaflet 1.9, React-Leaflet 5, Lucide-React.
+- **Tech Stack**: React 19, Vite 8, TypeScript 5.9, Tailwind CSS v4, Leaflet 1.9, React-Leaflet 5, Lucide-React.
 - **Station-Level Benchmark Guarantee**: Explicitly isolates `PUNE BENCHMARK STATION (18.50°N, 73.80°E)` from district-wide spatial aggregates.
 - **Missing Data Handling**: Non-monitored districts clearly display `DISTRICT-LEVEL DATA UNAVAILABLE`. Never defaults to `0.0 mm` or fake scores.
 - **Demo Mode**: Sandboxed demo simulator with permanent high-visibility watermark; does not write to backend or disk.

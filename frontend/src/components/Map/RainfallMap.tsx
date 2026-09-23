@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import {
@@ -31,10 +31,9 @@ interface RainfallMapProps {
   isDarkMode: boolean;
 }
 
-// Google Maps API Key provided by user
-const GOOGLE_MAPS_KEY =
-  (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string) ||
-  'AIzaSyCubQwLYG5L59LJawYmwhbSnYqCf70fT2s';
+// Google Maps API Key from environment configuration (never hardcoded in source)
+const GOOGLE_MAPS_KEY = ((import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string) || '').trim();
+const HAS_GOOGLE_MAPS_KEY = Boolean(GOOGLE_MAPS_KEY);
 
 // Custom DivIcon for Pune Benchmark Station
 const createBenchmarkStationIcon = (isSelected: boolean) => {
@@ -94,6 +93,12 @@ const createReferenceDistrictIcon = (isSelected: boolean) => {
   });
 };
 
+// Pre-computed static DivIcons to prevent recreating 675 DOM icons on every re-render (Phase 10 optimization)
+const benchmarkIconSelected = createBenchmarkStationIcon(true);
+const benchmarkIconUnselected = createBenchmarkStationIcon(false);
+const referenceIconSelected = createReferenceDistrictIcon(true);
+const referenceIconUnselected = createReferenceDistrictIcon(false);
+
 // Component to dynamically resize and fly map view when target or viewport changes
 const MapViewportController: React.FC<{
   center: [number, number];
@@ -131,7 +136,7 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
   isDarkMode,
 }) => {
   const [activeLayer, setActiveLayer] = useState<MapLayerType>('corrected');
-  // Default to Google Terrain for optimal monsoon orographic visualization
+  // Default to terrain for optimal monsoon orographic visualization
   const [baseMap, setBaseMap] = useState<BaseMapType>('terrain');
 
   // Compute map center based on selected district
@@ -141,27 +146,52 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
     : [18.5204, 73.8567]; // Pune default
   const mapZoom = selectedDistrict ? (selectedDistrictId === 'pune' ? 8 : 7) : 6;
 
-  // Base map tile configuration
+  // Base map tile configuration with safe OpenStreetMap fallback when API key is not supplied
   const getTileConfig = () => {
+    if (HAS_GOOGLE_MAPS_KEY) {
+      switch (baseMap) {
+        case 'terrain':
+          return {
+            url: `https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_KEY}`,
+            attribution: '&copy; Google Maps (Physical Terrain)',
+            maxZoom: 20,
+          };
+        case 'satellite':
+          return {
+            url: `https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_KEY}`,
+            attribution: '&copy; Google Maps (Satellite Hybrid)',
+            maxZoom: 20,
+          };
+        case 'streets':
+        default:
+          return {
+            url: `https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_KEY}`,
+            attribution: '&copy; Google Maps (Roadmap)',
+            maxZoom: 20,
+          };
+      }
+    }
+
+    // Safe OpenStreetMap / CartoDB fallback when VITE_GOOGLE_MAPS_API_KEY is not configured
     switch (baseMap) {
       case 'terrain':
         return {
-          url: `https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_KEY}`,
-          attribution: '&copy; Google Maps (Physical Terrain)',
-          maxZoom: 20,
+          url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          maxZoom: 19,
         };
       case 'satellite':
         return {
-          url: `https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_KEY}`,
-          attribution: '&copy; Google Maps (Satellite Hybrid)',
-          maxZoom: 20,
+          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+          attribution: '&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+          maxZoom: 18,
         };
       case 'streets':
       default:
         return {
-          url: `https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_KEY}`,
-          attribution: '&copy; Google Maps (Roadmap)',
-          maxZoom: 20,
+          url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19,
         };
     }
   };
@@ -211,6 +241,69 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
     });
   };
 
+  // Memoize all 675 district centroid markers to prevent churning DOM DivIcons during pan/zoom/state transitions
+  const districtMarkers = useMemo(() => {
+    return districts.map((d) => {
+      const isPune = d.district_id === 'pune';
+      const isSelected = d.district_id === selectedDistrictId;
+      const markerIcon = isPune
+        ? (isSelected ? benchmarkIconSelected : benchmarkIconUnselected)
+        : (isSelected ? referenceIconSelected : referenceIconUnselected);
+
+      return (
+        <Marker
+          key={d.district_id}
+          position={[d.latitude, d.longitude]}
+          icon={markerIcon}
+          eventHandlers={{
+            click: () => onSelectDistrict(d.district_id),
+          }}
+        >
+          <Popup>
+            <div className="p-1 space-y-1.5 text-xs font-sans">
+              <div className="font-bold text-slate-900 text-sm">
+                {isPune ? 'PUNE BENCHMARK STATION' : d.name}
+              </div>
+              <div className="text-slate-500">
+                Coordinates: {d.latitude.toFixed(2)}°N, {d.longitude.toFixed(2)}°E
+              </div>
+
+              {isPune && activeForecast ? (
+                <div className="bg-emerald-50 p-2 rounded border border-emerald-200 text-emerald-950 space-y-1">
+                  <div className="font-semibold text-[11px] text-emerald-800">
+                    Verified Station-Level Benchmark (Historical Replay)
+                  </div>
+                  <div>
+                    Raw NWP: <strong>{activeForecast.raw_nwp_rainfall_mm.toFixed(1)} mm</strong>
+                  </div>
+                  <div>
+                    AI Corrected: <strong>{activeForecast.corrected_rainfall_mm.toFixed(1)} mm</strong>
+                  </div>
+                  <div>
+                    Regime: <strong>{activeForecast.predicted_regime}</strong>
+                  </div>
+                  <div className="text-[10px] text-amber-700 font-medium pt-1">
+                    *District-level spatial average unavailable.
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-slate-100 p-2 rounded border border-slate-200 text-slate-700">
+                  <div className="font-semibold text-rose-600 flex items-center">
+                    <AlertCircle className="h-3.5 w-3.5 mr-1" />
+                    District-level data unavailable
+                  </div>
+                  <div className="text-[10px] text-slate-500 mt-1">
+                    Historical benchmark only available for Pune Benchmark Station (18.50°N, 73.80°E). No synthetic data generated.
+                  </div>
+                </div>
+              )}
+            </div>
+          </Popup>
+        </Marker>
+      );
+    });
+  }, [districts, selectedDistrictId, activeForecast, onSelectDistrict]);
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
       {/* Map Control Toolbar */}
@@ -226,7 +319,7 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
               </h3>
               <span className="inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                 <Sparkles className="h-3 w-3 mr-1" />
-                Google Maps Powered
+                {HAS_GOOGLE_MAPS_KEY ? 'Google Maps Powered' : 'OpenStreetMap / CartoDB'}
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -334,6 +427,16 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
         </div>
       </div>
 
+      {/* Fallback Cartography Notice when Google Maps API Key is omitted */}
+      {!HAS_GOOGLE_MAPS_KEY && (
+        <div className="flex items-center space-x-2 px-3 py-2 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-600 dark:text-slate-300">
+          <Info className="h-4 w-4 text-slate-500 shrink-0" />
+          <span>
+            Google Maps API key not configured; rendering verified OpenStreetMap / CartoDB cartography. Set <code className="font-mono text-[11px] bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded">VITE_GOOGLE_MAPS_API_KEY</code> in environment to enable Google Maps tiles.
+          </span>
+        </div>
+      )}
+
       {/* Map Canvas Container */}
       <div className="relative h-[520px] w-full rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-inner">
         <MapContainer
@@ -364,67 +467,8 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
             />
           )}
 
-          {/* District & Station Centroid Markers */}
-          {districts.map((d) => {
-            const isPune = d.district_id === 'pune';
-            const isSelected = d.district_id === selectedDistrictId;
-
-            return (
-              <Marker
-                key={d.district_id}
-                position={[d.latitude, d.longitude]}
-                icon={
-                  isPune
-                    ? createBenchmarkStationIcon(isSelected)
-                    : createReferenceDistrictIcon(isSelected)
-                }
-                eventHandlers={{
-                  click: () => onSelectDistrict(d.district_id),
-                }}
-              >
-                <Popup>
-                  <div className="p-1 space-y-1.5 text-xs font-sans">
-                    <div className="font-bold text-slate-900 text-sm">
-                      {isPune ? 'PUNE BENCHMARK STATION' : d.name}
-                    </div>
-                    <div className="text-slate-500">
-                      Coordinates: {d.latitude.toFixed(2)}°N, {d.longitude.toFixed(2)}°E
-                    </div>
-
-                    {isPune && activeForecast ? (
-                      <div className="bg-emerald-50 p-2 rounded border border-emerald-200 text-emerald-950 space-y-1">
-                        <div className="font-semibold text-[11px] text-emerald-800">
-                          Verified Station-Level Benchmark
-                        </div>
-                        <div>
-                          Raw NWP: <strong>{activeForecast.raw_nwp_rainfall_mm.toFixed(1)} mm</strong>
-                        </div>
-                        <div>
-                          AI Corrected: <strong>{activeForecast.corrected_rainfall_mm.toFixed(1)} mm</strong>
-                        </div>
-                        <div>
-                          Regime: <strong>{activeForecast.predicted_regime}</strong>
-                        </div>
-                        <div className="text-[10px] text-amber-700 font-medium pt-1">
-                          *District-level spatial average unavailable.
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="bg-slate-100 p-2 rounded border border-slate-200 text-slate-700">
-                        <div className="font-semibold text-rose-600 flex items-center">
-                          <AlertCircle className="h-3.5 w-3.5 mr-1" />
-                          District-level data unavailable
-                        </div>
-                        <div className="text-[10px] text-slate-500 mt-1">
-                          Active telemetry only available for Pune Benchmark Station. No synthetic data generated.
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </Popup>
-              </Marker>
-            );
-          })}
+          {/* District & Station Centroid Markers - Memoized to prevent 675 DivIcon reallocations on render */}
+          {districtMarkers}
         </MapContainer>
 
         {/* Map Legend Overlay */}

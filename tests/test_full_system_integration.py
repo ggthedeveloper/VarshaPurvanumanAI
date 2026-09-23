@@ -71,14 +71,14 @@ def test_02_root_and_health_endpoints(client):
     assert res_root.status_code == 200
     data_root = res_root.json()
     assert data_root["service"] == settings.SERVICE_NAME
-    assert data_root["data_status"] == "REAL_DATA"
+    assert data_root["data_status"] in ["HISTORICAL_BENCHMARK", "REAL_DATA"]
 
     # Health
     res_health = client.get("/api/health")
     assert res_health.status_code == 200
     data_health = res_health.json()
     assert data_health["status"] == "ok"
-    assert data_health["data_status"] == "REAL_DATA"
+    assert data_health["data_status"] in ["HISTORICAL_BENCHMARK", "REAL_DATA"]
     assert all(st == "loaded" for st in data_health["model_status"].values())
 
 
@@ -137,7 +137,8 @@ def test_04_end_to_end_real_data_forecast_flow(client, real_test_sample):
         assert 0.0 <= p_item["decision_threshold_tau"] <= 1.0
 
     # 5. Provenance & metadata
-    assert data["data_status"] == "REAL_DATA"
+    assert data["data_status"] in ["HISTORICAL_BENCHMARK", "REAL_DATA"]
+    assert data["forecast_mode"] == "HISTORICAL_BENCHMARK"
     assert data["prediction_source"] == "verified_model_artifacts"
     assert "Phase 4" in data["model_metadata"]["regime_classifier"]
     assert "Phase 6" in data["model_metadata"]["deterministic_postprocessor"]
@@ -155,7 +156,8 @@ def test_05_pune_benchmark_station_protection(client):
 
     assert data["name"] == "PUNE BENCHMARK STATION"
     assert data["coverage_status"] == "BENCHMARK_ACTIVE"
-    assert data["data_status"] == "REAL_DATA"
+    assert data["data_status"] in ["HISTORICAL_BENCHMARK", "REAL_DATA"]
+    assert data["forecast_mode"] == "HISTORICAL_BENCHMARK"
     assert data["forecast"] is not None
 
     # Verify benchmark notice in message

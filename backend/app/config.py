@@ -12,7 +12,7 @@ class Settings:
     HOST: str = os.getenv("BACKEND_HOST", "127.0.0.1")
     PORT: int = int(os.getenv("BACKEND_PORT", "8000"))
     APP_ENV: str = os.getenv("APP_ENV", "production")
-    DATA_STATUS: str = os.getenv("DATA_STATUS", "REAL_DATA")
+    DATA_STATUS: str = os.getenv("DATA_STATUS", "HISTORICAL_BENCHMARK")
 
     # CORS configuration
     CORS_ALLOWED_ORIGINS: List[str] = [

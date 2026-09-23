@@ -10,7 +10,7 @@
 
 The VarshaPurvanumanAI frontend is built as a meteorological decision-support control center. It connects directly to the Phase 9 FastAPI REST backend and provides an interactive interface for inspecting operational weather regime classifications, AI bias-corrected rainfall forecasts, calibrated heavy-rainfall exceedance probabilities, and Phase 8 verification benchmarks.
 
-- **Framework**: React 18 with TypeScript
+- **Framework**: React 19 with TypeScript
 - **Build Tool**: Vite v8
 - **Styling**: Tailwind CSS v4 (designed according to `awesome-design-md` meteorological design tokens)
 - **Mapping & GIS**: Leaflet v1.9 + React-Leaflet v5 (with verified administrative GeoJSON boundaries and centroid markers)

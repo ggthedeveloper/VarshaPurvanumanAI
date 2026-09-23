@@ -369,7 +369,9 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
     expect(screen.queryByText('0.0 mm')).not.toBeInTheDocument();
 
     // Confirm navigation button exists and identifies Pune benchmark station
-    const returnBtn = screen.getByText(/View Pune Benchmark Station Telemetry \(Station-level benchmark • 18.50°N, 73.80°E\)/i);
+    const returnBtns = screen.getAllByRole('button', { name: /View Pune Benchmark Station/i });
+    expect(returnBtns.length).toBeGreaterThanOrEqual(1);
+    const returnBtn = returnBtns[0];
     expect(returnBtn).toBeInTheDocument();
 
     // Click button and confirm callback fires
@@ -404,7 +406,7 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
 
     expect(screen.queryByText('5.4')).not.toBeInTheDocument();
     expect(screen.queryByText('3.3')).not.toBeInTheDocument();
-    expect(screen.getAllByText('DISTRICT-LEVEL DATA UNAVAILABLE').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('DATA UNAVAILABLE').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/Target Location: Nagpur/i)).toBeInTheDocument();
 
     // 3. Test another unmonitored district (Mumbai)
@@ -431,6 +433,96 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
     );
 
     // Confirm Pune forecast values correctly reappear
+    expect(screen.getByText('5.4')).toBeInTheDocument();
+    expect(screen.getByText('3.3')).toBeInTheDocument();
+    expect(screen.getByText(/Target Location: PUNE BENCHMARK STATION/i)).toBeInTheDocument();
+  });
+
+  it('12. WeatherRegimePanel renders N/A for category, confidence, and model when predictedRegime is null', () => {
+    render(
+      <WeatherRegimePanel
+        predictedRegime={null}
+        probabilities={{}}
+        confidence={null}
+        selectedModel={null}
+      />
+    );
+
+    expect(screen.getAllByText('N/A').length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText(/Confidence: N\/A/i)).toBeInTheDocument();
+    expect(screen.getByText(/Regime classification unavailable/i)).toBeInTheDocument();
+  });
+
+  it('13. ProbabilityPanel renders explicit N/A when probabilities array is empty', () => {
+    render(
+      <ProbabilityPanel
+        probabilities={[]}
+        disclaimer="MODEL EXCEEDANCE PROBABILITIES DISCLAIMER"
+      />
+    );
+
+    expect(screen.getByText(/Exceedance Probabilities:/i)).toBeInTheDocument();
+    expect(screen.getByText('N/A')).toBeInTheDocument();
+    expect(screen.getByText(/Probability exceedance estimates unavailable for unmonitored locations/i)).toBeInTheDocument();
+  });
+
+  it('14. Complete State Sequence: Pune -> Nagpur -> Mumbai -> Bhopal -> Pune maintains zero stale values', () => {
+    const { rerender } = render(
+      <ForecastSummaryCards
+        forecast={mockForecast}
+        stationName="PUNE BENCHMARK STATION"
+        isStationLevelBenchmark={true}
+      />
+    );
+
+    // Initial Pune
+    expect(screen.getByText('5.4')).toBeInTheDocument();
+    expect(screen.getByText('3.3')).toBeInTheDocument();
+
+    // Transition to Nagpur
+    rerender(
+      <ForecastSummaryCards
+        forecast={null}
+        stationName="Nagpur"
+        isStationLevelBenchmark={false}
+      />
+    );
+    expect(screen.queryByText('5.4')).not.toBeInTheDocument();
+    expect(screen.queryByText('3.3')).not.toBeInTheDocument();
+    expect(screen.getByText(/Target Location: Nagpur/i)).toBeInTheDocument();
+
+    // Transition to Mumbai
+    rerender(
+      <ForecastSummaryCards
+        forecast={null}
+        stationName="Mumbai"
+        isStationLevelBenchmark={false}
+      />
+    );
+    expect(screen.queryByText('5.4')).not.toBeInTheDocument();
+    expect(screen.queryByText('3.3')).not.toBeInTheDocument();
+    expect(screen.getByText(/Target Location: Mumbai/i)).toBeInTheDocument();
+
+    // Transition to Bhopal
+    rerender(
+      <ForecastSummaryCards
+        forecast={null}
+        stationName="Bhopal"
+        isStationLevelBenchmark={false}
+      />
+    );
+    expect(screen.queryByText('5.4')).not.toBeInTheDocument();
+    expect(screen.queryByText('3.3')).not.toBeInTheDocument();
+    expect(screen.getByText(/Target Location: Bhopal/i)).toBeInTheDocument();
+
+    // Transition back to Pune
+    rerender(
+      <ForecastSummaryCards
+        forecast={mockForecast}
+        stationName="PUNE BENCHMARK STATION"
+        isStationLevelBenchmark={true}
+      />
+    );
     expect(screen.getByText('5.4')).toBeInTheDocument();
     expect(screen.getByText('3.3')).toBeInTheDocument();
     expect(screen.getByText(/Target Location: PUNE BENCHMARK STATION/i)).toBeInTheDocument();

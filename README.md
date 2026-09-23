@@ -2,11 +2,11 @@
 ## Regime-Aware AI Post-Processing of Monsoon Rainfall Forecasts
 
 [![Backend Tests](https://img.shields.io/badge/pytest-84%20passed-brightgreen.svg)]()
-[![Frontend Tests](https://img.shields.io/badge/vitest-11%20passed-brightgreen.svg)]()
-[![System Tests](https://img.shields.io/badge/integration-95%2F95%20passed-brightgreen.svg)]()
+[![Frontend Tests](https://img.shields.io/badge/vitest-14%20passed-brightgreen.svg)]()
+[![System Tests](https://img.shields.io/badge/tests-98%2F98%20passed-brightgreen.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)]()
-[![React 18](https://img.shields.io/badge/react-18.3-61dafb.svg)]()
+[![React 19](https://img.shields.io/badge/react-19.2-61dafb.svg)]()
 
 > **Smart India Hackathon (SIH 2026) | Problem Statement SIH26080**  
 > **Theme:** Smart Automation / Disaster Management  
@@ -70,7 +70,7 @@ Numerical Weather Prediction (NWP) models (such as NOAA GFS and NCMRWF NCUM) exh
                                               │
                                               ▼
                              ┌─────────────────────────────────┐
-                             │     React 18 + Vite Dashboard   │
+                             │     React 19 + Vite Dashboard   │
                              │  • Interactive District Map     │
                              │  • Real vs Demo Data Badging    │
                              │  • Benchmark Station Isolation  │
@@ -84,7 +84,7 @@ Numerical Weather Prediction (NWP) models (such as NOAA GFS and NCMRWF NCUM) exh
 | Role | Authoritative Source | Resolution / Details | Operational Usage |
 |:---|:---|:---|:---|
 | **NWP Predictors** | NOAA Global Forecast System (GFS) via Open-Meteo API | 0.25° grid, 00:00 UTC daily runs, 24 h lead time ($t+24$) | Model input features (wind, moisture, CAPE, precipitation) |
-| **Observation Truth** | India Meteorological Department (IMD) Ground Telemetry | Pune benchmark station (18.50°N, 73.80°E) | Supervised target ($y$) for bias correction and validation |
+| **Observation Truth** | India Meteorological Department (IMD) Ground Benchmark | IMD Western Ghats 0.25° Gridded Observation Benchmark (Zenodo mirror DOI: 10.5281/zenodo.20177433) extracted at Pune coordinates (18.50°N, 73.80°E) | Supervised target ($y$) for bias correction and validation |
 | **Administrative Boundaries** | Survey of India / DataMeet Boundaries | 675 verified district GeoJSON polygons | Spatial visualization and district product architecture |
 | **Synoptic Regime Rules** | IMD / MoES Peer-Reviewed Literature | Rajeevan et al. (2008, 2010), Pai et al. (2014) | Objective criteria for synoptic event labeling |
 
@@ -94,15 +94,16 @@ Numerical Weather Prediction (NWP) models (such as NOAA GFS and NCMRWF NCUM) exh
 
 > [!IMPORTANT]
 > **PUNE BENCHMARK STATION (18.50°N, 73.80°E)**
-> - The currently active verified telemetry in this repository is strictly a **station-level benchmark** for the Pune station ($18.50^\circ\text{N}, 73.80^\circ\text{E}$).
-> - It is **NOT** presented as a district-level forecast for Pune District or any other district.
-> - The dashboard architecture fully supports district-level forecast ingestion when multi-station gridded observations become operationally connected.
+> - The currently active verified telemetry in this repository is strictly a **historical station-level benchmark replay** for the Pune station ($18.50^\circ\text{N}, 73.80^\circ\text{E}$) using the held-out test sample from June 30, 2024 (`sample_timestamp: 2024-07-01 00:00:00+00:00`).
+> - It is **NOT** presented as a live forecast, nor as a district-level forecast for Pune District or any other district.
+> - The dashboard architecture fully supports live district-level forecast ingestion when multi-station gridded observations become operationally connected.
 > - For all unmonitored districts, the API and dashboard strictly return:
 >   ```json
 >   "coverage_status": "DATA_UNAVAILABLE",
+>   "forecast_mode": "DATA_UNAVAILABLE",
 >   "forecast": null
 >   ```
-> - The application **never fabricates or interpolates** rainfall data for unmonitored districts.
+> - The application **never fabricates or interpolates** rainfall data for unmonitored districts. All UI panels explicitly show `N/A` for missing predictors, regime, confidence, and probabilities.
 
 ---
 
@@ -183,7 +184,7 @@ VarshaPurvanumanAI/
 │   │   ├── schemas/          # Pydantic v2 data contracts & validators
 │   │   ├── services/         # Model loader, predictor, feature pipeline
 │   │   └── utils/            # GeoJSON boundary loaders
-├── frontend/                 # React 18 + Vite + TypeScript Dashboard
+├── frontend/                 # React 19 + Vite + TypeScript Dashboard
 │   ├── src/
 │   │   ├── App.tsx           # Dashboard root & state management
 │   │   ├── components/       # Map, summary cards, regime badges, probability
@@ -233,11 +234,25 @@ cd frontend
 # Install dependencies
 npm install
 
-# Run all 11 frontend component and integration tests
-npx vitest run
+# Run all 14 frontend component and integration tests
+npm test
 
 # Run production build
 npm run build
+```
+
+#### Environment Configuration
+Copy `.env.example` to `.env`:
+```ini
+BACKEND_HOST=127.0.0.1
+BACKEND_PORT=8000
+APP_ENV=production
+DATA_STATUS=HISTORICAL_BENCHMARK
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173
+
+# Optional: Set Google Maps API key; if omitted, map falls back to OpenStreetMap / CartoDB raster tiles
+VITE_GOOGLE_MAPS_API_KEY=
+VITE_API_BASE_URL=
 ```
 
 #### Starting the System for SIH Demonstration
@@ -245,12 +260,12 @@ npm run build
 # Terminal 1: Start FastAPI backend (port 8000)
 uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
 
-# Terminal 2: Start React frontend (port 5173)
+# Terminal 2: Start React frontend (port 3000)
 cd frontend
 npm run dev
 ```
 
-Visit `http://localhost:5173` in your browser.
+Visit `http://localhost:3000` in your browser.
 
 ---
 

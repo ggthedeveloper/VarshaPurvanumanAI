@@ -63,7 +63,7 @@ export const Header: React.FC<HeaderProps> = ({
               title="Verified Zenodo IMD Benchmark & GFS NWP inputs."
             >
               <ShieldCheck className="h-3.5 w-3.5 mr-1 text-emerald-600 dark:text-emerald-400" />
-              REAL DATA
+              {dataStatus === 'HISTORICAL_BENCHMARK' ? 'HISTORICAL BENCHMARK' : 'REAL DATA'}
             </span>
           )}
 

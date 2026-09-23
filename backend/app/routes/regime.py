@@ -26,7 +26,7 @@ def predict_regime(request: RegimePredictionRequest):
         return response
     except ValueError as ve:
         logger.warning(f"Validation error in regime prediction: {ve}")
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(ve))
     except RuntimeError as re:
         logger.error(f"Runtime error in regime prediction: {re}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(re))

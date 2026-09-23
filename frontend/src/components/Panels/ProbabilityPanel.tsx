@@ -46,8 +46,11 @@ export const ProbabilityPanel: React.FC<ProbabilityPanelProps> = ({
 
       {/* Exceedance Probabilities List */}
       {probabilities.length === 0 ? (
-        <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500">
-          Probability exceedance estimates unavailable for unmonitored locations.
+        <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 space-y-1">
+          <div className="font-semibold text-slate-700 dark:text-slate-300">
+            Exceedance Probabilities: <span className="font-bold text-slate-900 dark:text-white">N/A</span>
+          </div>
+          <p>Probability exceedance estimates unavailable for unmonitored locations.</p>
         </div>
       ) : (
         <div className="space-y-3">

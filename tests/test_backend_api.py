@@ -56,7 +56,7 @@ def test_01_health_check(client):
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
-    assert data["data_status"] == "REAL_DATA"
+    assert data["data_status"] in ["HISTORICAL_BENCHMARK", "REAL_DATA"]
     for model_name, status in data["model_status"].items():
         assert status == "loaded", f"Model {model_name} not loaded: {status}"
 
@@ -88,7 +88,7 @@ def test_03_regime_prediction(client, valid_payload):
     probs = data["probabilities"]
     assert abs(sum(probs.values()) - 1.0) < 1e-4
     assert 0.0 <= data["confidence"] <= 1.0
-    assert data["data_status"] == "REAL_DATA"
+    assert data["data_status"] in ["HISTORICAL_BENCHMARK", "REAL_DATA"]
 
 
 def test_04_deterministic_postprocessing_non_negative(client, valid_payload):
@@ -98,7 +98,7 @@ def test_04_deterministic_postprocessing_non_negative(client, valid_payload):
     data = response.json()
     assert data["corrected_rainfall_mm"] >= 0.0
     assert "selected_model" in data
-    assert data["data_status"] == "REAL_DATA"
+    assert data["data_status"] in ["HISTORICAL_BENCHMARK", "REAL_DATA"]
 
 
 def test_05_exceedance_probabilities_valid_range(client, valid_payload):
@@ -125,7 +125,9 @@ def test_06_combined_forecast(client, valid_payload):
     assert "heavy_rainfall_probabilities" in data
     assert len(data["heavy_rainfall_probabilities"]) == 5
     assert "model_metadata" in data
-    assert data["data_status"] == "REAL_DATA"
+    assert data["data_status"] in ["HISTORICAL_BENCHMARK", "REAL_DATA"]
+    assert data["forecast_mode"] == "HISTORICAL_BENCHMARK"
+    assert "sample_timestamp" in data
 
 
 def test_07_district_pune_benchmark_active(client):
@@ -136,7 +138,9 @@ def test_07_district_pune_benchmark_active(client):
     assert data["coverage_status"] == "BENCHMARK_ACTIVE"
     assert data["forecast"] is not None
     assert data["forecast"]["corrected_rainfall_mm"] >= 0.0
-    assert data["data_status"] == "REAL_DATA"
+    assert data["data_status"] in ["HISTORICAL_BENCHMARK", "REAL_DATA"]
+    assert data["forecast_mode"] == "HISTORICAL_BENCHMARK"
+    assert "sample_timestamp" in data
 
 
 def test_08_district_non_monitored_unavailable_notice(client):
@@ -146,6 +150,7 @@ def test_08_district_non_monitored_unavailable_notice(client):
     data = response.json()
     assert data["coverage_status"] == "DATA_UNAVAILABLE"
     assert data["forecast"] is None
+    assert data["forecast_mode"] == "DATA_UNAVAILABLE"
     assert "not fabricated" in data["message"].lower()
 
 
@@ -176,7 +181,7 @@ def test_10_verification_fss_not_computable(client):
 
 
 def test_11_invalid_input_validation(client, valid_payload):
-    """11. Invalid input validation (negative rainfall, out-of-range RH, non-existent district)."""
+    """11. Invalid input validation (negative rainfall, out-of-range RH, non-existent district, missing predictors)."""
     # Negative precipitation
     bad_payload1 = valid_payload.copy()
     bad_payload1["nwp_rainfall"] = -5.0
@@ -194,6 +199,25 @@ def test_11_invalid_input_validation(client, valid_payload):
     r3 = client.post("/api/rainfall/predict", json=bad_payload3)
     assert r3.status_code == 422
     assert "Forbidden target/leakage term" in str(r3.json()["details"])
+
+    # Missing single required predictor (cape omitted)
+    bad_payload_missing = valid_payload.copy()
+    del bad_payload_missing["cape"]
+    r_missing = client.post("/api/rainfall/predict", json=bad_payload_missing)
+    assert r_missing.status_code == 422
+    assert "cape" in str(r_missing.json()).lower()
+
+    # Missing multiple required predictors (both winds omitted)
+    bad_payload_multi_missing = valid_payload.copy()
+    del bad_payload_multi_missing["u_wind_10m"]
+    del bad_payload_multi_missing["v_wind_10m"]
+    r_multi = client.post("/api/forecast", json=bad_payload_multi_missing)
+    assert r_multi.status_code == 422
+
+    # Features dict missing required features
+    bad_payload_dict = {"features": {"nwp_rainfall": 5.4, "wind_speed_ms": 5.2}}
+    r_dict = client.post("/api/forecast", json=bad_payload_dict)
+    assert r_dict.status_code == 422
 
     # Non-existent district
     r4 = client.get("/api/district/non_existent_district_xyz/forecast")
@@ -257,7 +281,7 @@ def test_16_predicted_regime_routing(client, valid_payload):
 
 
 def test_17_real_data_provenance(client, valid_payload):
-    """17. Real data provenance: verify data_status='REAL_DATA' in responses."""
+    """17. Real data provenance: verify data_status in responses."""
     endpoints = [
         ("/api/health", "GET", None),
         ("/api/regime/predict", "POST", valid_payload),
@@ -275,4 +299,4 @@ def test_17_real_data_provenance(client, valid_payload):
             r = client.post(url, json=payload)
         assert r.status_code == 200
         data = r.json()
-        assert data.get("data_status") == "REAL_DATA", f"Endpoint {url} missing data_status=REAL_DATA"
+        assert data.get("data_status") in ["HISTORICAL_BENCHMARK", "REAL_DATA"], f"Endpoint {url} missing data_status"

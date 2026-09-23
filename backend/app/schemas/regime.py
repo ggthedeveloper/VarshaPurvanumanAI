@@ -51,20 +51,41 @@ class RegimePredictionRequest(BaseModel):
 
     @model_validator(mode="after")
     def check_inputs(self):
-        has_any = (
-            self.features is not None
-            or self.nwp_rainfall is not None
-            or self.wind_speed_ms is not None
-            or self.temperature_2m is not None
-            or self.relative_humidity_2m is not None
-            or self.cape is not None
-            or self.day_of_year is not None
-            or self.u_wind_10m is not None
-            or self.v_wind_10m is not None
-            or self.surface_pressure is not None
-        )
-        if not has_any:
-            raise ValueError("Empty request payload. Provide either 'features' dictionary or physical parameters.")
+        # Case 1: Pre-engineered features provided
+        if self.features is not None:
+            if len(self.features) == 0:
+                raise ValueError("The 'features' dictionary cannot be empty. Provide all 29 canonical features or physical predictors.")
+            canonical_29 = [
+                "nwp_rainfall", "log_nwp_rainfall", "wind_speed_ms", "u_wind_10m", "v_wind_10m",
+                "temperature_2m", "relative_humidity_2m", "dew_point_depression", "surface_pressure",
+                "cape", "w_max_convective", "month", "day_of_year", "sin_doy", "cos_doy", "sin_month",
+                "cos_month", "is_monsoon_season", "is_monsoon_core", "is_ne_monsoon", "forecast_lead_time",
+                "latitude", "longitude", "in_core_monsoon_zone", "in_western_ghats_belt",
+                "in_northeast_hills", "dist_to_coast_approx_km", "nwp_rainfall_lag1", "nwp_rainfall_rolling3"
+            ]
+            missing_cols = [col for col in canonical_29 if col not in self.features or self.features[col] is None]
+            if missing_cols:
+                raise ValueError(f"Incomplete features dictionary. Missing required feature(s): {', '.join(missing_cols)}")
+            return self
+
+        # Case 2: Raw meteorological parameters provided
+        required_physical = [
+            "nwp_rainfall",
+            "wind_speed_ms",
+            "u_wind_10m",
+            "v_wind_10m",
+            "temperature_2m",
+            "relative_humidity_2m",
+            "surface_pressure",
+            "cape",
+            "month",
+            "day_of_year",
+            "latitude",
+            "longitude",
+        ]
+        missing = [f for f in required_physical if getattr(self, f, None) is None]
+        if missing:
+            raise ValueError(f"Missing required meteorological predictor(s): {', '.join(missing)}. Incomplete physical inputs cannot be safely inferred.")
         return self
 
 
@@ -76,5 +97,5 @@ class RegimePredictionResponse(BaseModel):
     probabilities: Dict[str, float] = Field(description="Posterior probability per regime.")
     confidence: float = Field(ge=0.0, le=1.0, description="Highest class probability.")
     model_version: str = Field(default="v1.0.0-phase4", description="Regime classifier model version.")
-    data_status: str = Field(default="REAL_DATA", description="Data provenance status.")
+    data_status: str = Field(default="HISTORICAL_BENCHMARK", description="Data provenance status.")
     timestamp: str = Field(description="ISO timestamp of inference.")

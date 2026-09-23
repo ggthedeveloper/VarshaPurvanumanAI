@@ -3,7 +3,12 @@
  * Strict typed mirror of Phase 9 FastAPI schemas.
  */
 
-export type DataStatus = 'REAL_DATA' | 'DEMO_DATA';
+export type DataStatus =
+  | 'REAL_DATA'
+  | 'HISTORICAL_BENCHMARK'
+  | 'DEMO_DATA'
+  | 'LIVE_NWP'
+  | 'DATA_UNAVAILABLE';
 
 export type SynopticRegime =
   | 'ACTIVE_MONSOON'
@@ -119,6 +124,8 @@ export interface CombinedForecastResponse {
   heavy_rainfall_probabilities: ProbabilityThresholdItem[];
   model_metadata: Record<string, string>;
   data_status: DataStatus;
+  forecast_mode?: string;
+  sample_timestamp?: string;
   prediction_source: string;
   timestamp: string;
 }
@@ -147,6 +154,8 @@ export interface DistrictForecastResponse {
   coverage_status: CoverageStatus;
   forecast: CombinedForecastResponse | null;
   message: string;
+  forecast_mode?: string;
+  sample_timestamp?: string;
   data_status: DataStatus;
 }
 

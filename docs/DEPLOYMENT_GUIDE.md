@@ -50,8 +50,13 @@
    BACKEND_HOST=127.0.0.1
    BACKEND_PORT=8000
    APP_ENV=production
-   DATA_STATUS=REAL_DATA
+   DATA_STATUS=HISTORICAL_BENCHMARK
    CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173
+
+   # Optional Frontend Configuration
+   VITE_API_BASE_URL=
+   # Optional Google Maps Key; if unset, the map automatically falls back to OpenStreetMap / CartoDB tiles
+   VITE_GOOGLE_MAPS_API_KEY=
    ```
 
 ### 2.2 Frontend Environment Setup

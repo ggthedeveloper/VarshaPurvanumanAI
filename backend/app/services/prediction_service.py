@@ -166,6 +166,7 @@ class PredictionService:
             heavy_rainfall_probabilities=prob_res.probabilities,
             model_metadata=model_meta,
             data_status=settings.DATA_STATUS,
+            forecast_mode="HISTORICAL_BENCHMARK",
             prediction_source="verified_model_artifacts",
             timestamp=datetime.now(timezone.utc).isoformat(),
         )

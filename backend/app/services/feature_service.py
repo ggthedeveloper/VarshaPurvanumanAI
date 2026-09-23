@@ -60,38 +60,56 @@ class FeatureService:
         if req.features is not None and len(req.features) > 0:
             feat_dict = req.features.copy()
             # If NWP rainfall was explicitly set in top-level request, ensure consistency
-            raw_nwp_val = req.nwp_rainfall if req.nwp_rainfall is not None else feat_dict.get("nwp_rainfall", 0.0)
+            raw_nwp_val = req.nwp_rainfall if req.nwp_rainfall is not None else feat_dict.get("nwp_rainfall")
+            if raw_nwp_val is None:
+                raise ValueError("Required feature 'nwp_rainfall' is missing.")
 
-            # Check if all required features exist; impute defaults if any missing
-            provenance = registry.feature_provenance or {}
-            impute_defaults = provenance.get("impute_values", {})
+            # Validate all 29 required features exist; never silently impute
+            missing_cols = [col for col in FEATURE_COLUMNS_ORDER if col not in feat_dict or feat_dict[col] is None]
+            if missing_cols:
+                raise ValueError(f"Incomplete features dictionary. Missing required feature(s): {', '.join(missing_cols)}")
 
             row = {}
             for col in FEATURE_COLUMNS_ORDER:
-                if col in feat_dict:
-                    val = float(feat_dict[col])
-                    if math.isnan(val) or math.isinf(val):
-                        raise ValueError(f"Feature '{col}' contains invalid value (NaN or Infinity).")
-                    row[col] = val
-                elif col in impute_defaults:
-                    row[col] = float(impute_defaults[col])
-                else:
-                    row[col] = 0.0
+                val = float(feat_dict[col])
+                if math.isnan(val) or math.isinf(val):
+                    raise ValueError(f"Feature '{col}' contains invalid value (NaN or Infinity).")
+                row[col] = val
 
             df = pd.DataFrame([row], columns=FEATURE_COLUMNS_ORDER)
             return df, float(raw_nwp_val)
 
-        # Case 2: Raw meteorological parameters provided
+        # Case 2: Raw meteorological parameters provided - strict validation of required physical parameters
+        required_physical = [
+            "nwp_rainfall",
+            "wind_speed_ms",
+            "u_wind_10m",
+            "v_wind_10m",
+            "temperature_2m",
+            "relative_humidity_2m",
+            "surface_pressure",
+            "cape",
+            "month",
+            "day_of_year",
+            "latitude",
+            "longitude",
+        ]
+        missing_physical = [field for field in required_physical if getattr(req, field, None) is None]
+        if missing_physical:
+            raise ValueError(f"Missing required meteorological predictor(s): {', '.join(missing_physical)}. Incomplete physical inputs cannot be safely inferred.")
+
         provenance = registry.feature_provenance or {}
         impute = provenance.get("impute_values", {})
         scaler_means = provenance.get("scaler_means", [])
         scaler_scales = provenance.get("scaler_scale", [])
 
-        raw_rainfall = req.nwp_rainfall if req.nwp_rainfall is not None else 0.0
+        raw_rainfall = float(req.nwp_rainfall)
+        if raw_rainfall < 0.0:
+            raise ValueError(f"Rainfall cannot be negative: {raw_rainfall} mm.")
         log_rainfall = math.log1p(raw_rainfall)
 
-        month_val = req.month if req.month is not None else 7
-        doy_val = req.day_of_year if req.day_of_year is not None else 200
+        month_val = int(req.month)
+        doy_val = int(req.day_of_year)
 
         # Cyclical transformations
         sin_doy = math.sin(2.0 * math.pi * doy_val / 365.25)
@@ -100,24 +118,30 @@ class FeatureService:
         cos_month = math.cos(2.0 * math.pi * month_val / 12.0)
 
         # Spatial
-        lat = req.latitude if req.latitude is not None else 18.50
-        lon = req.longitude if req.longitude is not None else 73.80
+        lat = float(req.latitude)
+        lon = float(req.longitude)
 
         # Thermodynamical
-        t2m = req.temperature_2m if req.temperature_2m is not None else impute.get("temperature_2m", 24.0)
-        rh = req.relative_humidity_2m if req.relative_humidity_2m is not None else impute.get("relative_humidity_2m", 80.0)
+        t2m = float(req.temperature_2m)
+        rh = float(req.relative_humidity_2m)
+        if not (0.0 <= rh <= 100.0):
+            raise ValueError(f"Relative humidity must be between 0% and 100%, got {rh}%.")
         dp_dep = (100.0 - rh) / 5.0  # Approx dew point depression
 
-        cape_val = req.cape if req.cape is not None else impute.get("cape", 200.0)
+        cape_val = float(req.cape)
+        if cape_val < 0.0:
+            raise ValueError(f"CAPE cannot be negative, got {cape_val} J/kg.")
         w_max = math.sqrt(2.0 * max(0.0, cape_val))
 
         # Wind
-        wspd = req.wind_speed_ms if req.wind_speed_ms is not None else impute.get("wind_speed_ms", 5.0)
-        u10 = req.u_wind_10m if req.u_wind_10m is not None else impute.get("u_wind_10m", 4.0)
-        v10 = req.v_wind_10m if req.v_wind_10m is not None else impute.get("v_wind_10m", 2.0)
+        wspd = float(req.wind_speed_ms)
+        u10 = float(req.u_wind_10m)
+        v10 = float(req.v_wind_10m)
 
-        sp = req.surface_pressure if req.surface_pressure is not None else impute.get("surface_pressure", 940.0)
-        lead = req.forecast_lead_time if req.forecast_lead_time is not None else 1.0
+        sp = float(req.surface_pressure)
+        if not (500.0 < sp < 1100.0):
+            raise ValueError(f"Surface pressure out of physical range: {sp} hPa.")
+        lead = float(req.forecast_lead_time) if req.forecast_lead_time is not None else 1.0
 
         raw_vector = {
             "nwp_rainfall": raw_rainfall,
