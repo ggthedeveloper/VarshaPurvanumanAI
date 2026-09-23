@@ -9,7 +9,6 @@ import {
   Mountain,
   Globe2,
   Map as MapIcon,
-  Moon,
   Sparkles,
 } from 'lucide-react';
 import { DistrictItem, CombinedForecastResponse } from '../../types/api';
@@ -21,7 +20,7 @@ export type MapLayerType =
   | 'regime'
   | 'probability';
 
-export type BaseMapType = 'terrain' | 'satellite' | 'streets' | 'dark';
+export type BaseMapType = 'terrain' | 'satellite' | 'streets';
 
 interface RainfallMapProps {
   districts: DistrictItem[];
@@ -133,7 +132,7 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
 }) => {
   const [activeLayer, setActiveLayer] = useState<MapLayerType>('corrected');
   // Default to Google Terrain for optimal monsoon orographic visualization
-  const [baseMap, setBaseMap] = useState<BaseMapType>(isDarkMode ? 'dark' : 'terrain');
+  const [baseMap, setBaseMap] = useState<BaseMapType>('terrain');
 
   // Compute map center based on selected district
   const selectedDistrict = districts.find((d) => d.district_id === selectedDistrictId);
@@ -141,15 +140,6 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
     ? [selectedDistrict.latitude, selectedDistrict.longitude]
     : [18.5204, 73.8567]; // Pune default
   const mapZoom = selectedDistrict ? (selectedDistrictId === 'pune' ? 8 : 7) : 6;
-
-  // Sync dark mode preference with base map if user hasn't explicitly picked a Google layer
-  useEffect(() => {
-    if (isDarkMode && baseMap === 'terrain') {
-      setBaseMap('dark');
-    } else if (!isDarkMode && baseMap === 'dark') {
-      setBaseMap('terrain');
-    }
-  }, [isDarkMode]);
 
   // Base map tile configuration
   const getTileConfig = () => {
@@ -167,17 +157,11 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
           maxZoom: 20,
         };
       case 'streets':
+      default:
         return {
           url: `https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_KEY}`,
           attribution: '&copy; Google Maps (Roadmap)',
           maxZoom: 20,
-        };
-      case 'dark':
-      default:
-        return {
-          url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-          maxZoom: 19,
         };
     }
   };
@@ -291,18 +275,6 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
             >
               <MapIcon className="h-3 w-3" />
               <span>Roads</span>
-            </button>
-            <button
-              onClick={() => setBaseMap('dark')}
-              title="High-Contrast Dark Mode"
-              className={`flex items-center space-x-1 px-2 py-1 rounded transition ${
-                baseMap === 'dark'
-                  ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-xs font-semibold'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
-              }`}
-            >
-              <Moon className="h-3 w-3" />
-              <span>Dark</span>
             </button>
           </div>
 
