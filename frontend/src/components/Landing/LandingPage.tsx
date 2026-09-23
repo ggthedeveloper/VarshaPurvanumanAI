@@ -12,18 +12,30 @@ import {
   BarChart3,
   Award
 } from 'lucide-react';
-import { DistrictItem } from '../../types/api';
+import { DistrictItem, CombinedForecastResponse } from '../../types/api';
+import { RainfallMap } from '../Map/RainfallMap';
+import { ErrorBoundary } from '../Common/ErrorBoundary';
 
 interface LandingPageProps {
   onNavigateToForecast: (districtId?: string) => void;
   onNavigateToVerification: () => void;
   districts: DistrictItem[];
+  selectedDistrictId: string;
+  onSelectDistrict: (districtId: string) => void;
+  activeForecast: CombinedForecastResponse | null;
+  geoJsonData: any | null;
+  isDarkMode: boolean;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({
   onNavigateToForecast,
   onNavigateToVerification,
   districts,
+  selectedDistrictId,
+  onSelectDistrict,
+  activeForecast,
+  geoJsonData,
+  isDarkMode,
 }) => {
   // Key showcase locations across India
   const showcaseIds = ['pune', 'mumbai', 'nagpur', 'bengaluru_urban', 'new_delhi', 'kolkata', 'chennai', 'jaipur'];
@@ -219,6 +231,41 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             );
           })}
         </div>
+      </section>
+
+      {/* Live Interactive National Monsoon Map */}
+      <section className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+              <Compass className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              <span>Live National Monsoon Radar & Observation Map</span>
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Interactive geographic map across 78 Indian district stations with Google terrain topography and regime-aware bias correction
+            </p>
+          </div>
+          <button
+            onClick={() => onNavigateToForecast()}
+            className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center self-start sm:self-auto cursor-pointer"
+          >
+            <span>Open Advanced Forecast Cockpit</span>
+            <ArrowRight className="h-3.5 w-3.5 ml-1" />
+          </button>
+        </div>
+
+        <ErrorBoundary fallbackTitle="Forecast Map Error" fallbackMessage="Map component encountered a rendering issue. Click Reset below to re-render.">
+          <RainfallMap
+            districts={districts}
+            selectedDistrictId={selectedDistrictId}
+            onSelectDistrict={(id) => {
+              onSelectDistrict(id);
+            }}
+            activeForecast={activeForecast}
+            geoJsonData={geoJsonData}
+            isDarkMode={isDarkMode}
+          />
+        </ErrorBoundary>
       </section>
 
       {/* System Architecture Flow */}

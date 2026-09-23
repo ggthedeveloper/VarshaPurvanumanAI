@@ -20,6 +20,7 @@ import { ForecastTable } from './components/Tables/ForecastTable';
 import { VerificationDashboard } from './components/Verification/VerificationDashboard';
 import { LimitationsPanel } from './components/Panels/LimitationsPanel';
 import { DemoModeModal } from './components/Panels/DemoModeModal';
+import { ErrorBoundary } from './components/Common/ErrorBoundary';
 import { AlertTriangle, ShieldCheck } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -201,60 +202,68 @@ export const App: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* VIEW 1: Landing Page (Overview / Home) */}
-        {activeTab === 'home' && (
-          <LandingPage
-            onNavigateToForecast={(districtId) => {
-              if (districtId) {
-                handleSelectDistrict(districtId);
-              }
-              setActiveTab('forecast');
-            }}
-            onNavigateToVerification={() => setActiveTab('verification')}
-            districts={districts}
-          />
-        )}
-
-        {/* VIEW 2: Interactive Forecast Explorer */}
-        {activeTab === 'forecast' && (
-          <div className="space-y-6">
-            {/* Top Summary Cards */}
-            <ForecastSummaryCards
-              forecast={activeForecast}
-              stationName={districtForecast ? districtForecast.name : 'PUNE BENCHMARK STATION'}
-              isStationLevelBenchmark={districtForecast?.coverage_status === 'BENCHMARK_ACTIVE'}
-              isLoading={districtLoading}
-              onSelectPuneBenchmark={() => handleSelectDistrict('pune')}
+        <ErrorBoundary fallbackTitle="Application View Error">
+          {/* VIEW 1: Landing Page (Overview / Home) */}
+          {activeTab === 'home' && (
+            <LandingPage
+              onNavigateToForecast={(districtId) => {
+                if (districtId) {
+                  handleSelectDistrict(districtId);
+                }
+                setActiveTab('forecast');
+              }}
+              onNavigateToVerification={() => setActiveTab('verification')}
+              districts={districts}
+              selectedDistrictId={selectedDistrictId}
+              onSelectDistrict={handleSelectDistrict}
+              activeForecast={activeForecast}
+              geoJsonData={geoJsonData}
+              isDarkMode={isDarkMode}
             />
+          )}
 
-            {/* Primary Spatial & Operational Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* Left Column (8 Cols): Map, District Detail & Catalog Table */}
-              <div className="lg:col-span-8 space-y-6">
-                {/* Interactive Leaflet Map */}
-                <RainfallMap
-                  districts={districts}
-                  selectedDistrictId={selectedDistrictId}
-                  onSelectDistrict={handleSelectDistrict}
-                  activeForecast={activeForecast}
-                  geoJsonData={geoJsonData}
-                  isDarkMode={isDarkMode}
-                />
+          {/* VIEW 2: Interactive Forecast Explorer */}
+          {activeTab === 'forecast' && (
+            <div className="space-y-6">
+              {/* Top Summary Cards */}
+              <ForecastSummaryCards
+                forecast={activeForecast}
+                stationName={districtForecast ? districtForecast.name : 'PUNE BENCHMARK STATION'}
+                isStationLevelBenchmark={districtForecast?.coverage_status === 'BENCHMARK_ACTIVE'}
+                isLoading={districtLoading}
+                onSelectPuneBenchmark={() => handleSelectDistrict('pune')}
+              />
 
-                {/* Selected District / Station Detail Panel */}
-                <DistrictDetailPanel
-                  districtForecast={districtForecast}
-                  isLoading={districtLoading}
-                />
+              {/* Primary Spatial & Operational Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                {/* Left Column (8 Cols): Map, District Detail & Catalog Table */}
+                <div className="lg:col-span-8 space-y-6">
+                  {/* Interactive Leaflet Map wrapped in ErrorBoundary */}
+                  <ErrorBoundary fallbackTitle="Forecast Map Error">
+                    <RainfallMap
+                      districts={districts}
+                      selectedDistrictId={selectedDistrictId}
+                      onSelectDistrict={handleSelectDistrict}
+                      activeForecast={activeForecast}
+                      geoJsonData={geoJsonData}
+                      isDarkMode={isDarkMode}
+                    />
+                  </ErrorBoundary>
 
-                {/* District & Station Catalog Table */}
-                <ForecastTable
-                  districts={districts}
-                  selectedDistrictId={selectedDistrictId}
-                  onSelectDistrict={handleSelectDistrict}
-                  activeForecast={activeForecast}
-                />
-              </div>
+                  {/* Selected District / Station Detail Panel */}
+                  <DistrictDetailPanel
+                    districtForecast={districtForecast}
+                    isLoading={districtLoading}
+                  />
+
+                  {/* District & Station Catalog Table */}
+                  <ForecastTable
+                    districts={districts}
+                    selectedDistrictId={selectedDistrictId}
+                    onSelectDistrict={handleSelectDistrict}
+                    activeForecast={activeForecast}
+                  />
+                </div>
 
               {/* Right Column (4 Cols): Operational Panels */}
               <div className="lg:col-span-4 space-y-6">
@@ -297,6 +306,7 @@ export const App: React.FC = () => {
             <LimitationsPanel />
           </div>
         )}
+        </ErrorBoundary>
       </main>
 
       {/* Footer */}

@@ -139,11 +139,16 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
   // Default to terrain for optimal monsoon orographic visualization
   const [baseMap, setBaseMap] = useState<BaseMapType>('terrain');
 
+  const isValidCoord = (lat: any, lng: any): boolean =>
+    typeof lat === 'number' && !isNaN(lat) && lat >= -90 && lat <= 90 &&
+    typeof lng === 'number' && !isNaN(lng) && lng >= -180 && lng <= 180;
+
   // Compute map center based on selected district
   const selectedDistrict = districts.find((d) => d.district_id === selectedDistrictId);
-  const mapCenter: [number, number] = selectedDistrict
-    ? [selectedDistrict.latitude, selectedDistrict.longitude]
-    : [18.5204, 73.8567]; // Pune default
+  const mapCenter: [number, number] =
+    selectedDistrict && isValidCoord(selectedDistrict.latitude, selectedDistrict.longitude)
+      ? [selectedDistrict.latitude, selectedDistrict.longitude]
+      : [18.5204, 73.8567]; // Pune default
   const mapZoom = selectedDistrict ? (selectedDistrictId === 'pune' ? 8 : 7) : 6;
 
   // Base map tile configuration with safe OpenStreetMap fallback when API key is not supplied
@@ -221,8 +226,8 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
     layer.bindTooltip(
       `<strong>${districtName}</strong><br/>${
         isPune
-          ? '<span style="color:#10b981;font-weight:600">PUNE BENCHMARK STATION (18.50°N, 73.80°E)</span><br/><span style="color:#f59e0b">Spatial district aggregate unavailable</span>'
-          : '<span style="color:#ef4444">District-level data unavailable</span>'
+          ? '<span style="color:#10b981;font-weight:600">PUNE BENCHMARK STATION (18.50°N, 73.80°E)</span>'
+          : '<span style="color:#6366f1">Operational AI Forecast Station</span>'
       }`,
       { sticky: true }
     );
@@ -241,67 +246,84 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
     });
   };
 
-  // Memoize all 675 district centroid markers to prevent churning DOM DivIcons during pan/zoom/state transitions
+  // Memoize all verified district centroid markers to prevent churning DOM DivIcons during pan/zoom/state transitions
   const districtMarkers = useMemo(() => {
-    return districts.map((d) => {
-      const isPune = d.district_id === 'pune';
-      const isSelected = d.district_id === selectedDistrictId;
-      const markerIcon = isPune
-        ? (isSelected ? benchmarkIconSelected : benchmarkIconUnselected)
-        : (isSelected ? referenceIconSelected : referenceIconUnselected);
+    return districts
+      .filter((d) => isValidCoord(d.latitude, d.longitude))
+      .map((d) => {
+        const isPune = d.district_id === 'pune';
+        const isSelected = d.district_id === selectedDistrictId;
+        const markerIcon = isPune
+          ? (isSelected ? benchmarkIconSelected : benchmarkIconUnselected)
+          : (isSelected ? referenceIconSelected : referenceIconUnselected);
 
-      return (
-        <Marker
-          key={d.district_id}
-          position={[d.latitude, d.longitude]}
-          icon={markerIcon}
-          eventHandlers={{
-            click: () => onSelectDistrict(d.district_id),
-          }}
-        >
-          <Popup>
-            <div className="p-1 space-y-1.5 text-xs font-sans">
-              <div className="font-bold text-slate-900 text-sm">
-                {isPune ? 'PUNE BENCHMARK STATION' : d.name}
-              </div>
-              <div className="text-slate-500">
-                Coordinates: {d.latitude.toFixed(2)}°N, {d.longitude.toFixed(2)}°E
-              </div>
+        return (
+          <Marker
+            key={d.district_id}
+            position={[d.latitude, d.longitude]}
+            icon={markerIcon}
+            eventHandlers={{
+              click: () => onSelectDistrict(d.district_id),
+            }}
+          >
+            <Popup>
+              <div className="p-1 space-y-1.5 text-xs font-sans">
+                <div className="font-bold text-slate-900 text-sm">
+                  {isPune ? 'PUNE BENCHMARK STATION' : `${d.name}, ${d.state}`}
+                </div>
+                <div className="text-slate-500">
+                  Coordinates: {d.latitude.toFixed(2)}°N, {d.longitude.toFixed(2)}°E
+                </div>
 
-              {isPune && activeForecast ? (
-                <div className="bg-emerald-50 p-2 rounded border border-emerald-200 text-emerald-950 space-y-1">
-                  <div className="font-semibold text-[11px] text-emerald-800">
-                    Verified Station-Level Benchmark (Historical Replay)
+                {isPune && activeForecast ? (
+                  <div className="bg-emerald-50 p-2 rounded border border-emerald-200 text-emerald-950 space-y-1">
+                    <div className="font-semibold text-[11px] text-emerald-800">
+                      Verified Station-Level Benchmark (Historical Replay)
+                    </div>
+                    <div>
+                      Raw NWP: <strong>{activeForecast.raw_nwp_rainfall_mm.toFixed(1)} mm</strong>
+                    </div>
+                    <div>
+                      AI Corrected: <strong>{activeForecast.corrected_rainfall_mm.toFixed(1)} mm</strong>
+                    </div>
+                    <div>
+                      Regime: <strong>{activeForecast.predicted_regime}</strong>
+                    </div>
+                    <div className="text-[10px] text-amber-700 font-medium pt-1">
+                      *Station-level benchmark (18.50°N, 73.80°E).
+                    </div>
                   </div>
-                  <div>
-                    Raw NWP: <strong>{activeForecast.raw_nwp_rainfall_mm.toFixed(1)} mm</strong>
+                ) : d.coverage_status === 'OPERATIONAL_ACTIVE' ? (
+                  <div className="bg-indigo-50 p-2 rounded border border-indigo-200 text-indigo-950 space-y-1">
+                    <div className="font-semibold text-[11px] text-indigo-800">
+                      Operational Regime-Aware AI Forecast
+                    </div>
+                    <div>
+                      Raw NWP: <strong>{(isSelected && activeForecast ? activeForecast.raw_nwp_rainfall_mm : d.raw_nwp_rainfall_mm)?.toFixed(1) ?? '—'} mm</strong>
+                    </div>
+                    <div>
+                      AI Corrected: <strong className="text-emerald-700">{(isSelected && activeForecast ? activeForecast.corrected_rainfall_mm : d.corrected_rainfall_mm)?.toFixed(1) ?? '—'} mm</strong>
+                    </div>
+                    <div>
+                      Regime: <strong>{isSelected && activeForecast ? activeForecast.predicted_regime : (d.predicted_regime ?? 'OPERATIONAL')}</strong>
+                    </div>
                   </div>
-                  <div>
-                    AI Corrected: <strong>{activeForecast.corrected_rainfall_mm.toFixed(1)} mm</strong>
+                ) : (
+                  <div className="bg-slate-100 p-2 rounded border border-slate-200 text-slate-700">
+                    <div className="font-semibold text-rose-600 flex items-center">
+                      <AlertCircle className="h-3.5 w-3.5 mr-1" />
+                      Station-level benchmark only
+                    </div>
+                    <div className="text-[10px] text-slate-500 mt-1">
+                      Click marker to view forecast.
+                    </div>
                   </div>
-                  <div>
-                    Regime: <strong>{activeForecast.predicted_regime}</strong>
-                  </div>
-                  <div className="text-[10px] text-amber-700 font-medium pt-1">
-                    *District-level spatial average unavailable.
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-slate-100 p-2 rounded border border-slate-200 text-slate-700">
-                  <div className="font-semibold text-rose-600 flex items-center">
-                    <AlertCircle className="h-3.5 w-3.5 mr-1" />
-                    District-level data unavailable
-                  </div>
-                  <div className="text-[10px] text-slate-500 mt-1">
-                    Historical benchmark only available for Pune Benchmark Station (18.50°N, 73.80°E). No synthetic data generated.
-                  </div>
-                </div>
-              )}
-            </div>
-          </Popup>
-        </Marker>
-      );
-    });
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        );
+      });
   }, [districts, selectedDistrictId, activeForecast, onSelectDistrict]);
 
   return (
