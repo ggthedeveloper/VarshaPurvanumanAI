@@ -8,6 +8,7 @@ export type DataStatus =
   | 'HISTORICAL_BENCHMARK'
   | 'DEMO_DATA'
   | 'LIVE_NWP'
+  | 'OPERATIONAL_NWP'
   | 'DATA_UNAVAILABLE';
 
 export type SynopticRegime =
@@ -19,6 +20,7 @@ export type SynopticRegime =
 
 export type CoverageStatus =
   | 'BENCHMARK_ACTIVE'
+  | 'OPERATIONAL_ACTIVE'
   | 'REFERENCE_ONLY'
   | 'DATA_UNAVAILABLE'
   | 'UNKNOWN_DISTRICT';
@@ -137,6 +139,9 @@ export interface DistrictItem {
   latitude: number;
   longitude: number;
   coverage_status: CoverageStatus;
+  raw_nwp_rainfall_mm?: number | null;
+  corrected_rainfall_mm?: number | null;
+  predicted_regime?: string | null;
 }
 
 export interface DistrictListResponse {

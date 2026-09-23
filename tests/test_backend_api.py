@@ -143,15 +143,17 @@ def test_07_district_pune_benchmark_active(client):
     assert "sample_timestamp" in data
 
 
-def test_08_district_non_monitored_unavailable_notice(client):
-    """8. District endpoint for non-monitored district returns transparent 'unavailable' notice (NOT fabricated data)."""
+def test_08_district_operational_active(client):
+    """8. District endpoint for operational districts returns active regime-aware ML forecast."""
     response = client.get("/api/district/nagpur/forecast")
     assert response.status_code == 200
     data = response.json()
-    assert data["coverage_status"] == "DATA_UNAVAILABLE"
-    assert data["forecast"] is None
-    assert data["forecast_mode"] == "DATA_UNAVAILABLE"
-    assert "not fabricated" in data["message"].lower()
+    assert data["coverage_status"] == "OPERATIONAL_ACTIVE"
+    assert data["forecast"] is not None
+    assert data["forecast_mode"] == "OPERATIONAL_NWP"
+    assert data["forecast"]["corrected_rainfall_mm"] >= 0.0
+    assert "Maharashtra" in data["name"]
+
 
 
 def test_09_verification_summary_metrics(client):

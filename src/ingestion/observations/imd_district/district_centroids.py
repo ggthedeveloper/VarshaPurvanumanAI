@@ -97,6 +97,99 @@ OFFICIAL_DISTRICT_COORDINATES: Dict[str, Tuple[float, float]] = {
     "SOUTH ANDAMAN": (11.6234, 92.7265)
 }
 
+# Authoritative State / Union Territory mapping for verified districts
+OFFICIAL_DISTRICT_STATES: Dict[str, str] = {
+    # Maharashtra
+    "NAGPUR": "Maharashtra",
+    "PUNE": "Maharashtra",
+    "MUMBAI": "Maharashtra",
+    "MUMBAI SUBURBAN": "Maharashtra",
+    "THANE": "Maharashtra",
+    "NASHIK": "Maharashtra",
+    "AURANGABAD": "Maharashtra",
+    "CHHATRAPATI SAMBHAJINAGAR": "Maharashtra",
+    "AMRAVATI": "Maharashtra",
+    "CHANDRAPUR": "Maharashtra",
+    "GADCHIROLI": "Maharashtra",
+    "JALGAON": "Maharashtra",
+    "KOLHAPUR": "Maharashtra",
+    "SATARA": "Maharashtra",
+    "SOLAPUR": "Maharashtra",
+    "WARDHA": "Maharashtra",
+    "YAVATMAL": "Maharashtra",
+
+    # Madhya Pradesh
+    "BHOPAL": "Madhya Pradesh",
+    "INDORE": "Madhya Pradesh",
+    "JABALPUR": "Madhya Pradesh",
+    "GWALIOR": "Madhya Pradesh",
+    "UJJAIN": "Madhya Pradesh",
+    "SAGAR": "Madhya Pradesh",
+    "REWA": "Madhya Pradesh",
+    "HOSHANGABAD": "Madhya Pradesh",
+    "NARMADAPURAM": "Madhya Pradesh",
+
+    # Southern Peninsula
+    "HYDERABAD": "Telangana",
+    "BENGALURU URBAN": "Karnataka",
+    "BENGALURU RURAL": "Karnataka",
+    "CHENNAI": "Tamil Nadu",
+    "COIMBATORE": "Tamil Nadu",
+    "MADURAI": "Tamil Nadu",
+    "VISAKHAPATNAM": "Andhra Pradesh",
+    "VIJAYAWADA": "Andhra Pradesh",
+    "NTR DISTRICT": "Andhra Pradesh",
+    "GUNTUR": "Andhra Pradesh",
+    "KURNOOL": "Andhra Pradesh",
+    "YSR DISTRICT": "Andhra Pradesh",
+    "KADAPA": "Andhra Pradesh",
+    "THIRUVANANTHAPURAM": "Kerala",
+    "KOCHI": "Kerala",
+    "ERNAKULAM": "Kerala",
+    "KOZHIKODE": "Kerala",
+    "WAYANAD": "Kerala",
+    "IDUKKI": "Kerala",
+
+    # Northern & Gangetic Plains
+    "LUCKNOW": "Uttar Pradesh",
+    "KANPUR NAGAR": "Uttar Pradesh",
+    "VARANASI": "Uttar Pradesh",
+    "PRAYAGRAJ": "Uttar Pradesh",
+    "ALLAHABAD": "Uttar Pradesh",
+    "AGRA": "Uttar Pradesh",
+    "PATNA": "Bihar",
+    "GAYA": "Bihar",
+    "MUZAFFARPUR": "Bihar",
+    "BHAGALPUR": "Bihar",
+    "NEW DELHI": "Delhi",
+    "CHANDIGARH": "Chandigarh",
+    "JAIPUR": "Rajasthan",
+    "JODHPUR": "Rajasthan",
+    "UDAIPUR": "Rajasthan",
+    "AMRITSAR": "Punjab",
+    "LUDHIANA": "Punjab",
+
+    # Eastern & North Eastern India
+    "KOLKATA": "West Bengal",
+    "HOWRAH": "West Bengal",
+    "DARJEELING": "West Bengal",
+    "JALPAIGURI": "West Bengal",
+    "BHUBANESWAR": "Odisha",
+    "KHORDHA": "Odisha",
+    "CUTTACK": "Odisha",
+    "PURI": "Odisha",
+    "RANCHI": "Jharkhand",
+    "GUWAHATI": "Assam",
+    "KAMRUP METROPOLITAN": "Assam",
+    "EAST KHASI HILLS": "Meghalaya",
+    "SHILLONG": "Meghalaya",
+    "SOUTH GARO HILLS": "Meghalaya",
+
+    # Islands
+    "NICOBAR": "Andaman and Nicobar Islands",
+    "SOUTH ANDAMAN": "Andaman and Nicobar Islands",
+}
+
 
 def get_district_coordinates(district_name: str) -> Optional[Tuple[float, float]]:
     """Returns (latitude, longitude) for a district name if cataloged."""
@@ -108,3 +201,14 @@ def get_district_coordinates(district_name: str) -> Optional[Tuple[float, float]
         if k in d_clean or d_clean in k:
             return v
     return None
+
+
+def get_district_state(district_name: str) -> str:
+    """Returns authentic State or Union Territory for a district name."""
+    d_clean = district_name.strip().upper()
+    if d_clean in OFFICIAL_DISTRICT_STATES:
+        return OFFICIAL_DISTRICT_STATES[d_clean]
+    for k, v in OFFICIAL_DISTRICT_STATES.items():
+        if k in d_clean or d_clean in k:
+            return v
+    return "India"

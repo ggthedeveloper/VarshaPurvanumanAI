@@ -9,7 +9,8 @@ import {
   VerificationRegimesResponse,
   DataStatus,
 } from './types/api';
-import { Header } from './components/Header';
+import { Header, AppTab } from './components/Header';
+import { LandingPage } from './components/Landing/LandingPage';
 import { ForecastSummaryCards } from './components/Cards/ForecastSummaryCards';
 import { RainfallMap } from './components/Map/RainfallMap';
 import { WeatherRegimePanel } from './components/Panels/WeatherRegimePanel';
@@ -22,6 +23,9 @@ import { DemoModeModal } from './components/Panels/DemoModeModal';
 import { AlertTriangle, ShieldCheck } from 'lucide-react';
 
 export const App: React.FC = () => {
+  // Navigation View State ('home' | 'forecast' | 'verification')
+  const [activeTab, setActiveTab] = useState<AppTab>('home');
+
   // Theme State
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('theme');
@@ -120,10 +124,9 @@ export const App: React.FC = () => {
     try {
       const resp = await api.getDistrictForecast(districtId);
       setDistrictForecast(resp);
-      if (resp.forecast && resp.coverage_status === 'BENCHMARK_ACTIVE') {
+      if (resp.forecast) {
         setActiveForecast(resp.forecast);
       } else {
-        // Explicitly clear forecast when district data is unavailable
         setActiveForecast(null);
       }
     } catch (err: any) {
@@ -140,11 +143,11 @@ export const App: React.FC = () => {
     setDataStatus('DEMO_DATA');
     setIsDemoMode(true);
     api.setDemoMode(true);
+    setActiveTab('forecast');
   };
 
   const handleToggleDemoMode = () => {
     if (isDemoMode) {
-      // Exit demo mode -> reload real benchmark
       setIsDemoMode(false);
       api.setDemoMode(false);
       loadInitialData();
@@ -155,7 +158,7 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col transition-colors">
-      {/* Top Navbar */}
+      {/* Top Navbar with Responsive Navigation Tabs */}
       <Header
         apiConnected={apiConnected}
         dataStatus={dataStatus}
@@ -165,6 +168,8 @@ export const App: React.FC = () => {
         onToggleDemoMode={handleToggleDemoMode}
         onRefresh={loadInitialData}
         isRefreshing={isRefreshing}
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
       />
 
       {/* Global Error Banner */}
@@ -180,14 +185,14 @@ export const App: React.FC = () => {
         <div className="bg-amber-500 text-slate-950 px-4 py-1.5 text-xs font-bold text-center flex items-center justify-center space-x-2 shadow-sm">
           <AlertTriangle className="h-4 w-4" />
           <span>
-            SIH DEMO MODE ACTIVE: Currently visualizing simulated meteorological scenario. Real scientific test data is preserved separately.
+            SIH DEMO MODE ACTIVE: Visualizing simulated scenario. Real scientific data is preserved.
           </span>
           <button
             onClick={() => {
               setIsDemoMode(false);
               loadInitialData();
             }}
-            className="underline ml-2 hover:text-white transition"
+            className="underline ml-2 hover:text-white transition cursor-pointer"
           >
             Reset to Real Data
           </button>
@@ -195,79 +200,103 @@ export const App: React.FC = () => {
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Top Summary Cards */}
-        <ForecastSummaryCards
-          forecast={activeForecast}
-          stationName={districtForecast ? districtForecast.name : 'PUNE BENCHMARK STATION'}
-          isStationLevelBenchmark={districtForecast?.coverage_status === 'BENCHMARK_ACTIVE'}
-          isLoading={districtLoading}
-          onSelectPuneBenchmark={() => handleSelectDistrict('pune')}
-        />
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* VIEW 1: Landing Page (Overview / Home) */}
+        {activeTab === 'home' && (
+          <LandingPage
+            onNavigateToForecast={(districtId) => {
+              if (districtId) {
+                handleSelectDistrict(districtId);
+              }
+              setActiveTab('forecast');
+            }}
+            onNavigateToVerification={() => setActiveTab('verification')}
+            districts={districts}
+          />
+        )}
 
-        {/* Primary Spatial & Operational Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column (8 Cols): Map, District Detail & Table */}
-          <div className="lg:col-span-8 space-y-6">
-            {/* Interactive Leaflet Map */}
-            <RainfallMap
-              districts={districts}
-              selectedDistrictId={selectedDistrictId}
-              onSelectDistrict={handleSelectDistrict}
-              activeForecast={activeForecast}
-              geoJsonData={geoJsonData}
-              isDarkMode={isDarkMode}
-            />
-
-            {/* Selected District / Station Detail Panel */}
-            <DistrictDetailPanel
-              districtForecast={districtForecast}
+        {/* VIEW 2: Interactive Forecast Explorer */}
+        {activeTab === 'forecast' && (
+          <div className="space-y-6">
+            {/* Top Summary Cards */}
+            <ForecastSummaryCards
+              forecast={activeForecast}
+              stationName={districtForecast ? districtForecast.name : 'PUNE BENCHMARK STATION'}
+              isStationLevelBenchmark={districtForecast?.coverage_status === 'BENCHMARK_ACTIVE'}
               isLoading={districtLoading}
+              onSelectPuneBenchmark={() => handleSelectDistrict('pune')}
             />
 
-            {/* District & Station Catalog Table */}
-            <ForecastTable
-              districts={districts}
-              selectedDistrictId={selectedDistrictId}
-              onSelectDistrict={handleSelectDistrict}
-              activeForecast={activeForecast}
-            />
+            {/* Primary Spatial & Operational Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Left Column (8 Cols): Map, District Detail & Catalog Table */}
+              <div className="lg:col-span-8 space-y-6">
+                {/* Interactive Leaflet Map */}
+                <RainfallMap
+                  districts={districts}
+                  selectedDistrictId={selectedDistrictId}
+                  onSelectDistrict={handleSelectDistrict}
+                  activeForecast={activeForecast}
+                  geoJsonData={geoJsonData}
+                  isDarkMode={isDarkMode}
+                />
+
+                {/* Selected District / Station Detail Panel */}
+                <DistrictDetailPanel
+                  districtForecast={districtForecast}
+                  isLoading={districtLoading}
+                />
+
+                {/* District & Station Catalog Table */}
+                <ForecastTable
+                  districts={districts}
+                  selectedDistrictId={selectedDistrictId}
+                  onSelectDistrict={handleSelectDistrict}
+                  activeForecast={activeForecast}
+                />
+              </div>
+
+              {/* Right Column (4 Cols): Operational Panels */}
+              <div className="lg:col-span-4 space-y-6">
+                {/* Weather Regime Classification */}
+                <WeatherRegimePanel
+                  predictedRegime={activeForecast ? activeForecast.predicted_regime : null}
+                  probabilities={activeForecast ? activeForecast.regime_probabilities : {}}
+                  confidence={
+                    activeForecast
+                      ? (activeForecast.regime_probabilities[activeForecast.predicted_regime] ?? null)
+                      : null
+                  }
+                  selectedModel={activeForecast ? activeForecast.selected_model : null}
+                />
+
+                {/* Heavy Rainfall Probability Suite */}
+                <ProbabilityPanel
+                  probabilities={activeForecast ? activeForecast.heavy_rainfall_probabilities : []}
+                  disclaimer={
+                    'MODEL EXCEEDANCE PROBABILITIES ARE SCIENTIFIC NUMERICAL ESTIMATES AND DO NOT CONSTITUTE OFFICIAL IMD WEATHER WARNINGS.'
+                  }
+                />
+              </div>
+            </div>
           </div>
+        )}
 
-          {/* Right Column (4 Cols): Operational Panels */}
-          <div className="lg:col-span-4 space-y-6">
-            {/* Weather Regime Classification */}
-            <WeatherRegimePanel
-              predictedRegime={activeForecast ? activeForecast.predicted_regime : null}
-              probabilities={activeForecast ? activeForecast.regime_probabilities : {}}
-              confidence={
-                activeForecast
-                  ? (activeForecast.regime_probabilities[activeForecast.predicted_regime] ?? null)
-                  : null
-              }
-              selectedModel={activeForecast ? activeForecast.selected_model : null}
+        {/* VIEW 3: Model Verification & Scientific Benchmarks */}
+        {activeTab === 'verification' && (
+          <div className="space-y-6">
+            {/* Phase 8 Verification Engine Dashboard */}
+            <VerificationDashboard
+              summary={verificationSummary}
+              probabilityMetrics={verificationProbability}
+              regimeMetrics={verificationRegimes}
+              isLoading={isLoading}
             />
 
-            {/* Heavy Rainfall Probability Suite */}
-            <ProbabilityPanel
-              probabilities={activeForecast ? activeForecast.heavy_rainfall_probabilities : []}
-              disclaimer={
-                'MODEL EXCEEDANCE PROBABILITIES ARE SCIENTIFIC NUMERICAL ESTIMATES AND DO NOT CONSTITUTE OFFICIAL IMD WEATHER WARNINGS.'
-              }
-            />
+            {/* Mandatory Scientific Limitations Panel */}
+            <LimitationsPanel />
           </div>
-        </div>
-
-        {/* Phase 8 Verification Engine Dashboard */}
-        <VerificationDashboard
-          summary={verificationSummary}
-          probabilityMetrics={verificationProbability}
-          regimeMetrics={verificationRegimes}
-          isLoading={isLoading}
-        />
-
-        {/* Mandatory Scientific Limitations Panel */}
-        <LimitationsPanel />
+        )}
       </main>
 
       {/* Footer */}
@@ -281,7 +310,7 @@ export const App: React.FC = () => {
             <span>• Ministry of Earth Sciences (MoES) / IMD Monsoon Benchmark System</span>
           </div>
           <div className="text-[11px] text-slate-400">
-            Real Data Provenance: Zenodo IMD 0.25° Gridded Rainfall Benchmark & GFS 0.25° Seamless Forecasts.
+            Real Data Provenance: Zenodo IMD 0.25° Gridded Rainfall Benchmark & NOAA GFS 0.25° Seamless Forecasts.
           </div>
         </div>
       </footer>

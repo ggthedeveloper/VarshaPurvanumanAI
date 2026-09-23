@@ -160,9 +160,13 @@ export const ForecastSummaryCards: React.FC<ForecastSummaryCardsProps> = ({
         <span className="font-semibold text-slate-700 dark:text-slate-200">
           Target Location: {stationName}
         </span>
-        {isStationLevelBenchmark && (
-          <span className="px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-mono text-[10px]">
-            Station-level benchmark (18.50°N, 73.80°E) • Spatial district aggregate unavailable
+        {isStationLevelBenchmark ? (
+          <span className="px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-mono text-[10px]">
+            Station-level benchmark (18.50°N, 73.80°E) • Validated Ground Truth
+          </span>
+        ) : (
+          <span className="px-1.5 py-0.5 rounded bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300 font-mono text-[10px]">
+            Operational Regime-Aware AI Forecast
           </span>
         )}
       </div>

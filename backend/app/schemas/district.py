@@ -14,8 +14,10 @@ class DistrictItem(BaseModel):
     name: str = Field(description="Official district name.")
     state: str = Field(description="State / Union Territory name.")
     latitude: float = Field(ge=-90.0, le=90.0, description="District headquarters / centroid latitude.")
-    longitude: float = Field(ge=-180.0, le=180.0, description="District headquarters / centroid longitude.")
-    coverage_status: str = Field(description="'BENCHMARK_ACTIVE' or 'REFERENCE_ONLY'.")
+    coverage_status: str = Field(description="'BENCHMARK_ACTIVE' or 'OPERATIONAL_ACTIVE'.")
+    raw_nwp_rainfall_mm: Optional[float] = Field(default=None, description="Raw NWP rainfall accumulation in mm.")
+    corrected_rainfall_mm: Optional[float] = Field(default=None, description="AI regime-corrected rainfall in mm.")
+    predicted_regime: Optional[str] = Field(default=None, description="Predicted synoptic weather regime.")
 
 
 class DistrictListResponse(BaseModel):

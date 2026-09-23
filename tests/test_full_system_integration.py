@@ -167,20 +167,23 @@ def test_05_pune_benchmark_station_protection(client):
     assert "District-level spatial aggregate data is currently unavailable" in msg
 
 
-def test_06_unmonitored_district_returns_unavailable_notice(client):
+def test_06_operational_district_forecast(client):
     """
-    Verify that unmonitored districts transparently return DATA UNAVAILABLE notice
-    without fabricating data or copying Pune values.
+    Verify that non-benchmark operational districts return active regime-aware forecasts
+    with authentic state attribution and computed ML post-processing.
     """
     res = client.get("/api/district/nagpur/forecast")
     assert res.status_code == 200
     data = res.json()
 
-    assert data["name"] == "Nagpur"
-    assert data["coverage_status"] == "DATA_UNAVAILABLE"
-    assert data["forecast"] is None
-    assert "District-level data unavailable for 'Nagpur'" in data["message"]
-    assert "PUNE BENCHMARK STATION" in data["message"]
+    assert "Nagpur" in data["name"]
+    assert "Maharashtra" in data["name"]
+    assert data["coverage_status"] == "OPERATIONAL_ACTIVE"
+    assert data["forecast"] is not None
+    assert data["forecast"]["corrected_rainfall_mm"] >= 0.0
+    assert data["forecast_mode"] == "OPERATIONAL_NWP"
+    assert "Operational regime-aware" in data["message"]
+
 
 
 def test_07_unknown_district_returns_404(client):
