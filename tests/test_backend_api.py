@@ -325,3 +325,25 @@ def test_18_auth_endpoints(client):
     assert "access_token" in data_demo
     assert data_demo["user"]["is_demo"] is True
 
+
+def test_19_district_use_processed_fallback(client):
+    """19. District endpoint with use_processed=true falls back to verified processed benchmark dataset."""
+    response = client.get("/api/district/nagpur/forecast?use_processed=true")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["coverage_status"] == "PROCESSED_BENCHMARK"
+    assert data["forecast_mode"] == "PROCESSED_DATA_REPLAY"
+    assert data["forecast"] is not None
+    assert data["forecast"]["corrected_rainfall_mm"] >= 0.0
+    assert data["forecast"]["predicted_regime"] in [
+        "ACTIVE_MONSOON", "BREAK_MONSOON", "COASTAL_OROGRAPHIC", "DEPRESSION", "OTHER"
+    ]
+    assert len(data["forecast"]["heavy_rainfall_probabilities"]) == 5
+
+    # District list with use_processed=true
+    r_list = client.get("/api/districts?use_processed=true")
+    assert r_list.status_code == 200
+    data_list = r_list.json()
+    assert data_list["active_districts"] > 1
+
+

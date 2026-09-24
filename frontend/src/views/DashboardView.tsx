@@ -46,7 +46,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onNavigate,
 }) => {
   const isPuneBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
-  const isAvailable = Boolean(activeForecast) && isPuneBenchmark;
+  const isProcessedBenchmark = districtForecast?.coverage_status === 'PROCESSED_BENCHMARK' || districtForecast?.forecast_mode === 'PROCESSED_DATA_REPLAY';
+  const isAvailable = Boolean(activeForecast);
 
   // Selected district metadata
   const currentDistrict = districts.find((d) => d.district_id === selectedDistrictId);
@@ -215,6 +216,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <span className="h-2 w-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
                   HISTORICAL BENCHMARK
                 </span>
+              ) : isProcessedBenchmark ? (
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-sky-100 dark:bg-sky-950/80 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800">
+                  <span className="h-2 w-2 rounded-full bg-sky-500 mr-1.5 animate-pulse" />
+                  PROCESSED BENCHMARK REPLAY
+                </span>
               ) : (
                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
                   <AlertTriangle className="h-3 w-3 mr-1 text-amber-600 dark:text-amber-400" />
@@ -224,16 +230,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Dynamic Forecast Content */}
-            {isPuneBenchmark && activeForecast ? (
+            {activeForecast ? (
               <div className="space-y-4">
                 {/* Sample Timestamp */}
                 <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60">
                   <span className="flex items-center">
                     <Calendar className="h-3.5 w-3.5 mr-1.5 text-indigo-500" />
-                    Verified Benchmark Date:
+                    Verified Benchmark Source:
                   </span>
                   <span className="font-semibold text-slate-700 dark:text-slate-200">
-                    30 June 2024 (Held-Out Test Sample)
+                    {isPuneBenchmark
+                      ? '30 June 2024 (Held-Out Test Sample)'
+                      : 'Processed Benchmark (data/processed/)'}
                   </span>
                 </div>
 

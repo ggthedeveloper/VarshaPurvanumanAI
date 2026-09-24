@@ -229,6 +229,7 @@ export const App: React.FC = () => {
   const currentDistrict = districts.find((d) => d.district_id === selectedDistrictId);
   const districtName = districtForecast?.name || currentDistrict?.name || 'Selected Station';
   const isPuneBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
+  const isProcessedBenchmark = districtForecast?.coverage_status === 'PROCESSED_BENCHMARK';
   const isDataUnavailable = districtForecast?.coverage_status === 'DATA_UNAVAILABLE';
 
   return (
@@ -258,6 +259,7 @@ export const App: React.FC = () => {
           currentRoute={currentRoute}
           selectedDistrictName={districtName}
           isBenchmarkActive={isPuneBenchmark}
+          isProcessedBenchmark={isProcessedBenchmark}
           isDataUnavailable={isDataUnavailable}
           apiConnected={apiConnected}
           dataStatus={dataStatus}

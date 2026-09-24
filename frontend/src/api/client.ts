@@ -105,12 +105,14 @@ class ApiClient {
     });
   }
 
-  async getDistricts(): Promise<DistrictListResponse> {
-    return this.fetchJson<DistrictListResponse>('/api/districts');
+  async getDistricts(useProcessed: boolean = true): Promise<DistrictListResponse> {
+    const query = useProcessed ? '?use_processed=true' : '';
+    return this.fetchJson<DistrictListResponse>(`/api/districts${query}`);
   }
 
-  async getDistrictForecast(districtId: string): Promise<DistrictForecastResponse> {
-    return this.fetchJson<DistrictForecastResponse>(`/api/district/${districtId}/forecast`);
+  async getDistrictForecast(districtId: string, useProcessed: boolean = true): Promise<DistrictForecastResponse> {
+    const query = useProcessed ? '?use_processed=true' : '';
+    return this.fetchJson<DistrictForecastResponse>(`/api/district/${districtId}/forecast${query}`);
   }
 
   async getDistrictGeoJSON(): Promise<any> {

@@ -75,7 +75,8 @@ export const ProbabilityView: React.FC<ProbabilityViewProps> = ({
   isLoading,
 }) => {
   const isPuneBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
-  const isAvailable = Boolean(activeForecast) && isPuneBenchmark;
+  const isProcessedBenchmark = districtForecast?.coverage_status === 'PROCESSED_BENCHMARK' || districtForecast?.forecast_mode === 'PROCESSED_DATA_REPLAY';
+  const isAvailable = Boolean(activeForecast);
   const probabilities = activeForecast?.heavy_rainfall_probabilities || [];
 
   return (

@@ -47,6 +47,7 @@ export const ForecastView: React.FC<ForecastViewProps> = ({
   isDarkMode,
 }) => {
   const isPuneBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
+  const isProcessedBenchmark = districtForecast?.coverage_status === 'PROCESSED_BENCHMARK' || districtForecast?.forecast_mode === 'PROCESSED_DATA_REPLAY';
   const currentDistrict = districts.find((d) => d.district_id === selectedDistrictId);
   const districtName = districtForecast?.name || currentDistrict?.name || 'Selected Station';
 
@@ -75,6 +76,10 @@ export const ForecastView: React.FC<ForecastViewProps> = ({
               {isPuneBenchmark ? (
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
                   HISTORICAL BENCHMARK
+                </span>
+              ) : isProcessedBenchmark ? (
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800">
+                  PROCESSED BENCHMARK REPLAY
                 </span>
               ) : (
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700">
@@ -120,6 +125,18 @@ export const ForecastView: React.FC<ForecastViewProps> = ({
             </span>
             <p className="text-amber-800 dark:text-amber-300">
               Station Pune is the designated operational scientific benchmark (IMD AWS 43063 / 0.25° grid node). This display renders verified numerical model post-processing outputs against IMD ground truth observations.
+            </p>
+          </div>
+        </div>
+      ) : isProcessedBenchmark ? (
+        <div className="bg-sky-500/10 border border-sky-500/30 rounded-xl p-4 flex items-start space-x-3 text-xs text-sky-900 dark:text-sky-200">
+          <Sparkles className="h-5 w-5 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <span className="font-bold uppercase tracking-wider block">
+              Verified Processed Benchmark Replay (data/processed/)
+            </span>
+            <p className="text-sky-800 dark:text-sky-300">
+              Live observational telemetry for <strong>{districtName}</strong> is bridged to verified processed meteorological records from the repository archive (data/processed/sample_paired_dataset.csv). Predictions are computed dynamically using the authoritative ML models.
             </p>
           </div>
         </div>

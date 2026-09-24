@@ -20,6 +20,7 @@ export type SynopticRegime =
 
 export type CoverageStatus =
   | 'BENCHMARK_ACTIVE'
+  | 'PROCESSED_BENCHMARK'
   | 'OPERATIONAL_ACTIVE'
   | 'REFERENCE_ONLY'
   | 'DATA_UNAVAILABLE'

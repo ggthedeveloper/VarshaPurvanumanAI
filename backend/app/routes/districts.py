@@ -9,22 +9,23 @@ router = APIRouter(prefix="/api", tags=["Districts"])
 
 
 @router.get("/districts", response_model=DistrictListResponse, summary="List Verified Indian Districts")
-def list_districts():
+def list_districts(use_processed: bool = False):
     """
     Returns verified administrative districts from official registry.
     Transparently indicates active benchmark stations vs reference-only districts.
+    If use_processed=True, populates processed benchmark predictions from data/processed/.
     """
-    return DistrictService.get_all_districts()
+    return DistrictService.get_all_districts(use_processed=use_processed)
 
 
 @router.get("/district/{district_id}/forecast", response_model=DistrictForecastResponse, summary="Query District Forecast")
-def get_district_forecast(district_id: str):
+def get_district_forecast(district_id: str, use_processed: bool = False):
     """
     Returns real verified forecast for benchmark station districts.
-    Returns clear data-unavailability notice for districts lacking active station instruments.
-    NEVER returns fabricated weather data.
+    If use_processed=True, falls back to processed historical benchmark data from data/processed/
+    when live station instrumentation is not connected.
     """
-    response = DistrictService.get_district_forecast(district_id)
+    response = DistrictService.get_district_forecast(district_id, use_processed=use_processed)
     if response.coverage_status == "UNKNOWN_DISTRICT":
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
