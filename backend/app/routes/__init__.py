@@ -8,6 +8,7 @@ from .rainfall import router as rainfall_router
 from .forecast import router as forecast_router
 from .districts import router as districts_router
 from .verification import router as verification_router
+from .auth import router as auth_router
 
 __all__ = [
     "health_router",
@@ -17,4 +18,5 @@ __all__ = [
     "forecast_router",
     "districts_router",
     "verification_router",
+    "auth_router",
 ]

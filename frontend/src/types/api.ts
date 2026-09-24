@@ -25,6 +25,35 @@ export type CoverageStatus =
   | 'DATA_UNAVAILABLE'
   | 'UNKNOWN_DISTRICT';
 
+export type AppRoute =
+  | 'dashboard'
+  | 'forecast'
+  | 'regime'
+  | 'probability'
+  | 'verification'
+  | 'districts'
+  | 'provenance'
+  | 'health';
+
+export interface UserProfile {
+  username: string;
+  name: string;
+  role: string;
+  is_demo: boolean;
+}
+
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  user: UserProfile;
+  message: string;
+}
+
 export interface HealthCheckResponse {
   status: string;
   service: string;

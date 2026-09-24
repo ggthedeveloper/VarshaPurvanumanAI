@@ -143,16 +143,17 @@ def test_07_district_pune_benchmark_active(client):
     assert "sample_timestamp" in data
 
 
-def test_08_district_operational_active(client):
-    """8. District endpoint for operational districts returns active regime-aware ML forecast."""
+def test_08_district_non_monitored_unavailable_notice(client):
+    """8. District endpoint for non-monitored district returns transparent 'unavailable' notice (NOT fabricated data)."""
     response = client.get("/api/district/nagpur/forecast")
     assert response.status_code == 200
     data = response.json()
-    assert data["coverage_status"] == "OPERATIONAL_ACTIVE"
-    assert data["forecast"] is not None
-    assert data["forecast_mode"] == "OPERATIONAL_NWP"
-    assert data["forecast"]["corrected_rainfall_mm"] >= 0.0
+    assert data["coverage_status"] == "DATA_UNAVAILABLE"
+    assert data["forecast"] is None
+    assert data["forecast_mode"] == "DATA_UNAVAILABLE"
+    assert "data unavailable" in data["message"].lower()
     assert "Maharashtra" in data["name"]
+
 
 
 
@@ -302,3 +303,25 @@ def test_17_real_data_provenance(client, valid_payload):
         assert r.status_code == 200
         data = r.json()
         assert data.get("data_status") in ["HISTORICAL_BENCHMARK", "REAL_DATA"], f"Endpoint {url} missing data_status"
+
+
+def test_18_auth_endpoints(client):
+    """18. Demo authentication: test credentials validation and quick demo login."""
+    # Invalid login rejected
+    r_bad = client.post("/api/auth/login", json={"username": "wrong_user", "password": "wrong_password"})
+    assert r_bad.status_code == 401
+
+    # Valid demo login accepted
+    r_good = client.post("/api/auth/login", json={"username": "sih_judge", "password": "Varsha@SIH2026"})
+    assert r_good.status_code == 200
+    data_good = r_good.json()
+    assert "access_token" in data_good
+    assert data_good["user"]["username"] == "sih_judge"
+
+    # Quick demo login accepted
+    r_demo = client.post("/api/auth/demo-login")
+    assert r_demo.status_code == 200
+    data_demo = r_demo.json()
+    assert "access_token" in data_demo
+    assert data_demo["user"]["is_demo"] is True
+

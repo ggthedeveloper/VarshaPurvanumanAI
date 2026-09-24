@@ -21,6 +21,7 @@ from backend.app.routes import (
     forecast_router,
     districts_router,
     verification_router,
+    auth_router,
 )
 
 
@@ -108,6 +109,7 @@ app.include_router(rainfall_router)
 app.include_router(forecast_router)
 app.include_router(districts_router)
 app.include_router(verification_router)
+app.include_router(auth_router)
 
 
 @app.get("/", summary="Root Status")

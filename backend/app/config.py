@@ -14,6 +14,12 @@ class Settings:
     APP_ENV: str = os.getenv("APP_ENV", "production")
     DATA_STATUS: str = os.getenv("DATA_STATUS", "HISTORICAL_BENCHMARK")
 
+    # SIH Demo Authentication Credentials (environment-configured)
+    DEMO_USERNAME: str = os.getenv("DEMO_USERNAME", "sih_judge")
+    DEMO_PASSWORD: str = os.getenv("DEMO_PASSWORD", "Varsha@SIH2026")
+    DEMO_USER_NAME: str = os.getenv("DEMO_USER_NAME", "Gaurav Gautam")
+    DEMO_USER_ROLE: str = os.getenv("DEMO_USER_ROLE", "SIH 2026 Evaluator / Meteorologist")
+
     # CORS configuration
     CORS_ALLOWED_ORIGINS: List[str] = [
         origin.strip()

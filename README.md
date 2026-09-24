@@ -1,9 +1,9 @@
 # VarshaPurvanumanAI (SIH26080)
 ## Regime-Aware AI Post-Processing of Monsoon Rainfall Forecasts
 
-[![Backend Tests](https://img.shields.io/badge/pytest-84%20passed-brightgreen.svg)]()
-[![Frontend Tests](https://img.shields.io/badge/vitest-14%20passed-brightgreen.svg)]()
-[![System Tests](https://img.shields.io/badge/tests-98%2F98%20passed-brightgreen.svg)]()
+[![Backend Tests](https://img.shields.io/badge/pytest-85%20passed-brightgreen.svg)]()
+[![Frontend Tests](https://img.shields.io/badge/vitest-20%20passed-brightgreen.svg)]()
+[![System Tests](https://img.shields.io/badge/tests-105%2F105%20passed-brightgreen.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)]()
 [![React 19](https://img.shields.io/badge/react-19.2-61dafb.svg)]()
@@ -223,7 +223,7 @@ VarshaPurvanumanAI/
 # Install Python scientific dependencies
 pip install fastapi uvicorn pydantic scikit-learn numpy pandas geopandas shapely requests
 
-# Run all 84 backend and integration tests
+# Run all 85 backend and integration tests
 pytest tests/ -v
 ```
 
@@ -234,7 +234,7 @@ cd frontend
 # Install dependencies
 npm install
 
-# Run all 14 frontend component and integration tests
+# Run all 20 frontend component and integration tests
 npm test
 
 # Run production build
@@ -249,6 +249,10 @@ BACKEND_PORT=8000
 APP_ENV=production
 DATA_STATUS=HISTORICAL_BENCHMARK
 CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173
+
+# SIH Evaluator Authentication
+DEMO_USERNAME=sih_judge
+DEMO_PASSWORD=Varsha@SIH2026
 
 # Optional: Set Google Maps API key; if omitted, map falls back to OpenStreetMap / CartoDB raster tiles
 VITE_GOOGLE_MAPS_API_KEY=
@@ -266,6 +270,8 @@ npm run dev
 ```
 
 Visit `http://localhost:3000` in your browser.
+- **Login Credentials:** Username: `sih_judge`, Password: `Varsha@SIH2026`
+- **Or Click:** "Quick SIH Demo Access" for 1-click evaluation access.
 
 ---
 

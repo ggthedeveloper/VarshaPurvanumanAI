@@ -16,6 +16,9 @@ import {
   VerificationSummaryResponse,
   VerificationProbabilityResponse,
   VerificationRegimesResponse,
+  LoginRequest,
+  LoginResponse,
+  UserProfile,
 } from '../types/api';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
@@ -33,11 +36,13 @@ class ApiClient {
 
   private async fetchJson<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const url = `${API_BASE}${endpoint}`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
     try {
       const response = await fetch(url, {
         ...options,
         headers: {
           'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
           ...(options?.headers || {}),
         },
       });
@@ -126,6 +131,65 @@ class ApiClient {
 
   async getVerificationProbability(): Promise<VerificationProbabilityResponse> {
     return this.fetchJson<VerificationProbabilityResponse>('/api/verification/probability');
+  }
+
+  async login(req: LoginRequest): Promise<LoginResponse> {
+    const res = await this.fetchJson<LoginResponse>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(req),
+    });
+    this.setToken(res.access_token);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('auth_user', JSON.stringify(res.user));
+    }
+    return res;
+  }
+
+  async demoLogin(): Promise<LoginResponse> {
+    const res = await this.fetchJson<LoginResponse>('/api/auth/demo-login', {
+      method: 'POST',
+    });
+    this.setToken(res.access_token);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('auth_user', JSON.stringify(res.user));
+    }
+    return res;
+  }
+
+  setToken(token: string | null) {
+    if (typeof window !== 'undefined') {
+      if (token) {
+        localStorage.setItem('auth_token', token);
+      } else {
+        localStorage.removeItem('auth_token');
+      }
+    }
+  }
+
+  getToken(): string | null {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('auth_token');
+    }
+    return null;
+  }
+
+  getSavedUser(): UserProfile | null {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('auth_user');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (_) {}
+      }
+    }
+    return null;
+  }
+
+  logout() {
+    this.setToken(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth_user');
+    }
   }
 }
 

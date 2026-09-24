@@ -9,6 +9,13 @@ import { DistrictDetailPanel } from '../components/Panels/DistrictDetailPanel';
 import { ForecastTable } from '../components/Tables/ForecastTable';
 import { VerificationDashboard } from '../components/Verification/VerificationDashboard';
 import { LimitationsPanel } from '../components/Panels/LimitationsPanel';
+import { LoginPage } from '../components/Auth/LoginPage';
+import { Sidebar } from '../components/Navigation/Sidebar';
+import { RegimeView } from '../views/RegimeView';
+import { ProbabilityView } from '../views/ProbabilityView';
+import { DistrictsView } from '../views/DistrictsView';
+import { ProvenanceView } from '../views/ProvenanceView';
+import { SystemHealthView } from '../views/SystemHealthView';
 import {
   CombinedForecastResponse,
   DistrictItem,
@@ -526,5 +533,155 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
     expect(screen.getByText('5.4')).toBeInTheDocument();
     expect(screen.getByText('3.3')).toBeInTheDocument();
     expect(screen.getByText(/Target Location: PUNE BENCHMARK STATION/i)).toBeInTheDocument();
+  });
+
+  it('15. LoginPage renders SIH26080 branding and demo quick-fill credentials', () => {
+    const handleLoginSuccess = vi.fn();
+    const handleToggleTheme = vi.fn();
+    render(
+      <LoginPage
+        onLoginSuccess={handleLoginSuccess}
+        isDarkMode={false}
+        onToggleTheme={handleToggleTheme}
+      />
+    );
+
+    expect(screen.getByText(/Smart India Hackathon 2026 • SIH26080/i)).toBeInTheDocument();
+    expect(screen.getByText(/Platform Access/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Quick SIH Demo Access/i })).toBeInTheDocument();
+    expect(screen.getByText(/Default: Varsha@SIH2026/i)).toBeInTheDocument();
+  });
+
+  it('16. Sidebar renders all 8 navigation routes and triggers navigation callback', () => {
+    const handleNavigate = vi.fn();
+    const handleToggleCollapse = vi.fn();
+    const handleToggleTheme = vi.fn();
+    const handleLogout = vi.fn();
+
+    render(
+      <Sidebar
+        currentRoute="dashboard"
+        onNavigate={handleNavigate}
+        isCollapsed={false}
+        onToggleCollapse={handleToggleCollapse}
+        isDarkMode={false}
+        onToggleTheme={handleToggleTheme}
+        user={{
+          username: 'sih_judge',
+          name: 'SIH Evaluator',
+          role: 'Evaluation Committee',
+          is_demo: true,
+        }}
+        onLogout={handleLogout}
+        isMobileOpen={false}
+        onCloseMobile={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Rainfall Forecast')).toBeInTheDocument();
+    expect(screen.getByText('Weather Regime')).toBeInTheDocument();
+    expect(screen.getByText('Probability Analysis')).toBeInTheDocument();
+    expect(screen.getByText('Verification')).toBeInTheDocument();
+    expect(screen.getByText('District Explorer')).toBeInTheDocument();
+    expect(screen.getByText('Data & Provenance')).toBeInTheDocument();
+    expect(screen.getByText('System Health')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Weather Regime'));
+    expect(handleNavigate).toHaveBeenCalledWith('regime');
+  });
+
+  it('17. RegimeView renders synoptic regime classes and handles data unavailable state', () => {
+    const handleSelectPune = vi.fn();
+    render(
+      <RegimeView
+        districtForecast={{
+          district_id: 'nagpur',
+          name: 'Nagpur',
+          latitude: 21.14,
+          longitude: 79.08,
+          coverage_status: 'DATA_UNAVAILABLE',
+          forecast: null,
+          message: 'Data unavailable',
+          data_status: 'REAL_DATA',
+        }}
+        activeForecast={null}
+        verificationRegimes={null}
+        onSelectPuneBenchmark={handleSelectPune}
+        isLoading={false}
+      />
+    );
+
+    expect(screen.getByText(/Synoptic Weather Regime Classification/i)).toBeInTheDocument();
+    expect(screen.getByText(/Synoptic Telemetry Unavailable for Nagpur/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /View Pune Benchmark Regime/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /View Pune Benchmark Regime/i }));
+    expect(handleSelectPune).toHaveBeenCalled();
+  });
+
+  it('18. ProbabilityView renders mandatory IMD disclaimer and 5 threshold cards', () => {
+    render(
+      <ProbabilityView
+        districtForecast={{
+          district_id: 'pune',
+          name: 'Pune Benchmark Station',
+          latitude: 18.52,
+          longitude: 73.85,
+          coverage_status: 'BENCHMARK_ACTIVE',
+          forecast: mockForecast,
+          message: 'Benchmark active',
+          data_status: 'REAL_DATA',
+        }}
+        activeForecast={mockForecast}
+        verificationProbability={null}
+        onSelectPuneBenchmark={vi.fn()}
+        isLoading={false}
+      />
+    );
+
+    expect(screen.getByText(/Heavy Rainfall Probability Suite/i)).toBeInTheDocument();
+    expect(screen.getByText(/Official Meteorological Warning Demarcation Notice/i)).toBeInTheDocument();
+    expect(screen.getByText(/MODEL EXCEEDANCE PROBABILITIES ARE SCIENTIFIC NUMERICAL ESTIMATES/i)).toBeInTheDocument();
+    expect(screen.getByText('≥ 2.5 mm / 24h')).toBeInTheDocument();
+    expect(screen.getByText('≥ 64.5 mm / 24h')).toBeInTheDocument();
+  });
+
+  it('19. DistrictsView renders 78-district registry and search filter', () => {
+    const handleSelectDistrict = vi.fn();
+    const handleNavigate = vi.fn();
+
+    render(
+      <DistrictsView
+        districts={mockDistricts}
+        selectedDistrictId="pune"
+        onSelectDistrict={handleSelectDistrict}
+        onNavigate={handleNavigate}
+      />
+    );
+
+    expect(screen.getByText(/Administrative District Registry/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Search district name, state, or ID.../i)).toBeInTheDocument();
+    expect(screen.getByText('PUNE BENCHMARK STATION')).toBeInTheDocument();
+    expect(screen.getByText('Nagpur')).toBeInTheDocument();
+  });
+
+  it('20. ProvenanceView and SystemHealthView render complete documentation & telemetry', async () => {
+    const { unmount } = render(<ProvenanceView />);
+    expect(screen.getByText(/Data Provenance & Scientific Methodology/i)).toBeInTheDocument();
+    expect(screen.getByText(/IMD Gridded Daily Rainfall Analysis/i)).toBeInTheDocument();
+    expect(screen.getByText(/NOAA Global Forecast System/i)).toBeInTheDocument();
+    unmount();
+
+    await render(
+      <SystemHealthView
+        apiConnected={true}
+        dataStatus="REAL_DATA"
+        isDarkMode={false}
+      />
+    );
+    expect(screen.getByText(/System Health & Pipeline Telemetry/i)).toBeInTheDocument();
+    expect(screen.getByText('OPERATIONAL')).toBeInTheDocument();
+    expect(screen.getByText('ZERO SYNTHETIC')).toBeInTheDocument();
   });
 });
