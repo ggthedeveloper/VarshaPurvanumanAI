@@ -96,3 +96,66 @@ def test_grid_rainfall_endpoint(client):
     stats = data["summary_stats"]
     assert stats["observed_mean_mm"] >= 0.0
     assert stats["corrected_mean_mm"] >= 0.0
+
+
+def test_three_model_fss_and_spatial_metrics(client):
+    """Verifies that 2D FSS evaluates all 3 models: Raw NWP, Global ML, and Regime-Aware ML."""
+    response = client.get("/api/verification/gridded")
+    assert response.status_code == 200
+    data = response.json()
+
+    spatial_cont = data["spatial_continuous_metrics"]
+    assert "Raw NWP" in spatial_cont
+    assert "Global ML" in spatial_cont
+    assert "Regime-Aware ML" in spatial_cont
+
+    # Verify that Regime-Aware ML reduces RMSE over Raw NWP
+    assert spatial_cont["Regime-Aware ML"]["rmse_mm"] < spatial_cont["Raw NWP"]["rmse_mm"]
+    assert spatial_cont["Global ML"]["rmse_mm"] < spatial_cont["Raw NWP"]["rmse_mm"]
+
+    # Verify 3-model FSS presence across all scales
+    for t_str in ["2.5", "7.5", "15.6", "35.5"]:
+        for scale in data["fss_by_threshold"][t_str]["scales"]:
+            assert "fss_raw" in scale
+            assert "fss_global" in scale
+            assert "fss_regime_aware" in scale
+            assert "fss_corrected" in scale
+            assert 0.0 <= scale["fss_raw"] <= 1.0
+            assert 0.0 <= scale["fss_global"] <= 1.0
+            assert 0.0 <= scale["fss_regime_aware"] <= 1.0
+
+
+def test_multi_district_gridded_spatial_aggregation(client):
+    """Verifies that all 6 covered districts provide genuine multi-cell spatial aggregation."""
+    # Test Pune
+    res_pune = client.get("/api/district/pune/forecast")
+    assert res_pune.status_code == 200
+    d_pune = res_pune.json()
+    assert d_pune["coverage_status"] == "BENCHMARK_ACTIVE"
+    assert d_pune["spatial_aggregation"] is not None
+    assert d_pune["spatial_aggregation"]["grid_cells_intersected"] == 15
+    assert d_pune["spatial_aggregation"]["mean_rainfall_mm"] > 0.0
+
+    # Test Raigad with use_processed=true
+    res_raigad = client.get("/api/district/raigad/forecast?use_processed=true")
+    assert res_raigad.status_code == 200
+    d_raigad = res_raigad.json()
+    assert d_raigad["coverage_status"] == "PROCESSED_BENCHMARK"
+    assert d_raigad["spatial_aggregation"] is not None
+    assert d_raigad["spatial_aggregation"]["grid_cells_intersected"] == 11
+    assert d_raigad["spatial_aggregation"]["mean_rainfall_mm"] > 0.0
+    assert d_raigad["spatial_aggregation"]["max_rainfall_mm"] >= d_raigad["spatial_aggregation"]["mean_rainfall_mm"]
+
+
+def test_gridded_benchmark_dataset_integrity():
+    """Validates that gridded benchmark covers 36 nodes, 4 seasons, and zero WD events."""
+    import pandas as pd
+    df = pd.read_csv("data/processed/gridded_monsoon_benchmark.csv")
+    assert len(df) == 14256, f"Expected 14,256 rows, got {len(df)}"
+    assert df["grid_node_id"].nunique() == 36, "Expected 36 unique grid nodes"
+    assert set(df["district_name"].unique()) == {"PUNE", "RAYGAD", "THANE", "SATARA", "AHAMEDNAGAR", "RATNAGIRI"}
+    
+    # Priority 5: Zero Western Disturbance in southern/peninsular domain (lat <= 19.25N)
+    wd_count = (df["regime"] == "WESTERN_DISTURBANCE").sum()
+    assert wd_count == 0, f"Expected 0 WD events in domain <= 19.25N, got {wd_count}"
+

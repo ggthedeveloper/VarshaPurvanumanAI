@@ -1,0 +1,11 @@
+{
+  "model_family": "CalibratedClassifierCV(GradientBoostingClassifier)",
+  "thresholds": [
+    2.5,
+    7.5,
+    15.6,
+    64.5,
+    115.6
+  ],
+  "train_samples": 8784
+}

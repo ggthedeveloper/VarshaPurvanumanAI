@@ -114,7 +114,7 @@ export const GriddedVerificationPanel: React.FC<GriddedVerificationPanelProps> =
 
       {/* Spatial Continuous Metrics Summary */}
       {gridded && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
           <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 space-y-1">
             <div className="text-slate-500 font-medium">Domain & Resolution</div>
             <div className="text-sm font-bold text-slate-900 dark:text-white">Western Ghats (6x6)</div>
@@ -132,6 +132,19 @@ export const GriddedVerificationPanel: React.FC<GriddedVerificationPanelProps> =
             </div>
           </div>
 
+          {gridded.spatial_continuous_metrics['Global ML'] && (
+            <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 space-y-1">
+              <div className="text-slate-500 font-medium">Global ML RMSE</div>
+              <div className="text-sm font-bold font-mono text-sky-600 dark:text-sky-400">
+                {gridded.spatial_continuous_metrics['Global ML'].rmse_mm} mm
+              </div>
+              <div className="text-[11px] text-slate-400">
+                Mean Bias: {gridded.spatial_continuous_metrics['Global ML'].mean_bias_mm > 0 ? '+' : ''}
+                {gridded.spatial_continuous_metrics['Global ML'].mean_bias_mm} mm
+              </div>
+            </div>
+          )}
+
           <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 space-y-1">
             <div className="text-slate-500 font-medium">Regime-Aware ML RMSE</div>
             <div className="text-sm font-bold font-mono text-emerald-600 dark:text-emerald-400">
@@ -139,7 +152,7 @@ export const GriddedVerificationPanel: React.FC<GriddedVerificationPanelProps> =
             </div>
             <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
               Bias: {gridded.spatial_continuous_metrics['Regime-Aware ML'].mean_bias_mm > 0 ? '+' : ''}
-              {gridded.spatial_continuous_metrics['Regime-Aware ML'].mean_bias_mm} mm (50% reduction)
+              {gridded.spatial_continuous_metrics['Regime-Aware ML'].mean_bias_mm} mm (Min error)
             </div>
           </div>
 
@@ -193,6 +206,7 @@ export const GriddedVerificationPanel: React.FC<GriddedVerificationPanelProps> =
                     <th className="py-2.5 px-3">Neighborhood Scale</th>
                     <th className="py-2.5 px-3">Physical Window</th>
                     <th className="py-2.5 px-3">Raw NWP FSS</th>
+                    <th className="py-2.5 px-3">Global ML FSS</th>
                     <th className="py-2.5 px-3">Regime ML FSS</th>
                     <th className="py-2.5 px-3">Random Skill (fo)</th>
                     <th className="py-2.5 px-3">Target Skill (0.5+fo/2)</th>
@@ -213,8 +227,11 @@ export const GriddedVerificationPanel: React.FC<GriddedVerificationPanelProps> =
                         <td className="py-2.5 px-3 text-rose-600 dark:text-rose-400">
                           {scale.fss_raw.toFixed(4)}
                         </td>
+                        <td className="py-2.5 px-3 text-sky-600 dark:text-sky-400 font-medium">
+                          {(scale.fss_global ?? scale.fss_corrected).toFixed(4)}
+                        </td>
                         <td className="py-2.5 px-3 font-semibold text-emerald-600 dark:text-emerald-400">
-                          {scale.fss_corrected.toFixed(4)}
+                          {(scale.fss_regime_aware ?? scale.fss_corrected).toFixed(4)}
                         </td>
                         <td className="py-2.5 px-3 text-slate-400">
                           {scale.fss_random.toFixed(4)}

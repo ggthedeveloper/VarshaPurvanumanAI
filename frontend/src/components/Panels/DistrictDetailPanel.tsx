@@ -127,6 +127,40 @@ export const DistrictDetailPanel: React.FC<DistrictDetailPanelProps> = ({
             </div>
           </div>
 
+          {/* Spatial Multi-Cell Aggregation Banner if available */}
+          {districtForecast.spatial_aggregation && (
+            <div className="p-3.5 rounded-lg bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wide">
+                  Mesoscale Multi-Cell Aggregation ({districtForecast.spatial_aggregation.grid_cells_intersected} Grid Nodes)
+                </span>
+                <span className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400">
+                  {districtForecast.spatial_aggregation.polygon_source || 'WGS84 GeoJSON'}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-xs font-mono">
+                <div className="bg-white/80 dark:bg-slate-900/60 p-2 rounded border border-indigo-100 dark:border-indigo-900/40">
+                  <div className="text-[10px] text-slate-500 font-sans">Spatial Mean</div>
+                  <div className="text-sm font-bold text-indigo-950 dark:text-indigo-100">
+                    {districtForecast.spatial_aggregation.mean_rainfall_mm.toFixed(1)} mm
+                  </div>
+                </div>
+                <div className="bg-white/80 dark:bg-slate-900/60 p-2 rounded border border-indigo-100 dark:border-indigo-900/40">
+                  <div className="text-[10px] text-slate-500 font-sans">Spatial Peak (Max)</div>
+                  <div className="text-sm font-bold text-rose-600 dark:text-rose-400">
+                    {districtForecast.spatial_aggregation.max_rainfall_mm.toFixed(1)} mm
+                  </div>
+                </div>
+                <div className="bg-white/80 dark:bg-slate-900/60 p-2 rounded border border-indigo-100 dark:border-indigo-900/40">
+                  <div className="text-[10px] text-slate-500 font-sans">75th Percentile</div>
+                  <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                    {districtForecast.spatial_aggregation.percentile_75_mm.toFixed(1)} mm
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="p-2.5 rounded bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 text-xs text-slate-700 dark:text-slate-300">
             <strong>Scientific Note:</strong> {message}
           </div>

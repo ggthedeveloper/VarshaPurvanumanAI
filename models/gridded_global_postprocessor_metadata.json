@@ -1,0 +1,51 @@
+{
+  "algorithm": "RandomForestRegressor",
+  "model_type": "random_forest",
+  "random_state": 42,
+  "feature_count": 29,
+  "features": [
+    "nwp_rainfall",
+    "log_nwp_rainfall",
+    "wind_speed_ms",
+    "u_wind_10m",
+    "v_wind_10m",
+    "temperature_2m",
+    "relative_humidity_2m",
+    "dew_point_depression",
+    "surface_pressure",
+    "cape",
+    "w_max_convective",
+    "month",
+    "day_of_year",
+    "sin_doy",
+    "cos_doy",
+    "sin_month",
+    "cos_month",
+    "is_monsoon_season",
+    "is_monsoon_core",
+    "is_ne_monsoon",
+    "forecast_lead_time",
+    "latitude",
+    "longitude",
+    "in_core_monsoon_zone",
+    "in_western_ghats_belt",
+    "in_northeast_hills",
+    "dist_to_coast_approx_km",
+    "nwp_rainfall_lag1",
+    "nwp_rainfall_rolling3"
+  ],
+  "is_fitted": true,
+  "hyperparameters": {
+    "n_estimators": 100,
+    "max_depth": 6,
+    "min_samples_leaf": 4
+  },
+  "software_versions": {
+    "scikit_learn": "1.9.1",
+    "numpy": "2.4.4",
+    "pandas": "3.0.2",
+    "python": "3.13.3"
+  },
+  "train_samples": 8784,
+  "val_samples": 4392
+}

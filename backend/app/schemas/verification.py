@@ -55,6 +55,8 @@ class GriddedFSSScaleItem(BaseModel):
     window_km: float = Field(description="Spatial neighborhood physical scale in km.")
     fss_raw: float = Field(description="Raw NWP Fractions Skill Score.")
     fss_corrected: float = Field(description="Bias-corrected ML Fractions Skill Score.")
+    fss_global: Optional[float] = Field(default=None, description="Global ML Fractions Skill Score.")
+    fss_regime_aware: Optional[float] = Field(default=None, description="Regime-Aware ML Fractions Skill Score.")
     fss_random: float = Field(description="FSS random no-skill baseline (equal to observed base rate fo).")
     fss_useful: float = Field(description="Target useful skill threshold: 0.5 + fo / 2.")
     skill_assessment: str = Field(description="'SKILLFUL', 'MARGINAL', or 'NO_SKILL'.")
@@ -102,6 +104,8 @@ class GriddedRainfallResponse(BaseModel):
     observed_grid: List[List[float]]
     bias_raw_grid: List[List[float]]
     bias_corrected_grid: List[List[float]]
+    global_grid: Optional[List[List[float]]] = Field(default=None, description="Global ML rainfall grid.")
+    bias_global_grid: Optional[List[List[float]]] = Field(default=None, description="Global ML bias grid.")
     summary_stats: Dict[str, float]
     units: str = Field(default="mm/day")
     data_status: str = Field(default="REAL_DATA")

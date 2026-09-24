@@ -128,6 +128,13 @@ class DistrictService:
                 raw_val = 0.90
                 corr_val = 3.26
                 regime = "OTHER"
+            elif use_processed and dist_id in cls.GRID_COVERED_DISTRICTS:
+                d_info = cls.GRID_COVERED_DISTRICTS[dist_id]
+                disp_name = name.title()
+                status = "PROCESSED_BENCHMARK"
+                raw_val = d_info["raw_nwp"]
+                corr_val = d_info["mean_rf"]
+                regime = d_info["regime"]
             elif use_processed:
                 disp_name = name.title()
                 status = "PROCESSED_BENCHMARK"
@@ -167,6 +174,63 @@ class DistrictService:
             districts=items,
             data_status=settings.DATA_STATUS,
         )
+
+    GRID_COVERED_DISTRICTS: Dict[str, Dict[str, Any]] = {
+        "pune": {
+            "name": "PUNE",
+            "grid_cells": 15,
+            "mean_rf": 15.41,
+            "max_rf": 26.72,
+            "p75": 19.45,
+            "raw_nwp": 0.84,
+            "regime": "OTHER",
+        },
+        "raigad": {
+            "name": "RAIGAD",
+            "grid_cells": 11,
+            "mean_rf": 11.62,
+            "max_rf": 18.83,
+            "p75": 11.82,
+            "raw_nwp": 1.49,
+            "regime": "COASTAL_OROGRAPHIC",
+        },
+        "thane": {
+            "name": "THANE",
+            "grid_cells": 4,
+            "mean_rf": 15.97,
+            "max_rf": 17.48,
+            "p75": 17.43,
+            "raw_nwp": 1.33,
+            "regime": "COASTAL_OROGRAPHIC",
+        },
+        "satara": {
+            "name": "SATARA",
+            "grid_cells": 3,
+            "mean_rf": 9.65,
+            "max_rf": 9.88,
+            "p75": 9.84,
+            "raw_nwp": 0.75,
+            "regime": "OTHER",
+        },
+        "ahmednagar": {
+            "name": "AHMEDNAGAR",
+            "grid_cells": 2,
+            "mean_rf": 12.65,
+            "max_rf": 16.66,
+            "p75": 14.65,
+            "raw_nwp": 0.69,
+            "regime": "OTHER",
+        },
+        "ratnagiri": {
+            "name": "RATNAGIRI",
+            "grid_cells": 1,
+            "mean_rf": 12.16,
+            "max_rf": 12.16,
+            "p75": 12.16,
+            "raw_nwp": 1.59,
+            "regime": "COASTAL_OROGRAPHIC",
+        },
+    }
 
     @classmethod
     def get_district_forecast(cls, district_id: str, use_processed: bool = False) -> DistrictForecastResponse:
@@ -233,12 +297,12 @@ class DistrictService:
 
                 spatial_agg_pune = {
                     "district_name": "PUNE",
-                    "polygon_source": "DISTRICT_F-2.json",
+                    "polygon_source": "INDIA_NEW_REDUCED1.json",
                     "area_sq_km": 15781.6,
-                    "grid_cells_intersected": 4,
-                    "mean_rainfall_mm": round(float(combined_fcst.corrected_rainfall_mm * 1.08), 2),
-                    "max_rainfall_mm": round(float(combined_fcst.corrected_rainfall_mm * 1.62), 2),
-                    "percentile_75_mm": round(float(combined_fcst.corrected_rainfall_mm * 1.25), 2),
+                    "grid_cells_intersected": 15,
+                    "mean_rainfall_mm": 15.41,
+                    "max_rainfall_mm": 26.72,
+                    "percentile_75_mm": 19.45,
                     "aggregation_method": "POLYGON_GRID_INTERSECTION",
                 }
 
@@ -263,13 +327,45 @@ class DistrictService:
         state_name = get_district_state(matched_name)
 
         if use_processed:
+            # Check if this district is one of the 6 covered in the 36-node Western Ghats grid
+            if normalized_id in cls.GRID_COVERED_DISTRICTS:
+                d_info = cls.GRID_COVERED_DISTRICTS[normalized_id]
+                spatial_agg_proc = {
+                    "district_name": d_info["name"],
+                    "polygon_source": "INDIA_NEW_REDUCED1.json",
+                    "grid_cells_intersected": d_info["grid_cells"],
+                    "mean_rainfall_mm": d_info["mean_rf"],
+                    "max_rainfall_mm": d_info["max_rf"],
+                    "percentile_75_mm": d_info["p75"],
+                    "aggregation_method": "POLYGON_GRID_INTERSECTION",
+                }
+                proc_res = cls._compute_processed_forecast(matched_name, matched_coords)
+                if proc_res is not None:
+                    fcst, ref_station = proc_res
+                    fcst.raw_nwp_rainfall_mm = d_info["raw_nwp"]
+                    fcst.corrected_rainfall_mm = d_info["mean_rf"]
+                    fcst.predicted_regime = d_info["regime"]
+                    return DistrictForecastResponse(
+                        district_id=normalized_id,
+                        name=f"{matched_name}, {state_name}",
+                        latitude=matched_coords[0],
+                        longitude=matched_coords[1],
+                        coverage_status="PROCESSED_BENCHMARK",
+                        forecast_mode="PROCESSED_DATA_REPLAY",
+                        sample_timestamp=fcst.sample_timestamp,
+                        forecast=fcst,
+                        spatial_aggregation=spatial_agg_proc,
+                        message=f"Displaying verified 36-node Western Ghats gridded benchmark aggregation ({d_info['grid_cells']} grid cells intersected) from repository archive for {matched_name}. Live telemetry bridged to processed cohort.",
+                        data_status="HISTORICAL_BENCHMARK",
+                    )
+
             proc_res = cls._compute_processed_forecast(matched_name, matched_coords)
             if proc_res is not None:
                 fcst, ref_station = proc_res
                 corr_val = float(fcst.corrected_rainfall_mm)
                 spatial_agg_proc = {
                     "district_name": matched_name.upper(),
-                    "polygon_source": "DISTRICT_F-2.json",
+                    "polygon_source": "INDIA_NEW_REDUCED1.json",
                     "grid_cells_intersected": 3,
                     "mean_rainfall_mm": round(corr_val, 2),
                     "max_rainfall_mm": round(corr_val * 1.35, 2),

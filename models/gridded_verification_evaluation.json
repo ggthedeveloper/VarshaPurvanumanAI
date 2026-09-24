@@ -17,14 +17,19 @@
   "fss_status": "COMPUTED_GRIDDED",
   "spatial_continuous_metrics": {
     "Raw NWP": {
-      "rmse_mm": 15.25,
-      "mean_bias_mm": 3.03,
-      "mae_mm": 8.84
+      "rmse_mm": 15.09,
+      "mean_bias_mm": 2.98,
+      "mae_mm": 8.77
+    },
+    "Global ML": {
+      "rmse_mm": 13.59,
+      "mean_bias_mm": -2.16,
+      "mae_mm": 7.41
     },
     "Regime-Aware ML": {
-      "rmse_mm": 13.72,
-      "mean_bias_mm": 1.51,
-      "mae_mm": 7.77
+      "rmse_mm": 13.33,
+      "mean_bias_mm": -1.05,
+      "mae_mm": 7.59
     }
   },
   "fss_by_threshold": {
@@ -39,8 +44,10 @@
         {
           "window_size": 1,
           "window_km": 27.5,
-          "fss_raw": 0.3859,
-          "fss_corrected": 0.3843,
+          "fss_raw": 0.4007,
+          "fss_global": 0.4256,
+          "fss_regime_aware": 0.3808,
+          "fss_corrected": 0.3808,
           "fss_random": 0.3611,
           "fss_useful": 0.6806,
           "skill_assessment": "MARGINAL"
@@ -48,8 +55,10 @@
         {
           "window_size": 3,
           "window_km": 82.5,
-          "fss_raw": 0.4395,
-          "fss_corrected": 0.4391,
+          "fss_raw": 0.4542,
+          "fss_global": 0.4937,
+          "fss_regime_aware": 0.4165,
+          "fss_corrected": 0.4165,
           "fss_random": 0.3611,
           "fss_useful": 0.6806,
           "skill_assessment": "MARGINAL"
@@ -57,8 +66,10 @@
         {
           "window_size": 5,
           "window_km": 137.5,
-          "fss_raw": 0.461,
-          "fss_corrected": 0.459,
+          "fss_raw": 0.4775,
+          "fss_global": 0.5058,
+          "fss_regime_aware": 0.4258,
+          "fss_corrected": 0.4258,
           "fss_random": 0.3611,
           "fss_useful": 0.6806,
           "skill_assessment": "MARGINAL"
@@ -76,8 +87,10 @@
         {
           "window_size": 1,
           "window_km": 27.5,
-          "fss_raw": 0.3303,
-          "fss_corrected": 0.3145,
+          "fss_raw": 0.4582,
+          "fss_global": 0.2776,
+          "fss_regime_aware": 0.223,
+          "fss_corrected": 0.223,
           "fss_random": 0.2343,
           "fss_useful": 0.6171,
           "skill_assessment": "MARGINAL"
@@ -85,8 +98,10 @@
         {
           "window_size": 3,
           "window_km": 82.5,
-          "fss_raw": 0.3806,
-          "fss_corrected": 0.3627,
+          "fss_raw": 0.5061,
+          "fss_global": 0.2937,
+          "fss_regime_aware": 0.2501,
+          "fss_corrected": 0.2501,
           "fss_random": 0.2343,
           "fss_useful": 0.6171,
           "skill_assessment": "MARGINAL"
@@ -94,8 +109,10 @@
         {
           "window_size": 5,
           "window_km": 137.5,
-          "fss_raw": 0.3926,
-          "fss_corrected": 0.3786,
+          "fss_raw": 0.5198,
+          "fss_global": 0.2978,
+          "fss_regime_aware": 0.2567,
+          "fss_corrected": 0.2567,
           "fss_random": 0.2343,
           "fss_useful": 0.6171,
           "skill_assessment": "MARGINAL"
@@ -113,26 +130,32 @@
         {
           "window_size": 1,
           "window_km": 27.5,
-          "fss_raw": 0.2003,
-          "fss_corrected": 0.1992,
+          "fss_raw": 0.2508,
+          "fss_global": 0.1176,
+          "fss_regime_aware": 0.0633,
+          "fss_corrected": 0.0633,
           "fss_random": 0.1361,
           "fss_useful": 0.5681,
-          "skill_assessment": "MARGINAL"
+          "skill_assessment": "NO_SKILL"
         },
         {
           "window_size": 3,
           "window_km": 82.5,
-          "fss_raw": 0.2578,
-          "fss_corrected": 0.2644,
+          "fss_raw": 0.2961,
+          "fss_global": 0.1355,
+          "fss_regime_aware": 0.0718,
+          "fss_corrected": 0.0718,
           "fss_random": 0.1361,
           "fss_useful": 0.5681,
-          "skill_assessment": "MARGINAL"
+          "skill_assessment": "NO_SKILL"
         },
         {
           "window_size": 5,
           "window_km": 137.5,
-          "fss_raw": 0.2866,
-          "fss_corrected": 0.2991,
+          "fss_raw": 0.3222,
+          "fss_global": 0.143,
+          "fss_regime_aware": 0.0758,
+          "fss_corrected": 0.0758,
           "fss_random": 0.1361,
           "fss_useful": 0.5681,
           "skill_assessment": "MARGINAL"
@@ -150,29 +173,35 @@
         {
           "window_size": 1,
           "window_km": 27.5,
-          "fss_raw": 0.114,
-          "fss_corrected": 0.0956,
+          "fss_raw": 0.1306,
+          "fss_global": 0.0,
+          "fss_regime_aware": 0.0,
+          "fss_corrected": 0.0,
           "fss_random": 0.0491,
           "fss_useful": 0.5245,
-          "skill_assessment": "MARGINAL"
+          "skill_assessment": "NO_SKILL"
         },
         {
           "window_size": 3,
           "window_km": 82.5,
-          "fss_raw": 0.1923,
-          "fss_corrected": 0.171,
+          "fss_raw": 0.1753,
+          "fss_global": 0.0,
+          "fss_regime_aware": 0.0,
+          "fss_corrected": 0.0,
           "fss_random": 0.0491,
           "fss_useful": 0.5245,
-          "skill_assessment": "MARGINAL"
+          "skill_assessment": "NO_SKILL"
         },
         {
           "window_size": 5,
           "window_km": 137.5,
-          "fss_raw": 0.2356,
-          "fss_corrected": 0.2198,
+          "fss_raw": 0.2165,
+          "fss_global": 0.0,
+          "fss_regime_aware": 0.0,
+          "fss_corrected": 0.0,
           "fss_random": 0.0491,
           "fss_useful": 0.5245,
-          "skill_assessment": "MARGINAL"
+          "skill_assessment": "NO_SKILL"
         }
       ]
     }

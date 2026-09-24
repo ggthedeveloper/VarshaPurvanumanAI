@@ -182,6 +182,17 @@ export interface DistrictListResponse {
   data_status: DataStatus;
 }
 
+export interface DistrictSpatialAggregation {
+  grid_cells_intersected: number;
+  mean_rainfall_mm: number;
+  max_rainfall_mm: number;
+  percentile_75_mm: number;
+  percentile_10_mm?: number;
+  percentile_50_mm?: number;
+  percentile_90_mm?: number;
+  polygon_source?: string;
+}
+
 export interface DistrictForecastResponse {
   district_id: string;
   name: string;
@@ -189,6 +200,7 @@ export interface DistrictForecastResponse {
   longitude: number;
   coverage_status: CoverageStatus;
   forecast: CombinedForecastResponse | null;
+  spatial_aggregation?: DistrictSpatialAggregation | null;
   message: string;
   forecast_mode?: string;
   sample_timestamp?: string;
@@ -272,6 +284,8 @@ export interface GriddedFSSScaleItem {
   window_km: number;
   fss_raw: number;
   fss_corrected: number;
+  fss_global?: number;
+  fss_regime_aware?: number;
   fss_random: number;
   fss_useful: number;
   skill_assessment: 'SKILLFUL' | 'MARGINAL' | 'NO_SKILL';
@@ -303,6 +317,11 @@ export interface GriddedVerificationResponse {
   fss_status: 'COMPUTED_GRIDDED';
   spatial_continuous_metrics: {
     'Raw NWP': {
+      rmse_mm: number;
+      mean_bias_mm: number;
+      mae_mm: number;
+    };
+    'Global ML'?: {
       rmse_mm: number;
       mean_bias_mm: number;
       mae_mm: number;

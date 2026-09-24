@@ -24,6 +24,9 @@ OFFICIAL_DISTRICT_COORDINATES: Dict[str, Tuple[float, float]] = {
     "SOLAPUR": (17.6599, 75.9064),
     "WARDHA": (20.7453, 78.6022),
     "YAVATMAL": (20.3888, 78.1204),
+    "RAIGAD": (18.5158, 73.1812),
+    "AHMEDNAGAR": (19.0952, 74.7496),
+    "RATNAGIRI": (16.9902, 73.3120),
     
     # Madhya Pradesh (Central India)
     "BHOPAL": (23.2599, 77.4126),
@@ -117,6 +120,9 @@ OFFICIAL_DISTRICT_STATES: Dict[str, str] = {
     "SOLAPUR": "Maharashtra",
     "WARDHA": "Maharashtra",
     "YAVATMAL": "Maharashtra",
+    "RAIGAD": "Maharashtra",
+    "AHMEDNAGAR": "Maharashtra",
+    "RATNAGIRI": "Maharashtra",
 
     # Madhya Pradesh
     "BHOPAL": "Madhya Pradesh",
