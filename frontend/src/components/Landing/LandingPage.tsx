@@ -221,46 +221,86 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   return (
     <div className="space-y-16 pb-16">
       {/* 1. Hero Stage with Live Weather Background Simulation */}
-      <section className="relative overflow-hidden rounded-3xl bg-slate-950 text-white p-8 md:p-14 shadow-2xl border border-indigo-500/30">
+      <section
+        className={`relative overflow-hidden rounded-3xl p-8 md:p-14 shadow-2xl border transition-colors duration-300 ${
+          isDarkMode
+            ? 'bg-slate-950 text-white border-indigo-500/30'
+            : 'bg-gradient-to-br from-sky-50/90 via-white/95 to-indigo-50/80 text-slate-900 border-indigo-200 shadow-xl'
+        }`}
+      >
         {/* Interactive Weather Simulation Layer inside the Hero Card */}
         <LiveWeatherBackground
           fixed={false}
           overrideRegime={selectedRegime}
-          isDarkMode={true}
+          isDarkMode={isDarkMode}
           interactive={true}
-          opacity={0.7}
+          opacity={isDarkMode ? 0.7 : 0.85}
         />
 
         {/* Ambient Gradient Glows */}
-        <div className="absolute top-0 right-0 -mt-16 -mr-16 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div
+          className={`absolute top-0 right-0 -mt-16 -mr-16 w-96 h-96 rounded-full blur-3xl pointer-events-none ${
+            isDarkMode ? 'bg-indigo-500/20' : 'bg-sky-400/20'
+          }`}
+        />
+        <div
+          className={`absolute bottom-0 left-0 -mb-16 -ml-16 w-96 h-96 rounded-full blur-3xl pointer-events-none ${
+            isDarkMode ? 'bg-emerald-500/15' : 'bg-emerald-400/20'
+          }`}
+        />
 
         <div className="relative z-10 max-w-5xl space-y-8">
           {/* SIH / MoES Accreditation Badges */}
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-indigo-500/25 text-indigo-300 border border-indigo-400/40 backdrop-blur-md shadow-xs">
-              <Award className="h-4 w-4 mr-1.5 text-indigo-400" />
+            <span
+              className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold border backdrop-blur-md shadow-xs ${
+                isDarkMode
+                  ? 'bg-indigo-500/25 text-indigo-300 border-indigo-400/40'
+                  : 'bg-indigo-100 text-indigo-800 border-indigo-300'
+              }`}
+            >
+              <Award className="h-4 w-4 mr-1.5 text-indigo-500 dark:text-indigo-400" />
               Smart India Hackathon 2026 • SIH26080
             </span>
-            <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 backdrop-blur-md shadow-xs">
-              <ShieldCheck className="h-4 w-4 mr-1.5 text-emerald-400" />
+            <span
+              className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold border backdrop-blur-md shadow-xs ${
+                isDarkMode
+                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30'
+                  : 'bg-emerald-100 text-emerald-800 border-emerald-300'
+              }`}
+            >
+              <ShieldCheck className="h-4 w-4 mr-1.5 text-emerald-500 dark:text-emerald-400" />
               Ministry of Earth Sciences (MoES) / IMD
             </span>
-            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800/80 text-slate-300 border border-slate-700/80 backdrop-blur-md">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 mr-2 animate-ping" />
+            <span
+              className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border backdrop-blur-md ${
+                isDarkMode
+                  ? 'bg-slate-800/80 text-slate-300 border-slate-700/80'
+                  : 'bg-white/90 text-slate-700 border-slate-300 shadow-xs'
+              }`}
+            >
+              <span className="h-2 w-2 rounded-full bg-emerald-500 mr-2 animate-ping" />
               Live Meteorological AI Engine
             </span>
           </div>
 
           {/* Headline & Mission */}
           <div className="space-y-4">
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-white">
+            <h1
+              className={`text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight ${
+                isDarkMode ? 'text-white' : 'text-slate-900'
+              }`}
+            >
               Regime-Aware AI Post-Processing of{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-300 to-emerald-300">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 via-indigo-600 to-emerald-600 dark:from-sky-300 dark:via-indigo-300 dark:to-emerald-300">
                 Monsoon Rainfall Forecasts
               </span>
             </h1>
-            <p className="text-base sm:text-lg text-slate-300 max-w-3xl leading-relaxed">
+            <p
+              className={`text-base sm:text-lg max-w-3xl leading-relaxed ${
+                isDarkMode ? 'text-slate-300' : 'text-slate-600'
+              }`}
+            >
               Numerical Weather Prediction (NWP) models systematically over-predict heavy rainfall across the Western Ghats and Indian coastline. VarshaPurvanumanAI objectively classifies synoptic weather circulation regimes and downscales precipitation using specialized machine learning to eliminate orographic bias.
             </p>
           </div>
@@ -268,11 +308,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           {/* Interactive Live Weather Switcher Bar */}
           <div className="space-y-3 pt-2">
             <div className="flex items-center justify-between text-xs text-slate-400">
-              <span className="font-semibold uppercase tracking-wider flex items-center space-x-1.5 text-indigo-300">
-                <Sparkles className="h-3.5 w-3.5" />
+              <span
+                className={`font-semibold uppercase tracking-wider flex items-center space-x-1.5 ${
+                  isDarkMode ? 'text-indigo-300' : 'text-indigo-700'
+                }`}
+              >
+                <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
                 <span>Interactive Weather Simulation • Click to Test Regimes</span>
               </span>
-              <span className="hidden sm:inline-block text-[11px] text-slate-400">
+              <span className={`hidden sm:inline-block text-[11px] ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
                 Move cursor over canvas to interact with rain & wind
               </span>
             </div>
@@ -286,11 +330,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     onClick={() => handleSelectInteractiveRegime(r.id)}
                     className={`flex items-center space-x-2 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border ${
                       isSelected
-                        ? 'bg-indigo-600/90 text-white border-indigo-400 shadow-lg shadow-indigo-600/30 scale-102'
-                        : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-700/80 hover:border-slate-600'
+                        ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/30 scale-102 font-bold'
+                        : isDarkMode
+                        ? 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-700/80 hover:border-slate-600'
+                        : 'bg-white/90 hover:bg-slate-100 text-slate-700 border-slate-200/90 hover:border-indigo-300 shadow-xs'
                     }`}
                   >
-                    <span className={isSelected ? 'text-white' : 'text-indigo-400'}>{r.icon}</span>
+                    <span className={isSelected ? 'text-white' : 'text-indigo-500 dark:text-indigo-400'}>{r.icon}</span>
                     <span className="truncate">{r.shortName}</span>
                   </button>
                 );
@@ -298,52 +344,86 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Selected Regime Dynamic Details Card */}
-            <div className="rounded-2xl bg-slate-900/90 border border-slate-800 p-5 backdrop-blur-md space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+            <div
+              className={`rounded-2xl border p-5 backdrop-blur-md space-y-3 ${
+                isDarkMode
+                  ? 'bg-slate-900/90 border-slate-800 text-white'
+                  : 'bg-white/95 border-slate-200 text-slate-900 shadow-md'
+              }`}
+            >
+              <div
+                className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-2.5 ${
+                  isDarkMode ? 'border-slate-800' : 'border-slate-100'
+                }`}
+              >
                 <div className="flex items-center space-x-2.5">
-                  <span className="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400">
+                  <span className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400">
                     {activeMeta.icon}
                   </span>
                   <div>
-                    <h3 className="text-sm font-bold text-white flex items-center space-x-2">
+                    <h3
+                      className={`text-sm font-bold flex items-center space-x-2 ${
+                        isDarkMode ? 'text-white' : 'text-slate-900'
+                      }`}
+                    >
                       <span>{activeMeta.name}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-mono font-bold">
                         Active Simulation
                       </span>
                     </h3>
-                    <p className="text-[11px] text-slate-400">{activeMeta.signature}</p>
+                    <p className={`text-[11px] ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                      {activeMeta.signature}
+                    </p>
                   </div>
                 </div>
 
-                <div className="text-[11px] text-indigo-300 font-mono">
+                <div className="text-[11px] text-indigo-600 dark:text-indigo-300 font-mono font-semibold">
                   Trigger: {selectedRegime}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                <div className="bg-slate-950/60 rounded-xl p-3 border border-slate-800/80">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                <div
+                  className={`rounded-xl p-3 border ${
+                    isDarkMode
+                      ? 'bg-slate-950/60 border-slate-800/80 text-slate-300'
+                      : 'bg-slate-50/80 border-slate-200 text-slate-700'
+                  }`}
+                >
+                  <span className={`text-[10px] font-bold uppercase tracking-wider block mb-1 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
                     Synoptic Mechanism
                   </span>
-                  <p className="text-slate-300 leading-relaxed text-[11px]">
+                  <p className="leading-relaxed text-[11px]">
                     {activeMeta.synopticMechanism}
                   </p>
                 </div>
 
-                <div className="bg-slate-950/60 rounded-xl p-3 border border-slate-800/80">
-                  <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block mb-1">
+                <div
+                  className={`rounded-xl p-3 border ${
+                    isDarkMode
+                      ? 'bg-slate-950/60 border-slate-800/80 text-slate-300'
+                      : 'bg-slate-50/80 border-slate-200 text-slate-700'
+                  }`}
+                >
+                  <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block mb-1">
                     NWP Error Pattern
                   </span>
-                  <p className="text-slate-300 leading-relaxed text-[11px]">
+                  <p className="leading-relaxed text-[11px]">
                     {activeMeta.biasTendency}
                   </p>
                 </div>
 
-                <div className="bg-slate-950/60 rounded-xl p-3 border border-slate-800/80">
-                  <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block mb-1">
+                <div
+                  className={`rounded-xl p-3 border ${
+                    isDarkMode
+                      ? 'bg-slate-950/60 border-slate-800/80 text-slate-300'
+                      : 'bg-slate-50/80 border-slate-200 text-slate-700'
+                  }`}
+                >
+                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-1">
                     AI Post-Processing Solution
                   </span>
-                  <p className="text-slate-300 leading-relaxed text-[11px]">
+                  <p className="leading-relaxed text-[11px]">
                     {activeMeta.aiRemedy}
                   </p>
                 </div>
@@ -374,7 +454,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             {!isLoggedIn && onLoginClick && (
               <button
                 onClick={onLoginClick}
-                className="inline-flex items-center px-5 py-3.5 rounded-xl text-sm font-semibold bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer"
+                className={`inline-flex items-center px-5 py-3.5 rounded-xl text-sm font-semibold transition cursor-pointer border ${
+                  isDarkMode
+                    ? 'bg-slate-800/90 hover:bg-slate-700 text-slate-200 border-slate-700'
+                    : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-300 shadow-sm'
+                }`}
               >
                 <span>Sign In with Credentials</span>
               </button>
@@ -382,9 +466,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
             <button
               onClick={() => onNavigateToVerification()}
-              className="inline-flex items-center px-5 py-3.5 rounded-xl text-sm font-semibold bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-700/80 transition cursor-pointer"
+              className={`inline-flex items-center px-5 py-3.5 rounded-xl text-sm font-semibold transition cursor-pointer border ${
+                isDarkMode
+                  ? 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-700/80'
+                  : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-sm'
+              }`}
             >
-              <BarChart3 className="h-4 w-4 mr-2 text-indigo-400" />
+              <BarChart3 className="h-4 w-4 mr-2 text-indigo-500 dark:text-indigo-400" />
               <span>Inspect Verification Benchmarks</span>
             </button>
           </div>

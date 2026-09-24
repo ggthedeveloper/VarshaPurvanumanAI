@@ -35,6 +35,8 @@ import {
   X,
   Sparkles,
   CloudRain,
+  Sun,
+  Moon,
   ExternalLink,
 } from 'lucide-react';
 
@@ -261,31 +263,55 @@ const AppContent: React.FC = () => {
     }
 
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 relative overflow-x-hidden">
+      <div
+        className={`min-h-screen relative overflow-x-hidden transition-colors ${
+          isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+        }`}
+      >
         {/* Fixed Ambient Live Weather Canvas Background */}
-        <LiveWeatherBackground fixed={true} isDarkMode={true} opacity={0.35} />
+        <LiveWeatherBackground
+          fixed={true}
+          isDarkMode={isDarkMode}
+          opacity={isDarkMode ? 0.35 : 0.65}
+        />
 
         {/* Guest Header */}
-        <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 px-4 sm:px-8 py-3.5 flex items-center justify-between">
+        <header
+          className={`sticky top-0 z-40 backdrop-blur-md border-b px-4 sm:px-8 py-3.5 flex items-center justify-between transition-colors ${
+            isDarkMode ? 'bg-slate-950/80 border-slate-800' : 'bg-white/80 border-slate-200 shadow-xs'
+          }`}
+        >
           <div className="flex items-center space-x-3">
             <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-sky-400 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
               <CloudRain className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-extrabold text-sm text-white">Varsha AI</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-mono font-semibold">
+                <span className={`font-extrabold text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  Varsha AI
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-mono font-bold">
                   SIH26080
                 </span>
               </div>
-              <span className="text-[11px] text-slate-400 hidden sm:block">
+              <span className={`text-[11px] hidden sm:block ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
                 Ministry of Earth Sciences (MoES) / IMD Monsoon Intelligence
               </span>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2.5 sm:space-x-3">
-            <WeatherControllerPill isDarkMode={true} />
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <WeatherControllerPill isDarkMode={isDarkMode} />
+
+            {/* Theme Switcher in Guest Header */}
+            <button
+              onClick={handleToggleTheme}
+              title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+            >
+              {isDarkMode ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4" />}
+            </button>
+
             <button
               onClick={handleQuickDemo}
               className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20 transition cursor-pointer flex items-center space-x-1.5"
@@ -295,7 +321,11 @@ const AppContent: React.FC = () => {
             </button>
             <button
               onClick={() => setAuthView('login')}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer"
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer border ${
+                isDarkMode
+                  ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                  : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-300 shadow-xs'
+              }`}
             >
               Sign In
             </button>
@@ -318,7 +348,7 @@ const AppContent: React.FC = () => {
             onSelectDistrict={handleSelectDistrict}
             activeForecast={activeForecast}
             geoJsonData={geoJsonData}
-            isDarkMode={true}
+            isDarkMode={isDarkMode}
             onLoginClick={() => setAuthView('login')}
             onQuickDemo={handleQuickDemo}
             isLoggedIn={false}
@@ -341,7 +371,7 @@ const AppContent: React.FC = () => {
       <LiveWeatherBackground
         fixed={true}
         isDarkMode={isDarkMode}
-        opacity={isDarkMode ? 0.35 : 0.22}
+        opacity={isDarkMode ? 0.38 : 0.65}
         interactive={true}
       />
 
