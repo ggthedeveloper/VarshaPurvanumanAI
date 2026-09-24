@@ -43,5 +43,6 @@ class DistrictForecastResponse(BaseModel):
     forecast_mode: Optional[str] = Field(default=None, description="Operational forecast mode: 'HISTORICAL_BENCHMARK', 'LIVE_NWP', or 'DATA_UNAVAILABLE'.")
     sample_timestamp: Optional[str] = Field(default=None, description="Timestamp of the benchmark sample.")
     forecast: Optional[CombinedForecastResponse] = Field(default=None, description="Consolidated forecast if available.")
+    spatial_aggregation: Optional[Dict[str, Any]] = Field(default=None, description="Spatial multi-cell polygon aggregation metrics (mean, max, 75th percentile).")
     message: Optional[str] = Field(default=None, description="Informational message or reason for unavailability.")
     data_status: str = Field(default="HISTORICAL_BENCHMARK", description="Data provenance status.")

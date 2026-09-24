@@ -8,6 +8,7 @@ from backend.app.schemas.verification import (
     VerificationThresholdsResponse,
     VerificationRegimesResponse,
     VerificationProbabilityResponse,
+    GriddedVerificationResponse,
 )
 from backend.app.services.verification_service import VerificationService
 
@@ -57,3 +58,16 @@ def get_probability_verification():
         return VerificationService.get_probability()
     except FileNotFoundError as fe:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(fe))
+
+
+@router.get("/gridded", response_model=GriddedVerificationResponse, summary="2D Fractions Skill Score & Spatial Verification")
+def get_gridded_verification():
+    """
+    Returns verified 2D Fractions Skill Score (FSS) across spatial scales (27.5km, 82.5km, 137.5km)
+    and continuous spatial verification metrics over the Western Ghats 0.25° mesoscale domain.
+    """
+    try:
+        return VerificationService.get_gridded()
+    except FileNotFoundError as fe:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(fe))
+

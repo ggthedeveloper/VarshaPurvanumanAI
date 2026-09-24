@@ -347,3 +347,19 @@ def test_19_district_use_processed_fallback(client):
     assert data_list["active_districts"] > 1
 
 
+def test_20_operational_forecast_retrieval_workflow(client):
+    """20. Operational forecast retrieval endpoint retrieves or resolves from cache and predicts."""
+    response = client.get("/api/forecast/retrieve?latitude=18.52&longitude=73.86&date=2024-06-07&cycle=00Z&lead_time_days=1")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["retrieval_status"] in ["CACHE_HIT", "NETWORK_DOWNLOAD", "FALLBACK_CACHED"]
+    assert data["raw_nwp_rainfall_mm"] >= 0.0
+    assert data["forecast"] is not None
+    assert data["forecast"]["corrected_rainfall_mm"] >= 0.0
+    assert len(data["forecast"]["heavy_rainfall_probabilities"]) == 5
+    assert data["forecast"]["predicted_regime"] in [
+        "ACTIVE_MONSOON", "BREAK_MONSOON", "COASTAL_OROGRAPHIC", "DEPRESSION", "OTHER"
+    ]
+
+
+

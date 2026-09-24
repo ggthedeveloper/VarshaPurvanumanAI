@@ -1,0 +1,182 @@
+{
+  "domain_name": "Western Ghats Mesoscale Orographic Domain",
+  "domain_bbox": {
+    "min_latitude": 18.0,
+    "max_latitude": 19.25,
+    "min_longitude": 73.0,
+    "max_longitude": 74.25
+  },
+  "grid_shape": [
+    6,
+    6
+  ],
+  "resolution_deg": 0.25,
+  "grid_cell_km": 27.5,
+  "dates_evaluated": 30,
+  "evaluation_period": "June 1 - June 30, 2024 (Held-Out Southwest Monsoon Test Period)",
+  "fss_status": "COMPUTED_GRIDDED",
+  "spatial_continuous_metrics": {
+    "Raw NWP": {
+      "rmse_mm": 15.25,
+      "mean_bias_mm": 3.03,
+      "mae_mm": 8.84
+    },
+    "Regime-Aware ML": {
+      "rmse_mm": 13.72,
+      "mean_bias_mm": 1.51,
+      "mae_mm": 7.77
+    }
+  },
+  "fss_by_threshold": {
+    "2.5": {
+      "threshold_mm": 2.5,
+      "threshold_name": "Rainy Day",
+      "category": "OPERATIONAL",
+      "observed_fraction": 0.3611,
+      "fss_random": 0.3611,
+      "fss_useful": 0.6806,
+      "scales": [
+        {
+          "window_size": 1,
+          "window_km": 27.5,
+          "fss_raw": 0.3859,
+          "fss_corrected": 0.3843,
+          "fss_random": 0.3611,
+          "fss_useful": 0.6806,
+          "skill_assessment": "MARGINAL"
+        },
+        {
+          "window_size": 3,
+          "window_km": 82.5,
+          "fss_raw": 0.4395,
+          "fss_corrected": 0.4391,
+          "fss_random": 0.3611,
+          "fss_useful": 0.6806,
+          "skill_assessment": "MARGINAL"
+        },
+        {
+          "window_size": 5,
+          "window_km": 137.5,
+          "fss_raw": 0.461,
+          "fss_corrected": 0.459,
+          "fss_random": 0.3611,
+          "fss_useful": 0.6806,
+          "skill_assessment": "MARGINAL"
+        }
+      ]
+    },
+    "7.5": {
+      "threshold_mm": 7.5,
+      "threshold_name": "Surge Proxy",
+      "category": "EXPERIMENTAL",
+      "observed_fraction": 0.2343,
+      "fss_random": 0.2343,
+      "fss_useful": 0.6171,
+      "scales": [
+        {
+          "window_size": 1,
+          "window_km": 27.5,
+          "fss_raw": 0.3303,
+          "fss_corrected": 0.3145,
+          "fss_random": 0.2343,
+          "fss_useful": 0.6171,
+          "skill_assessment": "MARGINAL"
+        },
+        {
+          "window_size": 3,
+          "window_km": 82.5,
+          "fss_raw": 0.3806,
+          "fss_corrected": 0.3627,
+          "fss_random": 0.2343,
+          "fss_useful": 0.6171,
+          "skill_assessment": "MARGINAL"
+        },
+        {
+          "window_size": 5,
+          "window_km": 137.5,
+          "fss_raw": 0.3926,
+          "fss_corrected": 0.3786,
+          "fss_random": 0.2343,
+          "fss_useful": 0.6171,
+          "skill_assessment": "MARGINAL"
+        }
+      ]
+    },
+    "15.6": {
+      "threshold_mm": 15.6,
+      "threshold_name": "Moderate Rain",
+      "category": "OPERATIONAL",
+      "observed_fraction": 0.1361,
+      "fss_random": 0.1361,
+      "fss_useful": 0.5681,
+      "scales": [
+        {
+          "window_size": 1,
+          "window_km": 27.5,
+          "fss_raw": 0.2003,
+          "fss_corrected": 0.1992,
+          "fss_random": 0.1361,
+          "fss_useful": 0.5681,
+          "skill_assessment": "MARGINAL"
+        },
+        {
+          "window_size": 3,
+          "window_km": 82.5,
+          "fss_raw": 0.2578,
+          "fss_corrected": 0.2644,
+          "fss_random": 0.1361,
+          "fss_useful": 0.5681,
+          "skill_assessment": "MARGINAL"
+        },
+        {
+          "window_size": 5,
+          "window_km": 137.5,
+          "fss_raw": 0.2866,
+          "fss_corrected": 0.2991,
+          "fss_random": 0.1361,
+          "fss_useful": 0.5681,
+          "skill_assessment": "MARGINAL"
+        }
+      ]
+    },
+    "35.5": {
+      "threshold_mm": 35.5,
+      "threshold_name": "Heavy Rain Proxy",
+      "category": "EXPERIMENTAL",
+      "observed_fraction": 0.0491,
+      "fss_random": 0.0491,
+      "fss_useful": 0.5245,
+      "scales": [
+        {
+          "window_size": 1,
+          "window_km": 27.5,
+          "fss_raw": 0.114,
+          "fss_corrected": 0.0956,
+          "fss_random": 0.0491,
+          "fss_useful": 0.5245,
+          "skill_assessment": "MARGINAL"
+        },
+        {
+          "window_size": 3,
+          "window_km": 82.5,
+          "fss_raw": 0.1923,
+          "fss_corrected": 0.171,
+          "fss_random": 0.0491,
+          "fss_useful": 0.5245,
+          "skill_assessment": "MARGINAL"
+        },
+        {
+          "window_size": 5,
+          "window_km": 137.5,
+          "fss_raw": 0.2356,
+          "fss_corrected": 0.2198,
+          "fss_random": 0.0491,
+          "fss_useful": 0.5245,
+          "skill_assessment": "MARGINAL"
+        }
+      ]
+    }
+  },
+  "data_provenance": "IMD 0.25\u00b0 Gridded Rainfall Archive (Zenodo DOI: 10.5281/zenodo.20177433) paired with NOAA GFS 0.25\u00b0 Operational Re-analysis.",
+  "data_status": "REAL_DATA"
+}

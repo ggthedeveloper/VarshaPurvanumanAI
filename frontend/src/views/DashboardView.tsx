@@ -54,6 +54,8 @@ const getFriendlyRegimeName = (regimeKey: string) => {
       return 'Coastal / Offshore Trough';
     case 'DEPRESSION':
       return 'Monsoon Depression';
+    case 'WESTERN_DISTURBANCE':
+      return 'Western Disturbance';
     case 'OTHER':
       return 'General Circulation';
     default:

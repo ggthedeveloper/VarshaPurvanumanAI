@@ -14,6 +14,7 @@ import {
   VerificationRegimesResponse,
 } from '../types/api';
 import { VerificationDashboard } from '../components/Verification/VerificationDashboard';
+import { GriddedVerificationPanel } from '../components/Verification/GriddedVerificationPanel';
 import { LimitationsPanel } from '../components/Panels/LimitationsPanel';
 
 interface VerificationViewProps {
@@ -120,6 +121,9 @@ export const VerificationView: React.FC<VerificationViewProps> = ({
           <span>FSS NOT COMPUTABLE FOR POINT-BASED DATA. Categorical CSI, ETS, POD, and FAR are used instead.</span>
         </div>
       </div>
+
+      {/* 2D Gridded Verification & Real Fractions Skill Score (Phase 9 & 10) */}
+      <GriddedVerificationPanel />
 
       {/* Mandatory Limitations Panel */}
       <LimitationsPanel />

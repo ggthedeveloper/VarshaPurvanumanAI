@@ -1,0 +1,98 @@
+# Configuration for Scientific Verification Metrics & Protocols
+# Conforms to WMO-No. 1023 (Guidelines on Verification of NWP Products) and SIH26080
+
+evaluation_domain:
+  station_benchmark:
+    station_id: 43063
+    name: "PUNE IMD AWS"
+    latitude: 18.5204
+    longitude: 73.8567
+    elevation_m: 559.0
+    fss_computable: false
+    reason: "Point-based observation lacks 2D spatial grid."
+  gridded_domain:
+    domain_name: "Western Ghats Mesoscale Domain"
+    bounding_box:
+      min_lat: 18.00
+      max_lat: 19.25
+      min_lon: 73.00
+      max_lon: 74.25
+    resolution_deg: 0.25
+    grid_shape: [6, 6]
+    fss_computable: true
+
+continuous_metrics:
+  metrics:
+    - name: "RMSE"
+      description: "Root Mean Squared Error"
+      unit: "mm"
+      optimal_value: 0.0
+    - name: "MAE"
+      description: "Mean Absolute Error"
+      unit: "mm"
+      optimal_value: 0.0
+    - name: "Mean_Bias"
+      description: "Mean Forecast Error (Pred - Obs)"
+      unit: "mm"
+      optimal_value: 0.0
+    - name: "Pearson_r"
+      description: "Linear Correlation Coefficient"
+      unit: "dimensionless"
+      optimal_value: 1.0
+
+categorical_metrics:
+  thresholds_mm: [2.5, 7.5, 15.6, 64.5, 115.6]
+  contingency_elements: ["hits", "false_alarms", "misses", "correct_negatives"]
+  scores:
+    - name: "POD"
+      full_name: "Probability of Detection"
+      formula: "hits / (hits + misses)"
+      range: [0.0, 1.0]
+      optimal: 1.0
+    - name: "FAR"
+      full_name: "False Alarm Ratio"
+      formula: "false_alarms / (hits + false_alarms)"
+      range: [0.0, 1.0]
+      optimal: 0.0
+    - name: "CSI"
+      full_name: "Critical Success Index / Threat Score"
+      formula: "hits / (hits + false_alarms + misses)"
+      range: [0.0, 1.0]
+      optimal: 1.0
+    - name: "ETS"
+      full_name: "Equitable Threat Score / Gilbert Skill Score"
+      formula: "(hits - hits_ref) / (hits + false_alarms + misses - hits_ref)"
+      range: [-0.33, 1.0]
+      optimal: 1.0
+
+spatial_metrics:
+  fss:
+    method: "fractions_skill_score_2d"
+    reference: "Roberts & Lean (2008)"
+    thresholds_mm: [2.5, 7.5, 15.6, 35.5]
+    window_sizes: [1, 3, 5]
+    window_km_mapping:
+      1: 27.5
+      3: 82.5
+      5: 137.5
+    random_skill_formula: "FSS_random = fo"
+    useful_skill_formula: "FSS_useful = 0.5 + fo / 2"
+
+probabilistic_metrics:
+  brier_score:
+    formula: "mean((prob - obs)^2)"
+    optimal: 0.0
+  murphy_decomposition:
+    components: ["reliability", "resolution", "uncertainty"]
+  discrimination:
+    - "ROC_AUC"
+    - "PR_AUC"
+  calibration:
+    - "Expected_Calibration_Error"
+    - "Maximum_Calibration_Error"
+
+uncertainty_estimation:
+  method: "stationary_block_bootstrap"
+  iterations: 1000
+  block_length_days: 5
+  confidence_level: 0.95

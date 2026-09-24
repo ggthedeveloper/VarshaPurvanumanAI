@@ -88,6 +88,18 @@ const REGIME_INFO: RegimeCardMeta[] = [
     progressBarColor: 'bg-amber-500',
   },
   {
+    key: 'WESTERN_DISTURBANCE',
+    name: 'Western Disturbance',
+    code: 'WESTERN_DISTURBANCE',
+    meteorologicalDefinition:
+      'Extratropical synoptic wave embedded in mid-latitude westerlies impacting NW India & Western Himalayas.',
+    synopticFeatures: 'Upper-tropospheric trough at 500/200 hPa, sub-tropical westerly jet, cold air advection.',
+    color: 'text-cyan-600 dark:text-cyan-400',
+    badgeBg: 'bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800',
+    borderColor: 'border-cyan-300 dark:border-cyan-800',
+    progressBarColor: 'bg-cyan-500',
+  },
+  {
     key: 'OTHER',
     name: 'Other / Transitional',
     code: 'OTHER',

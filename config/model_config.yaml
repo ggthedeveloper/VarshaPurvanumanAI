@@ -1,0 +1,82 @@
+# Configuration for Machine Learning Models and Post-Processors
+# Problem Statement: SIH26080 — Regime-Aware AI Post-Processing of Monsoon Rainfall Forecasts
+
+taxonomy:
+  all_india_regimes:
+    - "ACTIVE_MONSOON"
+    - "BREAK_MONSOON"
+    - "COASTAL_OROGRAPHIC"
+    - "DEPRESSION"
+    - "WESTERN_DISTURBANCE"
+    - "OTHER"
+  benchmark_regimes:
+    - "ACTIVE_MONSOON"
+    - "BREAK_MONSOON"
+    - "COASTAL_OROGRAPHIC"
+    - "DEPRESSION"
+    - "OTHER"
+
+regime_classifier:
+  model_type: "gradient_boosting"
+  random_state: 42
+  hyperparameters:
+    n_estimators: 50
+    max_depth: 3
+    learning_rate: 0.05
+  supported_classes:
+    - "ACTIVE_MONSOON"
+    - "BREAK_MONSOON"
+    - "COASTAL_OROGRAPHIC"
+    - "DEPRESSION"
+    - "OTHER"
+  artifact_path: "models/regime_classifier.pkl"
+  metadata_path: "models/regime_classifier_metadata.json"
+
+global_postprocessor:
+  model_family: "random_forest"
+  random_state: 42
+  hyperparameters:
+    n_estimators: 100
+    max_depth: 5
+    min_samples_leaf: 3
+  physical_constraints:
+    non_negative: true
+    min_value_mm: 0.0
+  artifact_path: "models/global_postprocessor.pkl"
+  metadata_path: "models/global_postprocessor_metadata.json"
+
+regime_aware_postprocessor:
+  routing_mode: "hard"  # "hard" (discrete routing by predicted regime) or "soft" (probability weighted)
+  min_samples_for_dedicated: 15
+  fallback_model: "global_random_forest"
+  dedicated_models_dir: "models/regime_postprocessors"
+  metadata_path: "models/regime_postprocessor_metadata.json"
+  evaluation_path: "models/regime_postprocessor_evaluation.json"
+
+probability_suite:
+  calibration_method: "isotonic"
+  random_state: 42
+  thresholds_mm:
+    - threshold: 2.5
+      name: "Rainy Day"
+      category: "OPERATIONAL"
+      decision_tau: 0.30
+    - threshold: 7.5
+      name: "Surge Proxy"
+      category: "EXPERIMENTAL"
+      decision_tau: 0.20
+    - threshold: 15.6
+      name: "Moderate Rain"
+      category: "OPERATIONAL"
+      decision_tau: 0.15
+    - threshold: 64.5
+      name: "Heavy Rain"
+      category: "OPERATIONAL"
+      decision_tau: 0.10
+    - threshold: 115.6
+      name: "Very Heavy Rain"
+      category: "OPERATIONAL"
+      decision_tau: 0.05
+  models_dir: "models/probability"
+  metadata_path: "models/probability_model_metadata.json"
+  evaluation_path: "models/probability_evaluation.json"

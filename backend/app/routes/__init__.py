@@ -9,6 +9,7 @@ from .forecast import router as forecast_router
 from .districts import router as districts_router
 from .verification import router as verification_router
 from .auth import router as auth_router
+from .grid import router as grid_router
 
 __all__ = [
     "health_router",
@@ -19,4 +20,6 @@ __all__ = [
     "districts_router",
     "verification_router",
     "auth_router",
+    "grid_router",
 ]
+

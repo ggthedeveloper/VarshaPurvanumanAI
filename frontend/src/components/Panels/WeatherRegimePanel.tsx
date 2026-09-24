@@ -37,6 +37,12 @@ const REGIME_METADATA: Record<
     color: 'text-purple-600 dark:text-purple-400',
     barColor: 'bg-purple-600',
   },
+  WESTERN_DISTURBANCE: {
+    name: 'Western Disturbance',
+    description: 'Extratropical synoptic wave embedded in mid-latitude westerlies impacting NW India & Western Himalayas.',
+    color: 'text-cyan-600 dark:text-cyan-400',
+    barColor: 'bg-cyan-600',
+  },
   OTHER: {
     name: 'Other / Transitional',
     description: 'Quiescent synoptic state or regional localized convection.',
@@ -123,7 +129,10 @@ export const WeatherRegimePanel: React.FC<WeatherRegimePanelProps> = ({
             <span>Posterior Class Distribution</span>
             <span>Pr(Regime | X)</span>
           </div>
-          {(['ACTIVE_MONSOON', 'BREAK_MONSOON', 'COASTAL_OROGRAPHIC', 'DEPRESSION', 'OTHER'] as SynopticRegime[]).map(
+          {((probabilities.WESTERN_DISTURBANCE !== undefined
+            ? ['ACTIVE_MONSOON', 'BREAK_MONSOON', 'COASTAL_OROGRAPHIC', 'DEPRESSION', 'WESTERN_DISTURBANCE', 'OTHER']
+            : ['ACTIVE_MONSOON', 'BREAK_MONSOON', 'COASTAL_OROGRAPHIC', 'DEPRESSION', 'OTHER']
+          ) as SynopticRegime[]).map(
             (regKey) => {
               const prob = probabilities[regKey] || 0;
               const pct = (prob * 100).toFixed(1);

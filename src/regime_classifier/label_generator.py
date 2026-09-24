@@ -14,15 +14,30 @@ REGIME_ACTIVE = "ACTIVE_MONSOON"
 REGIME_BREAK = "BREAK_MONSOON"
 REGIME_DEPRESSION = "DEPRESSION"
 REGIME_COASTAL_OROGRAPHIC = "COASTAL_OROGRAPHIC"
+REGIME_WESTERN_DISTURBANCE = "WESTERN_DISTURBANCE"
 REGIME_OTHER = "OTHER"
 
-VALID_REGIMES = [
+# Five regimes with active sample representation in the Southwest Monsoon Peninsular Benchmark (lat ~18.5N)
+BENCHMARK_REGIMES = [
     REGIME_ACTIVE,
     REGIME_BREAK,
     REGIME_DEPRESSION,
     REGIME_COASTAL_OROGRAPHIC,
     REGIME_OTHER,
 ]
+
+# Full 6-regime synoptic taxonomy conforming strictly to the SIH26080 problem statement:
+# (Active monsoon, break monsoon, monsoon lows/depressions, coastal/orographic rainfall, western disturbances, other/dry)
+ALL_INDIA_TAXONOMY_REGIMES = [
+    REGIME_ACTIVE,
+    REGIME_BREAK,
+    REGIME_DEPRESSION,
+    REGIME_COASTAL_OROGRAPHIC,
+    REGIME_WESTERN_DISTURBANCE,
+    REGIME_OTHER,
+]
+
+VALID_REGIMES = ALL_INDIA_TAXONOMY_REGIMES
 
 STATUS_OFFICIAL = "OFFICIAL"
 STATUS_SCIENTIFIC = "SCIENTIFIC_SOURCE"
@@ -192,6 +207,47 @@ SCIENTIFIC_ACTIVE_EVENTS = [
     },
 ]
 
+# Verified Western Disturbance Records (Mid-latitude westerly troughs impacting NW India & Western Himalayas)
+# Sources: IMD MAUSAM Monsoon Reports, RSMC Synoptic Bulletins & Special Extreme Weather Reports
+OFFICIAL_WD_EVENTS = [
+    {
+        "event_id": "IMD_WD_2023_01",
+        "name": "Historic Northwest India Monsoon-WD Interaction (Yamuna/Beas Floods)",
+        "start_date": "2023-07-08",
+        "end_date": "2023-07-11",
+        "source": "IMD Special Report on Severe Rainfall over Northwest India July 2023",
+        "status": STATUS_OFFICIAL,
+        "confidence": 1.0,
+    },
+    {
+        "event_id": "IMD_WD_2023_02",
+        "name": "Late May Active Western Disturbance across Western Himalayas & NW Plains",
+        "start_date": "2023-05-23",
+        "end_date": "2023-05-26",
+        "source": "IMD Synoptic Weather Report May 2023",
+        "status": STATUS_OFFICIAL,
+        "confidence": 0.95,
+    },
+    {
+        "event_id": "IMD_WD_2022_01",
+        "name": "Mid-June Western Disturbance over Western Himalayan Region",
+        "start_date": "2022-06-16",
+        "end_date": "2022-06-20",
+        "source": "IMD Monsoon 2022 End-of-Season Report (MAUSAM)",
+        "status": STATUS_OFFICIAL,
+        "confidence": 0.95,
+    },
+    {
+        "event_id": "IMD_WD_2021_01",
+        "name": "October Extreme WD-Trough Interaction across Western Himalayas & North India",
+        "start_date": "2021-10-17",
+        "end_date": "2021-10-19",
+        "source": "IMD Monsoon 2021 End-of-Season Report (MAUSAM)",
+        "status": STATUS_OFFICIAL,
+        "confidence": 1.0,
+    },
+]
+
 
 class RegimeLabelGenerator:
     """
@@ -202,6 +258,7 @@ class RegimeLabelGenerator:
         self._depression_date_map: Dict[str, dict] = {}
         self._break_date_map: Dict[str, dict] = {}
         self._active_date_map: Dict[str, dict] = {}
+        self._wd_date_map: Dict[str, dict] = {}
         self._build_date_lookups()
 
     def _build_date_lookups(self):
@@ -221,6 +278,11 @@ class RegimeLabelGenerator:
             for d in dates:
                 self._active_date_map[d] = event
 
+        for event in OFFICIAL_WD_EVENTS:
+            dates = pd.date_range(event["start_date"], event["end_date"]).strftime("%Y-%m-%d")
+            for d in dates:
+                self._wd_date_map[d] = event
+
     def export_raw_event_catalog(self, target_path: str = "data/raw/regime_labels/imd_monsoon_events_2021_2023.csv"):
         """Exports the raw event catalog table to CSV."""
         os.makedirs(os.path.dirname(target_path), exist_ok=True)
@@ -236,6 +298,10 @@ class RegimeLabelGenerator:
         for ev in SCIENTIFIC_ACTIVE_EVENTS:
             row = dict(ev)
             row["canonical_regime"] = REGIME_ACTIVE
+            all_events.append(row)
+        for ev in OFFICIAL_WD_EVENTS:
+            row = dict(ev)
+            row["canonical_regime"] = REGIME_WESTERN_DISTURBANCE
             all_events.append(row)
 
         df = pd.DataFrame(all_events)
@@ -256,10 +322,17 @@ class RegimeLabelGenerator:
 
         Hierarchy:
         1. DEPRESSION (Official IMD track)
-        2. BREAK_MONSOON (Official IMD break report / CMZ Anomaly <= -1.0)
-        3. ACTIVE_MONSOON (Scientific CMZ positive surge >= +1.0)
-        4. COASTAL_OROGRAPHIC (Western Ghats windward belt + strong westerly LLJ)
-        5. OTHER (Background seasonal circulation)
+        2. WESTERN_DISTURBANCE (Official IMD report; Northwest India / Western Himalayas lat >= 26.0N)
+        3. BREAK_MONSOON (Official IMD break report / CMZ Anomaly <= -1.0)
+        4. ACTIVE_MONSOON (Scientific CMZ positive surge >= +1.0)
+        5. COASTAL_OROGRAPHIC (Western Ghats windward belt + strong westerly LLJ)
+        6. OTHER (Background seasonal circulation)
+
+        Geographical Scope Note:
+        Western Disturbances primarily propagate across Northwest India, Jammu & Kashmir, Ladakh,
+        Himachal Pradesh, Uttarakhand, Punjab, and Haryana (lat >= 26.0N). Peninsular India
+        (e.g., Pune / Maharashtra station benchmark at lat ~18.5N) is climatologically outside
+        the core track of primary Western Disturbances during the summer southwest monsoon.
         """
         # 1. Depression Check
         if date_str in self._depression_date_map:
@@ -270,6 +343,19 @@ class RegimeLabelGenerator:
                 "source": ev["source"],
                 "source_event_id": ev["event_id"],
                 "label_method": "IMD_ANNUAL_REPORT_DEPRESSION_TRACK",
+                "label_confidence": ev["confidence"],
+                "label_status": ev["status"],
+            }
+
+        # 2. Western Disturbance Check (Geographically bounded to North/Northwest India >= 26.0N)
+        if lat >= 26.0 and date_str in self._wd_date_map:
+            ev = self._wd_date_map[date_str]
+            return {
+                "regime": REGIME_WESTERN_DISTURBANCE,
+                "sub_regime": "NORTHWEST_INDIA_WD",
+                "source": ev["source"],
+                "source_event_id": ev["event_id"],
+                "label_method": "IMD_WD_BULLETIN_AND_SYNOPTIC_CHART",
                 "label_confidence": ev["confidence"],
                 "label_status": ev["status"],
             }

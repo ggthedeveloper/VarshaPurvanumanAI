@@ -16,6 +16,7 @@ export type SynopticRegime =
   | 'BREAK_MONSOON'
   | 'COASTAL_OROGRAPHIC'
   | 'DEPRESSION'
+  | 'WESTERN_DISTURBANCE'
   | 'OTHER';
 
 export type CoverageStatus =
@@ -265,3 +266,76 @@ export interface VerificationRegimesResponse {
   regimes: Record<string, Record<string, ContinuousMetricsItem>>;
   data_status: DataStatus;
 }
+
+export interface GriddedFSSScaleItem {
+  window_size: number;
+  window_km: number;
+  fss_raw: number;
+  fss_corrected: number;
+  fss_random: number;
+  fss_useful: number;
+  skill_assessment: 'SKILLFUL' | 'MARGINAL' | 'NO_SKILL';
+}
+
+export interface GriddedThresholdFSS {
+  threshold_mm: number;
+  threshold_name: string;
+  category: string;
+  observed_fraction: number;
+  fss_random: number;
+  fss_useful: number;
+  scales: GriddedFSSScaleItem[];
+}
+
+export interface GriddedVerificationResponse {
+  domain_name: string;
+  domain_bbox: {
+    min_latitude: number;
+    max_latitude: number;
+    min_longitude: number;
+    max_longitude: number;
+  };
+  grid_shape: [number, number];
+  resolution_deg: number;
+  grid_cell_km: number;
+  dates_evaluated: number;
+  evaluation_period: string;
+  fss_status: 'COMPUTED_GRIDDED';
+  spatial_continuous_metrics: {
+    'Raw NWP': {
+      rmse_mm: number;
+      mean_bias_mm: number;
+      mae_mm: number;
+    };
+    'Regime-Aware ML': {
+      rmse_mm: number;
+      mean_bias_mm: number;
+      mae_mm: number;
+    };
+  };
+  fss_by_threshold: Record<string, GriddedThresholdFSS>;
+  data_provenance: string;
+  data_status: DataStatus;
+}
+
+export interface GriddedRainfallResponse {
+  date: string;
+  domain_name: string;
+  grid_shape: [number, number];
+  latitudes: number[];
+  longitudes: number[];
+  raw_nwp_grid: number[][];
+  corrected_grid: number[][];
+  observed_grid: number[][];
+  bias_raw_grid: number[][];
+  bias_corrected_grid: number[][];
+  summary_stats: {
+    observed_mean_mm: number;
+    observed_max_mm: number;
+    raw_nwp_mean_mm: number;
+    corrected_mean_mm: number;
+  };
+  units: string;
+  data_status: DataStatus;
+}
+

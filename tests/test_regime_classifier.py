@@ -10,11 +10,13 @@ import pandas as pd
 from src.regime_classifier.label_generator import (
     RegimeLabelGenerator,
     VALID_REGIMES,
+    BENCHMARK_REGIMES,
     VALID_STATUSES,
     REGIME_ACTIVE,
     REGIME_BREAK,
     REGIME_DEPRESSION,
     REGIME_COASTAL_OROGRAPHIC,
+    REGIME_WESTERN_DISTURBANCE,
     REGIME_OTHER
 )
 from src.regime_classifier.classifier import RegimeClassifier
@@ -85,9 +87,11 @@ def test_spatial_alignment_with_paired_dataset(paired_benchmark_df, regime_label
 def test_class_distribution_coverage(regime_labels_df):
     """Verifies that all 5 canonical regimes are populated in the multi-year benchmark."""
     counts = regime_labels_df["regime"].value_counts().to_dict()
-    for reg in VALID_REGIMES:
+    for reg in BENCHMARK_REGIMES:
         assert reg in counts, f"Regime {reg} has zero verified samples"
         assert counts[reg] > 0, f"Regime {reg} count must be positive"
+    # Ensure full SIH taxonomy includes Western Disturbance
+    assert REGIME_WESTERN_DISTURBANCE in VALID_REGIMES
 
 
 def test_target_independence_and_no_leakage(paired_benchmark_df, regime_labels_df):

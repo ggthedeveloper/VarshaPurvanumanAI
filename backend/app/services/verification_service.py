@@ -14,6 +14,7 @@ from backend.app.schemas.verification import (
     VerificationThresholdsResponse,
     VerificationRegimesResponse,
     VerificationProbabilityResponse,
+    GriddedVerificationResponse,
 )
 
 
@@ -81,3 +82,16 @@ class VerificationService:
             regime_aware_model=prob.get("regime_aware_probability_model", {}),
             data_status=settings.DATA_STATUS,
         )
+
+    @classmethod
+    def get_gridded(cls) -> GriddedVerificationResponse:
+        grid_metrics_path = "models/gridded_verification_evaluation.json"
+        if not os.path.exists(grid_metrics_path):
+            from src.verification.gridded_verification import GriddedVerificationRunner
+            runner = GriddedVerificationRunner()
+            runner.save_evaluation(grid_metrics_path)
+
+        with open(grid_metrics_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return GriddedVerificationResponse(**data)
+
