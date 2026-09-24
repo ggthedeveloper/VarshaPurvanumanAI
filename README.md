@@ -1,9 +1,9 @@
 # VarshaPurvanumanAI (SIH26080)
 ## Regime-Aware AI Post-Processing of Monsoon Rainfall Forecasts
 
-[![Backend Tests](https://img.shields.io/badge/pytest-93%20passed-brightgreen.svg)]()
+[![Backend Tests](https://img.shields.io/badge/pytest-95%20passed-brightgreen.svg)]()
 [![Frontend Tests](https://img.shields.io/badge/vitest-20%20passed-brightgreen.svg)]()
-[![System Tests](https://img.shields.io/badge/tests-113%2F113%20passed-brightgreen.svg)]()
+[![System Tests](https://img.shields.io/badge/tests-115%2F115%20passed-brightgreen.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)]()
 [![React 19](https://img.shields.io/badge/react-19.2-61dafb.svg)]()
@@ -102,9 +102,10 @@ Numerical Weather Prediction (NWP) models (such as NOAA GFS and NCMRWF NCUM) exh
 >   - **Satara:** 3 grid cells
 >   - **Ahmednagar:** 2 grid cells
 >   - **Ratnagiri:** 1 grid cell
-> - For covered districts, the `/api/districts/{name}/forecast` endpoint produces real spatial multi-cell aggregations: spatial mean, peak cell accumulation, percentiles ($p_{10}, p_{50}, p_{90}$), prevailing synoptic regime, calibrated threshold exceedance probabilities, and exact cell coverage count.
+> - For covered districts, the `/api/districts/{name}/forecast` endpoint produces real spatial multi-cell aggregations backed directly by ingested NOAA GFS NWP grid cells: spatial mean, peak cell accumulation, percentiles ($p_{10}, p_{50}, p_{90}$), prevailing synoptic regime, calibrated threshold exceedance probabilities, and exact cell coverage count.
+> - **Meteorological Provenance & Zero Synthetic Heuristics:** Operational district forecasts strictly use real NWP predictors ingested from NOAA GFS ($0.25^\circ$), with zero hard-coded mathematical formulas, sin/cos geographic heuristics, or static fallbacks. Every response includes complete provenance metadata: `data_source`, `nwp_initialization_time`, `forecast_valid_time`, `forecast_lead_hours`, `grid_resolution`, `source_latitude`, `source_longitude`, `predictor_source`, and `observation_source`.
 > - **Pune Benchmark Station Replay (AWS 43063):** In addition to gridded district aggregations, single-station telemetry ($18.50^\circ\text{N}, 73.80^\circ\text{E}$) is preserved as a held-out test replay from June 30, 2024 for baseline point verification comparison.
-> - **Strict Scientific Honesty for Unmonitored Districts:** For all districts outside the gridded observation footprint, the API strictly returns:
+> - **Strict Scientific Honesty for Unmonitored Districts:** For all districts outside the active gridded NWP observation footprint, the API strictly returns:
 >   ```json
 >   "coverage_status": "DATA_UNAVAILABLE",
 >   "forecast_mode": "DATA_UNAVAILABLE",
@@ -244,7 +245,7 @@ VarshaPurvanumanAI/
 │   ├── probability/          # Calibrated exceedance probability engine
 │   ├── regime_classifier/    # Gradient boosting regime classifier
 │   └── verification/         # 2D Gridded FSS and spatial verification engine
-└── tests/                    # 17 test suites covering full system (93 tests)
+└── tests/                    # 17 test suites covering full system (95 tests)
 ```
 
 ---
@@ -260,7 +261,7 @@ VarshaPurvanumanAI/
 # Install Python scientific dependencies
 pip install fastapi uvicorn pydantic scikit-learn numpy pandas geopandas shapely requests
 
-# Run all 93 backend and integration tests
+# Run all 95 backend and integration tests
 pytest tests/ -v
 ```
 

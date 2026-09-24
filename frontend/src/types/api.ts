@@ -21,6 +21,7 @@ export type SynopticRegime =
 
 export type CoverageStatus =
   | 'BENCHMARK_ACTIVE'
+  | 'OPERATIONAL_NWP'
   | 'PROCESSED_BENCHMARK'
   | 'OPERATIONAL_ACTIVE'
   | 'REFERENCE_ONLY'
@@ -205,6 +206,15 @@ export interface DistrictForecastResponse {
   forecast_mode?: string;
   sample_timestamp?: string;
   data_status: DataStatus;
+  data_source?: string | null;
+  nwp_initialization_time?: string | null;
+  forecast_valid_time?: string | null;
+  forecast_lead_hours?: number | null;
+  grid_resolution?: string | null;
+  source_latitude?: number | null;
+  source_longitude?: number | null;
+  predictor_source?: string | null;
+  observation_source?: string | null;
 }
 
 export interface ContinuousMetricsItem {

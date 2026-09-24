@@ -159,3 +159,72 @@ def test_gridded_benchmark_dataset_integrity():
     wd_count = (df["regime"] == "WESTERN_DISTURBANCE").sum()
     assert wd_count == 0, f"Expected 0 WD events in domain <= 19.25N, got {wd_count}"
 
+
+def test_operational_real_gfs_district_forecast_provenance(client):
+    """
+    Verifies that all 6 benchmark districts return genuine GFS-derived predictors,
+    multi-cell spatial aggregations, and real metadata provenance with zero synthetic shortcuts.
+    """
+    benchmark_districts = {
+        "pune": 15,
+        "raigad": 11,
+        "thane": 4,
+        "satara": 3,
+        "ahmednagar": 2,
+        "ratnagiri": 1,
+    }
+
+    for dist_id, expected_cells in benchmark_districts.items():
+        res = client.get(f"/api/district/{dist_id}/forecast")
+        assert res.status_code == 200, f"Failed for district: {dist_id}"
+        data = res.json()
+
+        # Real forecast must be present
+        assert data["forecast"] is not None
+        assert data["coverage_status"] in ["OPERATIONAL_NWP", "BENCHMARK_ACTIVE"]
+        assert data["forecast"]["raw_nwp_rainfall_mm"] >= 0.0
+        assert data["forecast"]["corrected_rainfall_mm"] >= 0.0
+        assert data["forecast"]["predicted_regime"] in [
+            "ACTIVE_MONSOON", "BREAK_MONSOON", "COASTAL_OROGRAPHIC", "DEPRESSION", "OTHER"
+        ]
+        assert len(data["forecast"]["heavy_rainfall_probabilities"]) == 5
+
+        # Multi-cell spatial aggregation must match expected real grid intersection
+        sp_agg = data["spatial_aggregation"]
+        assert sp_agg is not None
+        assert sp_agg["grid_cells_intersected"] == expected_cells
+        assert sp_agg["mean_rainfall_mm"] > 0.0
+        assert sp_agg["max_rainfall_mm"] >= sp_agg["mean_rainfall_mm"]
+        assert sp_agg["percentile_75_mm"] >= 0.0
+
+        # Provenance metadata fields must be populated with authentic GFS sources
+        assert data["data_source"] == "NOAA_GFS_0.25"
+        assert data["nwp_initialization_time"] is not None
+        assert data["forecast_valid_time"] is not None
+        assert data["forecast_lead_hours"] == 24
+        assert "0.25°" in data["grid_resolution"]
+        assert data["source_latitude"] > 0.0
+        assert data["source_longitude"] > 0.0
+        assert "NOAA_GFS_0.25" in data["predictor_source"]
+
+
+def test_unmonitored_district_zero_fabrication(client):
+    """
+    Verifies that districts outside the real GFS benchmark domain strictly return
+    DATA_UNAVAILABLE with null forecast and null spatial aggregations (zero fabrication).
+    """
+    for dist_id in ["nagpur", "mumbai", "jaipur"]:
+        res = client.get(f"/api/district/{dist_id}/forecast")
+        assert res.status_code == 200
+        data = res.json()
+
+        assert data["coverage_status"] == "DATA_UNAVAILABLE"
+        assert data["forecast_mode"] == "DATA_UNAVAILABLE"
+        assert data["forecast"] is None
+        assert data["spatial_aggregation"] is None
+        assert data["data_source"] is None
+        assert data["nwp_initialization_time"] is None
+        assert data["forecast_valid_time"] is None
+        assert "data unavailable" in data["message"].lower()
+
+
