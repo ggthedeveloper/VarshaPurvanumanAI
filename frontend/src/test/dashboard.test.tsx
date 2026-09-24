@@ -553,6 +553,7 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
     expect(screen.getByText(/Platform Access/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Quick SIH Demo Access/i })).toBeInTheDocument();
     expect(screen.getByText(/Default: Varsha@SIH2026/i)).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Gaurav')).toBeInTheDocument();
   });
 
   it('16. Sidebar renders all 8 navigation routes and triggers navigation callback', () => {
@@ -570,9 +571,9 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
         isDarkMode={false}
         onToggleTheme={handleToggleTheme}
         user={{
-          username: 'sih_judge',
-          name: 'SIH Evaluator',
-          role: 'Evaluation Committee',
+          username: 'Gaurav',
+          name: 'Gaurav Gautam',
+          role: 'Lead Meteorologist / SIH 2026 Evaluator',
           is_demo: true,
         }}
         onLogout={handleLogout}

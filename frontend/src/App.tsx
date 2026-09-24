@@ -153,9 +153,9 @@ const AppContent: React.FC = () => {
       handleLoginSuccess(resp.user);
     } catch {
       const fallbackUser: UserProfile = {
-        username: 'sih_judge',
+        username: 'Gaurav',
         name: 'Gaurav Gautam',
-        role: 'SIH 2026 Evaluator / Meteorologist',
+        role: 'Lead Meteorologist / SIH 2026 Evaluator',
         is_demo: true,
       };
       api.setToken('demo_session_token_sih26080');

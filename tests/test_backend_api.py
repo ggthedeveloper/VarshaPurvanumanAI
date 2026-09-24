@@ -311,19 +311,26 @@ def test_18_auth_endpoints(client):
     r_bad = client.post("/api/auth/login", json={"username": "wrong_user", "password": "wrong_password"})
     assert r_bad.status_code == 401
 
-    # Valid demo login accepted
+    # Valid demo login accepted (legacy and default credentials)
     r_good = client.post("/api/auth/login", json={"username": "sih_judge", "password": "Varsha@SIH2026"})
     assert r_good.status_code == 200
     data_good = r_good.json()
     assert "access_token" in data_good
     assert data_good["user"]["username"] == "sih_judge"
 
-    # Quick demo login accepted
+    # Default login with Gaurav
+    r_gaurav = client.post("/api/auth/login", json={"username": "Gaurav", "password": "Varsha@SIH2026"})
+    assert r_gaurav.status_code == 200
+    data_gaurav = r_gaurav.json()
+    assert data_gaurav["user"]["username"] == "Gaurav"
+
+    # Quick demo login accepted with default user Gaurav
     r_demo = client.post("/api/auth/demo-login")
     assert r_demo.status_code == 200
     data_demo = r_demo.json()
     assert "access_token" in data_demo
     assert data_demo["user"]["is_demo"] is True
+    assert data_demo["user"]["username"] == "Gaurav"
 
 
 def test_19_district_use_processed_fallback(client):

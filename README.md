@@ -289,7 +289,7 @@ DATA_STATUS=HISTORICAL_BENCHMARK
 CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173
 
 # SIH Evaluator Authentication
-DEMO_USERNAME=sih_judge
+DEMO_USERNAME=Gaurav
 DEMO_PASSWORD=your_secure_password_here
 
 # Optional: Set Google Maps API key; if omitted, map falls back to OpenStreetMap / CartoDB raster tiles
@@ -308,7 +308,7 @@ npm run dev
 ```
 
 Visit `http://localhost:3000` in your browser.
-- **Login Credentials:** Username: `sih_judge`, Password: (configured in `.env` via `DEMO_PASSWORD`, or demo password)
+- **Login Credentials:** Username: `Gaurav`, Password: (configured in `.env` via `DEMO_PASSWORD`, or demo password `Varsha@SIH2026`)
 - **Or Click:** "Quick SIH Demo Access" for 1-click evaluation access.
 
 ---

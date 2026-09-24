@@ -20,7 +20,7 @@ def login(request: LoginRequest):
         logger.warning(f"Failed login attempt for username: {request.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password. Use demo credentials (sih_judge / Varsha@SIH2026) or Quick Demo Login.",
+            detail="Invalid username or password. Use demo credentials (Gaurav / Varsha@SIH2026) or Quick Demo Login.",
         )
     logger.info(f"Successful authentication for user: {request.username}")
     return resp

@@ -16,10 +16,11 @@ class AuthService:
         """Validates credentials against configured settings."""
         username_match = req.username.strip().lower() in [
             settings.DEMO_USERNAME.lower(),
+            "gaurav",
+            "sih_judge",
             "admin",
             "evaluator",
             "meteorologist",
-            "gaurav",
         ]
         password_match = req.password == settings.DEMO_PASSWORD or req.password == "Varsha@SIH2026" or req.password == "demo"
 

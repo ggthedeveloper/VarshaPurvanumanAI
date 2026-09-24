@@ -29,7 +29,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   onToggleTheme,
   onBackToLanding,
 }) => {
-  const [username, setUsername] = useState('sih_judge');
+  const [username, setUsername] = useState('Gaurav');
   const [password, setPassword] = useState('Varsha@SIH2026');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -67,9 +67,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     } catch (err: any) {
       // Fallback local session if backend auth route is momentarily unavailable
       const fallbackUser: UserProfile = {
-        username: 'sih_judge',
+        username: 'Gaurav',
         name: 'Gaurav Gautam',
-        role: 'SIH 2026 Evaluator / Meteorologist',
+        role: 'Lead Meteorologist / SIH 2026 Evaluator',
         is_demo: true,
       };
       api.setToken('demo_session_token_sih26080');
@@ -156,7 +156,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="sih_judge"
+                placeholder="Gaurav"
                 className="w-full pl-9 pr-3 py-2 bg-slate-900/80 border border-slate-700 rounded-lg text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
               />
             </div>
