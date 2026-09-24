@@ -11,6 +11,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { AppRoute, DataStatus, UserProfile } from '../../types/api';
+import { WeatherControllerPill } from '../Weather/WeatherControllerPill';
 
 interface NavbarProps {
   currentRoute: AppRoute;
@@ -30,6 +31,10 @@ interface NavbarProps {
 }
 
 const ROUTE_TITLES: Record<AppRoute, { title: string; subtitle: string }> = {
+  landing: {
+    title: 'Overview & Showcase',
+    subtitle: 'Interactive live weather & regime simulation',
+  },
   dashboard: {
     title: 'Monsoon Dashboard',
     subtitle: 'AI rainfall post-processing & spatial verification',
@@ -139,13 +144,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           title={apiConnected ? 'API Connected (127.0.0.1:8000)' : 'API Disconnected'}
           className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
         >
-          <span
-            className={`h-1.5 w-1.5 rounded-full mr-1.5 ${
-              apiConnected ? 'bg-emerald-500' : 'bg-rose-500'
-            }`}
-          />
           {apiConnected ? 'API ONLINE' : 'API OFFLINE'}
         </span>
+
+        {/* Live Weather Controls */}
+        <WeatherControllerPill isDarkMode={isDarkMode} />
 
         {/* Refresh Action */}
         <button

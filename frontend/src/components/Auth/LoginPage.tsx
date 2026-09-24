@@ -14,17 +14,20 @@ import {
 } from 'lucide-react';
 import { api } from '../../api/client';
 import { UserProfile } from '../../types/api';
+import { LiveWeatherBackground } from '../Weather/LiveWeatherBackground';
 
 interface LoginPageProps {
   onLoginSuccess: (user: UserProfile) => void;
   isDarkMode: boolean;
   onToggleTheme: () => void;
+  onBackToLanding?: () => void;
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({
   onLoginSuccess,
   isDarkMode,
   onToggleTheme,
+  onBackToLanding,
 }) => {
   const [username, setUsername] = useState('sih_judge');
   const [password, setPassword] = useState('Varsha@SIH2026');
@@ -79,9 +82,21 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
   return (
     <div className="min-h-screen w-full flex flex-col justify-center items-center bg-slate-900 text-slate-100 relative overflow-hidden px-4 py-8">
+      {/* Live Atmospheric Weather Canvas Background */}
+      <LiveWeatherBackground fixed={true} isDarkMode={true} opacity={0.35} />
+
       {/* Background Radial Glow */}
       <div className="absolute top-1/4 -left-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-emerald-600/20 rounded-full blur-3xl pointer-events-none" />
+
+      {onBackToLanding && (
+        <button
+          onClick={onBackToLanding}
+          className="relative z-20 mb-4 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center space-x-1.5 cursor-pointer"
+        >
+          <span>← Back to Interactive Showcase</span>
+        </button>
+      )}
 
       {/* Top Header Badge */}
       <div className="relative z-10 mb-6 flex flex-col items-center text-center space-y-2 max-w-lg">

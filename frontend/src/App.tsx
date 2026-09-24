@@ -14,6 +14,7 @@ import {
 import { Sidebar } from './components/Navigation/Sidebar';
 import { Navbar } from './components/Navigation/Navbar';
 import { LoginPage } from './components/Auth/LoginPage';
+import { LandingPage } from './components/Landing/LandingPage';
 import { DashboardView } from './views/DashboardView';
 import { ForecastView } from './views/ForecastView';
 import { RegimeView } from './views/RegimeView';
@@ -24,23 +25,29 @@ import { ProvenanceView } from './views/ProvenanceView';
 import { SystemHealthView } from './views/SystemHealthView';
 import { DemoModeModal } from './components/Panels/DemoModeModal';
 import { ErrorBoundary } from './components/Common/ErrorBoundary';
+import { WeatherProvider, useWeather } from './context/WeatherContext';
+import { LiveWeatherBackground } from './components/Weather/LiveWeatherBackground';
+import { WeatherControllerPill } from './components/Weather/WeatherControllerPill';
 import {
   AlertTriangle,
   ShieldCheck,
   Info,
   X,
   Sparkles,
+  CloudRain,
   ExternalLink,
 } from 'lucide-react';
 
-export const App: React.FC = () => {
+const AppContent: React.FC = () => {
   // Authentication State
   const [user, setUser] = useState<UserProfile | null>(() => api.getSavedUser());
+  const [authView, setAuthView] = useState<'landing' | 'login'>('landing');
 
   // Routing State
   const [currentRoute, setCurrentRoute] = useState<AppRoute>(() => {
     const saved = localStorage.getItem('app_route') as AppRoute;
     const validRoutes: AppRoute[] = [
+      'landing',
       'dashboard',
       'forecast',
       'regime',
@@ -88,6 +95,9 @@ export const App: React.FC = () => {
   const [districtLoading, setDistrictLoading] = useState<boolean>(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
 
+  // Weather Context
+  const { setDistrictRegime } = useWeather();
+
   // Synchronize HTML dark mode class
   useEffect(() => {
     if (isDarkMode) {
@@ -98,6 +108,13 @@ export const App: React.FC = () => {
       localStorage.setItem('theme', 'light');
     }
   }, [isDarkMode]);
+
+  // Synchronize weather simulation with active forecast regime
+  useEffect(() => {
+    if (activeForecast?.predicted_regime) {
+      setDistrictRegime(activeForecast.predicted_regime);
+    }
+  }, [activeForecast, setDistrictRegime]);
 
   const handleToggleTheme = () => {
     setIsDarkMode((prev) => !prev);
@@ -125,6 +142,24 @@ export const App: React.FC = () => {
   const handleLogout = () => {
     api.logout();
     setUser(null);
+    setAuthView('landing');
+  };
+
+  const handleQuickDemo = async () => {
+    try {
+      const resp = await api.demoLogin();
+      handleLoginSuccess(resp.user);
+    } catch {
+      const fallbackUser: UserProfile = {
+        username: 'sih_judge',
+        name: 'Gaurav Gautam',
+        role: 'SIH 2026 Evaluator / Meteorologist',
+        is_demo: true,
+      };
+      api.setToken('demo_session_token_sih26080');
+      localStorage.setItem('auth_user', JSON.stringify(fallbackUser));
+      handleLoginSuccess(fallbackUser);
+    }
   };
 
   // Initial Data Loader
@@ -176,10 +211,8 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (user) {
-      loadInitialData();
-    }
-  }, [user, loadInitialData]);
+    loadInitialData();
+  }, [loadInitialData]);
 
   // District Selection with Anti-Stale State Transition
   const handleSelectDistrict = async (districtId: string) => {
@@ -214,14 +247,84 @@ export const App: React.FC = () => {
     setCurrentRoute('forecast');
   };
 
-  // If unauthenticated, render Login Page
+  // If unauthenticated: Render either full Interactive Landing Page or Login Page
   if (!user) {
+    if (authView === 'login') {
+      return (
+        <LoginPage
+          onLoginSuccess={handleLoginSuccess}
+          isDarkMode={isDarkMode}
+          onToggleTheme={handleToggleTheme}
+          onBackToLanding={() => setAuthView('landing')}
+        />
+      );
+    }
+
     return (
-      <LoginPage
-        onLoginSuccess={handleLoginSuccess}
-        isDarkMode={isDarkMode}
-        onToggleTheme={handleToggleTheme}
-      />
+      <div className="min-h-screen bg-slate-950 text-slate-100 relative overflow-x-hidden">
+        {/* Fixed Ambient Live Weather Canvas Background */}
+        <LiveWeatherBackground fixed={true} isDarkMode={true} opacity={0.35} />
+
+        {/* Guest Header */}
+        <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 px-4 sm:px-8 py-3.5 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-sky-400 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+              <CloudRain className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="font-extrabold text-sm text-white">Varsha AI</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-mono font-semibold">
+                  SIH26080
+                </span>
+              </div>
+              <span className="text-[11px] text-slate-400 hidden sm:block">
+                Ministry of Earth Sciences (MoES) / IMD Monsoon Intelligence
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2.5 sm:space-x-3">
+            <WeatherControllerPill isDarkMode={true} />
+            <button
+              onClick={handleQuickDemo}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20 transition cursor-pointer flex items-center space-x-1.5"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>SIH Demo Access</span>
+            </button>
+            <button
+              onClick={() => setAuthView('login')}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer"
+            >
+              Sign In
+            </button>
+          </div>
+        </header>
+
+        {/* Interactive Landing Page Body */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+          <LandingPage
+            onNavigateToForecast={(districtId) => {
+              handleQuickDemo();
+              if (districtId) setSelectedDistrictId(districtId);
+            }}
+            onNavigateToVerification={() => {
+              handleQuickDemo();
+              setCurrentRoute('verification');
+            }}
+            districts={districts}
+            selectedDistrictId={selectedDistrictId}
+            onSelectDistrict={handleSelectDistrict}
+            activeForecast={activeForecast}
+            geoJsonData={geoJsonData}
+            isDarkMode={true}
+            onLoginClick={() => setAuthView('login')}
+            onQuickDemo={handleQuickDemo}
+            isLoggedIn={false}
+          />
+        </main>
+      </div>
     );
   }
 
@@ -233,7 +336,15 @@ export const App: React.FC = () => {
   const isDataUnavailable = districtForecast?.coverage_status === 'DATA_UNAVAILABLE';
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex transition-colors">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex transition-colors relative overflow-x-hidden">
+      {/* Fixed Ambient Live Weather Canvas Background across Interface */}
+      <LiveWeatherBackground
+        fixed={true}
+        isDarkMode={isDarkMode}
+        opacity={isDarkMode ? 0.35 : 0.22}
+        interactive={true}
+      />
+
       {/* Fixed Left Navigation Sidebar */}
       <Sidebar
         currentRoute={currentRoute}
@@ -250,7 +361,7 @@ export const App: React.FC = () => {
 
       {/* Main App Layout */}
       <div
-        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
+        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 relative z-10 ${
           isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'
         }`}
       >
@@ -303,6 +414,23 @@ export const App: React.FC = () => {
         {/* Main View Area */}
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <ErrorBoundary fallbackTitle="View Rendering Error">
+            {currentRoute === 'landing' && (
+              <LandingPage
+                onNavigateToForecast={(districtId) => {
+                  if (districtId) handleSelectDistrict(districtId);
+                  handleNavigate('forecast');
+                }}
+                onNavigateToVerification={() => handleNavigate('verification')}
+                districts={districts}
+                selectedDistrictId={selectedDistrictId}
+                onSelectDistrict={handleSelectDistrict}
+                activeForecast={activeForecast}
+                geoJsonData={geoJsonData}
+                isDarkMode={isDarkMode}
+                isLoggedIn={true}
+              />
+            )}
+
             {currentRoute === 'dashboard' && (
               <DashboardView
                 districts={districts}
@@ -381,7 +509,7 @@ export const App: React.FC = () => {
         </main>
 
         {/* Polished SIH / MoES Footer */}
-        <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 text-xs text-slate-500 dark:text-slate-400 transition-colors mt-auto">
+        <footer className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 py-6 text-xs text-slate-500 dark:text-slate-400 transition-colors mt-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3">
             <div className="flex items-center space-x-2">
               <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
@@ -453,6 +581,14 @@ export const App: React.FC = () => {
         onApplyDemoForecast={handleApplyDemoForecast}
       />
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <WeatherProvider>
+      <AppContent />
+    </WeatherProvider>
   );
 };
 

@@ -29,6 +29,7 @@ export type CoverageStatus =
   | 'UNKNOWN_DISTRICT';
 
 export type AppRoute =
+  | 'landing'
   | 'dashboard'
   | 'forecast'
   | 'regime'

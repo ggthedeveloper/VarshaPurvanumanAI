@@ -2,8 +2,8 @@
 ## Regime-Aware AI Post-Processing of Monsoon Rainfall Forecasts
 
 [![Backend Tests](https://img.shields.io/badge/pytest-95%20passed-brightgreen.svg)]()
-[![Frontend Tests](https://img.shields.io/badge/vitest-20%20passed-brightgreen.svg)]()
-[![System Tests](https://img.shields.io/badge/tests-115%2F115%20passed-brightgreen.svg)]()
+[![Frontend Tests](https://img.shields.io/badge/vitest-22%20passed-brightgreen.svg)]()
+[![System Tests](https://img.shields.io/badge/tests-117%2F117%20passed-brightgreen.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)]()
 [![React 19](https://img.shields.io/badge/react-19.2-61dafb.svg)]()
@@ -272,7 +272,7 @@ cd frontend
 # Install dependencies
 npm install
 
-# Run all 20 frontend component and integration tests
+# Run all 22 frontend component and integration tests
 npm test
 
 # Run production build

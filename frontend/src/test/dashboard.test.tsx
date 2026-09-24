@@ -16,6 +16,9 @@ import { ProbabilityView } from '../views/ProbabilityView';
 import { DistrictsView } from '../views/DistrictsView';
 import { ProvenanceView } from '../views/ProvenanceView';
 import { SystemHealthView } from '../views/SystemHealthView';
+import { LandingPage } from '../components/Landing/LandingPage';
+import { WeatherControllerPill } from '../components/Weather/WeatherControllerPill';
+import { WeatherProvider } from '../context/WeatherContext';
 import {
   CombinedForecastResponse,
   DistrictItem,
@@ -683,5 +686,63 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
     expect(screen.getByText(/System Health & Pipeline Telemetry/i)).toBeInTheDocument();
     expect(screen.getByText('OPERATIONAL')).toBeInTheDocument();
     expect(screen.getByText('ZERO SYNTHETIC')).toBeInTheDocument();
+  });
+
+  it('21. LandingPage renders interactive weather regime switcher, NWP bias-correction sandbox, and station showcase', () => {
+    const handleNavigateToForecast = vi.fn();
+    const handleNavigateToVerification = vi.fn();
+    const handleSelectDistrict = vi.fn();
+
+    render(
+      <LandingPage
+        onNavigateToForecast={handleNavigateToForecast}
+        onNavigateToVerification={handleNavigateToVerification}
+        districts={mockDistricts}
+        selectedDistrictId="pune"
+        onSelectDistrict={handleSelectDistrict}
+        activeForecast={mockForecast}
+        geoJsonData={null}
+        isDarkMode={true}
+        isLoggedIn={false}
+      />
+    );
+
+    expect(screen.getByText(/Smart India Hackathon 2026 • SIH26080/i)).toBeInTheDocument();
+    expect(screen.getByText(/Interactive Weather Simulation • Click to Test Regimes/i)).toBeInTheDocument();
+    expect(screen.getByText(/Test Regime-Conditioned Bias Correction Live/i)).toBeInTheDocument();
+    expect(screen.getByText(/Raw NOAA GFS Forecast Accumulation:/i)).toBeInTheDocument();
+    expect(screen.getByText(/National Monsoon Station Hubs/i)).toBeInTheDocument();
+
+    // Test regime switcher interaction
+    const breakSpellBtn = screen.getByRole('button', { name: /Break Spell/i });
+    fireEvent.click(breakSpellBtn);
+    expect(screen.getAllByText(/Break Monsoon Spell/i)[0]).toBeInTheDocument();
+
+    // Test bias correction slider interaction
+    const slider = screen.getByRole('slider');
+    fireEvent.change(slider, { target: { value: '60' } });
+    expect(screen.getAllByText(/60\.0/)[0]).toBeInTheDocument();
+  });
+
+  it('22. WeatherControllerPill renders and allows interactive regime selection and toggling', () => {
+    render(
+      <WeatherProvider>
+        <WeatherControllerPill isDarkMode={true} />
+      </WeatherProvider>
+    );
+
+    const triggerBtn = screen.getByTitle(/Live Weather Atmospheric Controls/i);
+    expect(triggerBtn).toBeInTheDocument();
+
+    // Open dropdown
+    fireEvent.click(triggerBtn);
+    expect(screen.getByText(/Live Weather Simulation/i)).toBeInTheDocument();
+    expect(screen.getByText(/Atmospheric Density/i)).toBeInTheDocument();
+    expect(screen.getByText(/Thunderstorm Flashes/i)).toBeInTheDocument();
+
+    // Toggle active state
+    const toggleBtn = screen.getByRole('button', { name: /^Active$/i });
+    fireEvent.click(toggleBtn);
+    expect(screen.getByText(/Disabled/i)).toBeInTheDocument();
   });
 });
