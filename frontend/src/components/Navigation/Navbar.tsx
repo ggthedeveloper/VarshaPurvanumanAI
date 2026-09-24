@@ -31,36 +31,36 @@ interface NavbarProps {
 
 const ROUTE_TITLES: Record<AppRoute, { title: string; subtitle: string }> = {
   dashboard: {
-    title: 'Monsoon Intelligence Dashboard',
-    subtitle: 'Regime-aware rainfall post-processing & spatial verification',
+    title: 'Monsoon Dashboard',
+    subtitle: 'AI rainfall post-processing & spatial verification',
   },
   forecast: {
-    title: 'Rainfall Forecast Explorer',
-    subtitle: 'High-resolution Google cartography & point station benchmarks',
+    title: 'Rainfall Forecast',
+    subtitle: 'Interactive cartography & station estimates',
   },
   regime: {
-    title: 'Synoptic Weather Regimes',
-    subtitle: 'Objective circulation classification across 5 monsoon states',
+    title: 'Synoptic Regimes',
+    subtitle: 'Circulation classification & routing',
   },
   probability: {
-    title: 'Heavy Rainfall Probability Suite',
-    subtitle: 'Platt-calibrated multi-threshold exceedance risk modeling',
+    title: 'Rainfall Probabilities',
+    subtitle: 'Calibrated multi-threshold exceedance risk',
   },
   verification: {
-    title: 'Model Verification & Skill Scores',
-    subtitle: 'Phase 8 held-out test cohort benchmarks (June 1–30, 2024)',
+    title: 'Model Verification',
+    subtitle: 'Held-out test cohort benchmarks',
   },
   districts: {
-    title: 'Administrative District Registry',
-    subtitle: 'Catalog of 78 Indian district stations & coverage status',
+    title: 'District Registry',
+    subtitle: '78 monitored administrative stations',
   },
   provenance: {
-    title: 'Data Provenance & Methodology',
-    subtitle: 'IMD 0.25° Gridded Rainfall & NOAA GFS 0.25° NWP specifications',
+    title: 'Data Provenance',
+    subtitle: 'IMD observation & NOAA GFS specifications',
   },
   health: {
-    title: 'System Health & Pipeline Telemetry',
-    subtitle: 'Model registry status, API latency, and environment diagnostics',
+    title: 'System Health',
+    subtitle: 'Model registry & pipeline telemetry',
   },
 };
 

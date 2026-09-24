@@ -222,35 +222,27 @@ export const ProbabilityView: React.FC<ProbabilityViewProps> = ({
 
           {/* Platt Calibration Methodology Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+            <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
               <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center space-x-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                <span>Platt Calibration Methodology</span>
+                <span>Platt Calibration</span>
               </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                Raw machine learning model confidence scores frequently suffer from overconfidence or underconfidence. VarshaPurvanumanAI fits a sigmoid calibration function:
+              <p className="text-xs text-slate-600 dark:text-slate-300">
+                Calibrates raw ML margin distances into statistically reliable empirical exceedance frequencies via sigmoid scaling:
               </p>
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800 font-mono text-xs text-center text-indigo-700 dark:text-indigo-300 border border-slate-200 dark:border-slate-700">
+              <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 font-mono text-xs text-center text-indigo-700 dark:text-indigo-300 border border-slate-200 dark:border-slate-700">
                 P(Y = 1 | f(x)) = 1 / (1 + exp(A · f(x) + B))
               </div>
-              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                Trained via out-of-fold validation on historical monsoon rainfall observations (2018–2022), mapping raw distance margins directly into statistically reliable empirical exceedance frequencies.
-              </p>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+            <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
               <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center space-x-2">
                 <Percent className="h-4 w-4 text-indigo-500" />
-                <span>Cost-Sensitive Optimal Decision Tau (τ)</span>
+                <span>Decision Tau (τ)</span>
               </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                In operational meteorological forecasting, missing an extreme downpour (False Negative) has a far greater societal cost than a precautionary False Alarm.
+              <p className="text-xs text-slate-600 dark:text-slate-300">
+                Optimized against Critical Success Index (CSI) and F-beta (β=2) to minimize dangerous false negatives during extreme precipitation.
               </p>
-              <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-1.5 list-disc list-inside">
-                <li>Operational thresholds optimize the <strong>F-beta (β=2)</strong> or <strong>Critical Success Index (CSI)</strong>.</li>
-                <li>Decision threshold $\tau$ dynamically adjusts rather than defaulting to naive $0.50$.</li>
-                <li>Ensures elevated disaster preparedness warnings trigger reliably before extreme flooding occurs.</li>
-              </ul>
             </div>
           </div>
         </div>
@@ -264,8 +256,8 @@ export const ProbabilityView: React.FC<ProbabilityViewProps> = ({
               <h2 className="text-base font-bold text-slate-900 dark:text-white">
                 Probability Exceedance Suite Unavailable for {districtForecast?.name || 'Selected Station'}
               </h2>
-              <p className="text-xs text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
-                Multi-threshold probability modeling requires real-time calibrated ensemble regressors and synchronized GFS numerical inputs. In compliance with strict meteorological integrity guidelines, synthetic probabilities are not hallucinated.
+              <p className="text-xs text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed">
+                Requires real-time calibrated ensemble regressors. No synthetic probabilities are generated.
               </p>
             </div>
           </div>

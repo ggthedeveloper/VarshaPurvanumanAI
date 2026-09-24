@@ -44,8 +44,8 @@ const REGIME_INFO: RegimeCardMeta[] = [
     name: 'Coastal / Offshore Trough',
     code: 'OFFSHORE_TROUGH',
     meteorologicalDefinition:
-      'Shallow sea-level trough along the west coast of India with strong cross-equatorial low-level westerly jets hitting the Western Ghats orographic barrier.',
-    synopticFeatures: 'Enhanced U850 westerly wind anomaly (>15 m/s), high precipitable water (>55 mm), strong Western Ghats windward convergence.',
+      'Offshore trough along the west coast with strong westerly flow against the Western Ghats.',
+    synopticFeatures: 'Westerly winds >15 m/s, high precipitable water >55 mm, coastal convergence.',
     color: 'text-emerald-600 dark:text-emerald-400',
     badgeBg: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
     borderColor: 'border-emerald-300 dark:border-emerald-800',
@@ -56,8 +56,8 @@ const REGIME_INFO: RegimeCardMeta[] = [
     name: 'Monsoon Depression / Low Pressure',
     code: 'MONSOON_DEPRESSION',
     meteorologicalDefinition:
-      'Intense synoptic cyclonic vortex formed over head Bay of Bengal propagating west-northwestwards across central India, bringing torrential organized rains.',
-    synopticFeatures: 'Cyclonic vorticity at 850 hPa (>4×10⁻⁵ s⁻¹), low MSLP anomaly, intense shear line convection.',
+      'Intense cyclonic vortex formed over Bay of Bengal bringing widespread heavy rainfall.',
+    synopticFeatures: '850 hPa cyclonic vorticity, low MSLP anomaly, intense shear line convection.',
     color: 'text-purple-600 dark:text-purple-400',
     badgeBg: 'bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800',
     borderColor: 'border-purple-300 dark:border-purple-800',
@@ -68,8 +68,8 @@ const REGIME_INFO: RegimeCardMeta[] = [
     name: 'Active Monsoon',
     code: 'ACTIVE_MONSOON',
     meteorologicalDefinition:
-      'Normal position of the monsoon trough south of its mean position with frequent active spells of widespread precipitation over the monsoon core zone.',
-    synopticFeatures: 'Sustained monsoon trough axis across Ganganagar to Kolkata, high lower-tropospheric humidity.',
+      'Monsoon trough south of normal position with frequent active rainfall across core zone.',
+    synopticFeatures: 'Sustained monsoon trough axis, high lower-tropospheric humidity.',
     color: 'text-blue-600 dark:text-blue-400',
     badgeBg: 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
     borderColor: 'border-blue-300 dark:border-blue-800',
@@ -80,8 +80,8 @@ const REGIME_INFO: RegimeCardMeta[] = [
     name: 'Break Monsoon',
     code: 'BREAK_MONSOON',
     meteorologicalDefinition:
-      'Monsoon trough shifts northwards close to the Himalayan foothills. Rainfall ceases abruptly over central India while intensifying over northeastern states and foothills.',
-    synopticFeatures: 'Absence of low-level westerly jet over peninsula, positive sea-level pressure anomalies over central India.',
+      'Monsoon trough shifts north towards Himalayan foothills; rainfall suppressed over central India.',
+    synopticFeatures: 'Absence of westerly jet over peninsula, positive MSLP anomalies.',
     color: 'text-amber-600 dark:text-amber-400',
     badgeBg: 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
     borderColor: 'border-amber-300 dark:border-amber-800',
@@ -92,8 +92,8 @@ const REGIME_INFO: RegimeCardMeta[] = [
     name: 'Other / Transitional',
     code: 'OTHER',
     meteorologicalDefinition:
-      'Quiescent synoptic state, transitional monsoon periods, or localized diurnally-driven convective thunderstorms without broad synoptic organization.',
-    synopticFeatures: 'Weak horizontal pressure gradients, disorganized 850 hPa wind fields, localized thermodynamic instability.',
+      'Transitional circulation states or localized diurnally-driven convective activity.',
+    synopticFeatures: 'Weak pressure gradients, disorganized 850 hPa wind fields.',
     color: 'text-slate-600 dark:text-slate-400',
     badgeBg: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700',
     borderColor: 'border-slate-300 dark:border-slate-700',
@@ -128,8 +128,8 @@ export const RegimeView: React.FC<RegimeViewProps> = ({
                 Synoptic Weather Regime Classification
               </h1>
             </div>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-3xl">
-              Physical synoptic classification conditions rainfall bias correction. Rather than using an unconditioned black-box ML model, VarshaPurvanumanAI routes NWP inputs through specialized post-processors tuned to distinct atmospheric dynamics.
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-2xl">
+              Physical synoptic circulation classification guiding regime-conditioned rainfall post-processing.
             </p>
           </div>
 
@@ -247,8 +247,8 @@ export const RegimeView: React.FC<RegimeViewProps> = ({
               <h2 className="text-base font-bold text-slate-900 dark:text-white">
                 Synoptic Telemetry Unavailable for {districtForecast?.name || 'Selected Station'}
               </h2>
-              <p className="text-xs text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
-                Regime classification requires 26 dynamic atmospheric variables including 850 hPa wind vectors, mean sea level pressure gradients, and convective available potential energy (CAPE). To guarantee scientific safety, VarshaPurvanumanAI does not invent circulation states.
+              <p className="text-xs text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed">
+                Regime classification requires dynamic atmospheric variables from live telemetry. No synthetic circulation states are fabricated.
               </p>
             </div>
           </div>

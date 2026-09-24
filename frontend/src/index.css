@@ -1,7 +1,16 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
 @import "leaflet/dist/leaflet.css";
 
 @layer base {
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
   body {
     @apply antialiased bg-slate-50 text-slate-900 transition-colors duration-200;
   }
