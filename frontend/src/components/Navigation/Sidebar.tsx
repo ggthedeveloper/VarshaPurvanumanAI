@@ -111,36 +111,70 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Navigation Items */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-          {NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentRoute === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  onNavigate(item.id);
-                  onCloseMobile();
-                }}
-                title={isCollapsed ? item.label : undefined}
-                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                  isActive
-                    ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30 font-bold'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
-                } ${isCollapsed ? 'justify-center' : ''}`}
-              >
-                <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200'}`} />
-                {!isCollapsed && (
-                  <span className="truncate flex-1 text-left">{item.label}</span>
-                )}
-                {!isCollapsed && item.badge && (
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300">
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
+          <div>
+            {!isCollapsed && (
+              <span className="px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1.5">
+                Forecast & Intelligence
+              </span>
+            )}
+            <div className="space-y-1">
+              {NAV_ITEMS.slice(0, 4).map((item) => {
+                const Icon = item.icon;
+                const isActive = currentRoute === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      onNavigate(item.id);
+                      onCloseMobile();
+                    }}
+                    title={isCollapsed ? item.label : undefined}
+                    className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                      isActive
+                        ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                    } ${isCollapsed ? 'justify-center' : ''}`}
+                  >
+                    <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                    {!isCollapsed && <span className="truncate flex-1 text-left">{item.label}</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            {!isCollapsed && (
+              <span className="px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1.5">
+                Verification & Data
+              </span>
+            )}
+            <div className="space-y-1">
+              {NAV_ITEMS.slice(4).map((item) => {
+                const Icon = item.icon;
+                const isActive = currentRoute === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      onNavigate(item.id);
+                      onCloseMobile();
+                    }}
+                    title={isCollapsed ? item.label : undefined}
+                    className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                      isActive
+                        ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                    } ${isCollapsed ? 'justify-center' : ''}`}
+                  >
+                    <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                    {!isCollapsed && <span className="truncate flex-1 text-left">{item.label}</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </nav>
 
         {/* Bottom Profile & Actions */}

@@ -3,15 +3,15 @@ import {
   CloudRain,
   Compass,
   Activity,
-  Cpu,
   MapPin,
   Calendar,
   AlertTriangle,
-  CheckCircle2,
   TrendingDown,
   ArrowRight,
   ShieldCheck,
   Sparkles,
+  ChevronRight,
+  Layers,
 } from 'lucide-react';
 import {
   DistrictItem,
@@ -34,6 +34,33 @@ interface DashboardViewProps {
   onNavigate: (route: AppRoute) => void;
 }
 
+const getRainfallCategory = (mm: number) => {
+  if (mm <= 0.1) return { label: 'Dry / No Rain', color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' };
+  if (mm < 2.5) return { label: 'Very Light Rain', color: 'bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300' };
+  if (mm < 7.5) return { label: 'Light Rain', color: 'bg-sky-100 text-sky-800 dark:bg-sky-900/60 dark:text-sky-200' };
+  if (mm < 35.5) return { label: 'Moderate Rain', color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-200' };
+  if (mm < 64.5) return { label: 'Rather Heavy Rain', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200' };
+  if (mm < 115.6) return { label: 'Heavy Rain', color: 'bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-200' };
+  return { label: 'Very Heavy Rain', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-200' };
+};
+
+const getFriendlyRegimeName = (regimeKey: string) => {
+  switch (regimeKey) {
+    case 'ACTIVE_MONSOON':
+      return 'Active Monsoon';
+    case 'BREAK_MONSOON':
+      return 'Break Monsoon';
+    case 'COASTAL_OROGRAPHIC':
+      return 'Coastal / Offshore Trough';
+    case 'DEPRESSION':
+      return 'Monsoon Depression';
+    case 'OTHER':
+      return 'General Circulation';
+    default:
+      return regimeKey.replace(/_/g, ' ');
+  }
+};
+
 export const DashboardView: React.FC<DashboardViewProps> = ({
   districts,
   selectedDistrictId,
@@ -46,314 +73,226 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onNavigate,
 }) => {
   const isPuneBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
-  const isProcessedBenchmark = districtForecast?.coverage_status === 'PROCESSED_BENCHMARK' || districtForecast?.forecast_mode === 'PROCESSED_DATA_REPLAY';
+  const isProcessedBenchmark =
+    districtForecast?.coverage_status === 'PROCESSED_BENCHMARK' ||
+    districtForecast?.forecast_mode === 'PROCESSED_DATA_REPLAY';
   const isAvailable = Boolean(activeForecast);
 
   // Selected district metadata
   const currentDistrict = districts.find((d) => d.district_id === selectedDistrictId);
-  const districtName = districtForecast?.name || currentDistrict?.name || 'PUNE BENCHMARK STATION';
+  const districtName = districtForecast?.name || currentDistrict?.name || 'Selected Station';
 
-  // Highlight key stations for rapid switching
   const quickStations = [
-    { id: 'pune', label: 'Pune (Benchmark)', isBenchmark: true },
-    { id: 'mumbai', label: 'Mumbai', isBenchmark: false },
-    { id: 'nagpur', label: 'Nagpur', isBenchmark: false },
-    { id: 'bengaluru_urban', label: 'Bengaluru', isBenchmark: false },
-    { id: 'new_delhi', label: 'New Delhi', isBenchmark: false },
-    { id: 'kolkata', label: 'Kolkata', isBenchmark: false },
+    { id: 'pune', label: 'Pune', badge: 'Benchmark' },
+    { id: 'mumbai', label: 'Mumbai' },
+    { id: 'nagpur', label: 'Nagpur' },
+    { id: 'kolkata', label: 'Kolkata' },
+    { id: 'new_delhi', label: 'New Delhi' },
+    { id: 'bengaluru_urban', label: 'Bengaluru' },
   ];
+
+  const rainCat = activeForecast ? getRainfallCategory(activeForecast.corrected_rainfall_mm) : null;
+  const rawRain = activeForecast?.raw_nwp_rainfall_mm ?? 0;
+  const correctedRain = activeForecast?.corrected_rainfall_mm ?? 0;
+  const delta = correctedRain - rawRain;
+  const regime = activeForecast?.predicted_regime ?? '';
+  const regimeConfidence = activeForecast?.regime_probabilities[regime]
+    ? Math.round(activeForecast.regime_probabilities[regime] * 100)
+    : 0;
+
+  // Find elevated risk
+  const elevatedProb = activeForecast?.heavy_rainfall_probabilities
+    ?.slice()
+    .reverse()
+    .find((p) => p.advisory_status === 'ELEVATED_RISK');
 
   return (
     <div className="space-y-6">
-      {/* Welcome Banner */}
-      <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 sm:p-8 border border-indigo-500/20 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 max-w-3xl space-y-2">
+      {/* Top Header & Fast Station Switcher Bar */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 transition-colors">
+        <div>
           <div className="flex items-center space-x-2">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-              <Sparkles className="h-3 w-3 mr-1 text-indigo-400" />
-              MoES Monsoon Intelligence
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              Monsoon Intelligence
+            </h1>
+            <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+              SIH26080
             </span>
-            <span className="text-xs text-slate-400">• SIH26080</span>
           </div>
-
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Monsoon Intelligence Dashboard
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-            Regime-aware precipitation post-processing & spatial verification system. Downscaling numerical weather prediction model biases across complex Indian orography.
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Regime-aware precipitation post-processing & bias correction across Indian districts.
           </p>
+        </div>
 
-          {/* Quick Station Switcher */}
-          <div className="pt-3 flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-slate-400 mr-1">Quick Select:</span>
+        {/* Station Select Controls */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Quick Station Pills */}
+          <div className="flex flex-wrap items-center gap-1.5">
             {quickStations.map((st) => (
               <button
                 key={st.id}
                 onClick={() => onSelectDistrict(st.id)}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5 ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5 ${
                   selectedDistrictId === st.id
-                    ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 border border-slate-700'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
                 <span>{st.label}</span>
-                {st.isBenchmark && (
+                {st.badge && (
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 )}
               </button>
             ))}
           </div>
+
+          {/* District Dropdown Selector */}
+          <select
+            value={selectedDistrictId}
+            onChange={(e) => onSelectDistrict(e.target.value)}
+            className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+          >
+            {districts.map((d) => (
+              <option key={d.district_id} value={d.district_id}>
+                {d.name} ({d.state})
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* KPI Cards Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-        {/* Card 1: Data Status */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider">Data Status</span>
-            <ShieldCheck className="h-4 w-4 text-emerald-500" />
-          </div>
-          <div className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white truncate">
-            {isPuneBenchmark ? 'BENCHMARK' : 'UNAVAILABLE'}
-          </div>
-          <span className="text-[10px] text-slate-500 block truncate mt-0.5">
-            {isPuneBenchmark ? 'Verified Sample' : 'No Active Feed'}
-          </span>
-        </div>
-
-        {/* Card 2: Selected District */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider">Location</span>
-            <MapPin className="h-4 w-4 text-indigo-500" />
-          </div>
-          <div className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white truncate">
-            {currentDistrict?.name || 'Pune'}
-          </div>
-          <span className="text-[10px] text-slate-500 block truncate mt-0.5">
-            {currentDistrict?.state || 'Maharashtra'}
-          </span>
-        </div>
-
-        {/* Card 3: Post-Processed Rainfall */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider">AI Rainfall</span>
-            <CloudRain className="h-4 w-4 text-sky-500" />
-          </div>
-          <div className="font-extrabold text-sm sm:text-base font-mono text-emerald-600 dark:text-emerald-400 truncate">
-            {isAvailable && activeForecast ? `${activeForecast.corrected_rainfall_mm.toFixed(2)} mm` : 'N/A'}
-          </div>
-          <span className="text-[10px] text-slate-500 block truncate mt-0.5">
-            {isAvailable && activeForecast ? `Raw: ${activeForecast.raw_nwp_rainfall_mm.toFixed(2)} mm` : 'Data Unavailable'}
-          </span>
-        </div>
-
-        {/* Card 4: Detected Regime */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider">Regime</span>
-            <Compass className="h-4 w-4 text-purple-500" />
-          </div>
-          <div className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white truncate">
-            {isAvailable && activeForecast ? activeForecast.predicted_regime : 'N/A'}
-          </div>
-          <span className="text-[10px] text-slate-500 block truncate mt-0.5">
-            {isAvailable ? 'Synoptic routing' : 'No classification'}
-          </span>
-        </div>
-
-        {/* Card 5: Probability P(>=15.6mm) */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider">P(≥15.6mm)</span>
-            <Activity className="h-4 w-4 text-amber-500" />
-          </div>
-          <div className="font-extrabold text-sm sm:text-base font-mono text-slate-900 dark:text-white truncate">
-            {isAvailable && activeForecast && activeForecast.heavy_rainfall_probabilities?.length
-              ? `${((activeForecast.heavy_rainfall_probabilities.find((p) => p.threshold_mm === 15.6)?.exceedance_probability ?? 0) * 100).toFixed(1)}%`
-              : 'N/A'}
-          </div>
-          <span className="text-[10px] text-slate-500 block truncate mt-0.5">
-            {isAvailable ? 'Significant Rain' : 'No probability'}
-          </span>
-        </div>
-
-        {/* Card 6: Model Status */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider">Submodel</span>
-            <Cpu className="h-4 w-4 text-slate-400" />
-          </div>
-          <div className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white truncate">
-            {isAvailable && activeForecast ? activeForecast.selected_model.replace('dedicated_', '') : 'N/A'}
-          </div>
-          <span className="text-[10px] text-slate-500 block truncate mt-0.5">
-            {isAvailable ? 'Gradient Boosted' : 'Engine Idle'}
-          </span>
-        </div>
-      </div>
-
-      {/* Primary Hero Section: Forecast Hero Card + Map */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column (5 cols): Prominent Forecast Hero Card */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-5">
-            {/* Header with Scope Badge */}
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                  Station Forecast Analysis
-                </span>
-                <h2 className="text-base font-bold text-slate-900 dark:text-white truncate">
-                  {districtName}
-                </h2>
-              </div>
-              {isPuneBenchmark ? (
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
-                  HISTORICAL BENCHMARK
-                </span>
-              ) : isProcessedBenchmark ? (
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-sky-100 dark:bg-sky-950/80 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800">
-                  <span className="h-2 w-2 rounded-full bg-sky-500 mr-1.5 animate-pulse" />
-                  PROCESSED BENCHMARK REPLAY
-                </span>
-              ) : (
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-                  <AlertTriangle className="h-3 w-3 mr-1 text-amber-600 dark:text-amber-400" />
-                  DATA UNAVAILABLE
-                </span>
-              )}
+      {/* 4 Clean, Impactful Key Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1: AI Rainfall Forecast */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              AI Rainfall Forecast
+            </span>
+            <div className="p-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400">
+              <CloudRain className="h-4 w-4" />
             </div>
-
-            {/* Dynamic Forecast Content */}
-            {activeForecast ? (
-              <div className="space-y-4">
-                {/* Sample Timestamp */}
-                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60">
-                  <span className="flex items-center">
-                    <Calendar className="h-3.5 w-3.5 mr-1.5 text-indigo-500" />
-                    Verified Benchmark Source:
-                  </span>
-                  <span className="font-semibold text-slate-700 dark:text-slate-200">
-                    {isPuneBenchmark
-                      ? '30 June 2024 (Held-Out Test Sample)'
-                      : 'Processed Benchmark (data/processed/)'}
-                  </span>
-                </div>
-
-                {/* Main Metric Comparison */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                      Raw NWP Forecast
-                    </span>
-                    <div className="text-2xl font-black font-mono text-slate-800 dark:text-slate-100">
-                      {activeForecast.raw_nwp_rainfall_mm.toFixed(2)}{' '}
-                      <span className="text-xs font-normal text-slate-400">mm</span>
-                    </div>
-                    <span className="text-[11px] text-slate-500 mt-1 block">
-                      NOAA GFS Raw Overprediction
-                    </span>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block mb-1">
-                      Post-Processed ML
-                    </span>
-                    <div className="text-2xl font-black font-mono text-emerald-700 dark:text-emerald-300">
-                      {activeForecast.corrected_rainfall_mm.toFixed(2)}{' '}
-                      <span className="text-xs font-normal text-emerald-600 dark:text-emerald-400">mm</span>
-                    </div>
-                    <span className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-1 block">
-                      Regime-Aware Bias Corrected
-                    </span>
-                  </div>
-                </div>
-
-                {/* Regime & Submodel Status */}
-                <div className="space-y-2 pt-1">
-                  <div className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/50">
-                    <span className="text-slate-500">Predicted Synoptic Regime:</span>
-                    <span className="font-bold text-indigo-600 dark:text-indigo-400">
-                      {activeForecast.predicted_regime}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/50">
-                    <span className="text-slate-500">Selected Submodel Routing:</span>
-                    <span className="font-mono font-semibold text-slate-700 dark:text-slate-200">
-                      {activeForecast.selected_model}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-[11px] text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-lg border border-amber-200 dark:border-amber-900/60">
-                  *Station-level benchmark for Pune (18.50°N, 73.80°E). District-level spatial aggregate is currently unavailable.
-                </div>
-              </div>
-            ) : (
-              /* Unsupported District Clean Empty State */
-              <div className="py-8 px-4 text-center space-y-3">
-                <div className="h-12 w-12 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 mx-auto flex items-center justify-center">
-                  <AlertTriangle className="h-6 w-6" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                    DISTRICT-LEVEL DATA UNAVAILABLE
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto mt-1 leading-relaxed">
-                    Live NWP telemetry and observation feeds are not connected for {districtName}.
-                    To preserve scientific integrity, no synthetic rainfall values are generated.
-                  </p>
-                </div>
-                <button
-                  onClick={() => onSelectDistrict('pune')}
-                  className="inline-flex items-center px-4 py-2 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs transition cursor-pointer"
-                >
-                  <span>View Pune Benchmark Station</span>
-                  <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
-                </button>
-              </div>
+          </div>
+          <div className="flex items-baseline space-x-2">
+            <span className="text-3xl font-black font-mono text-slate-900 dark:text-white">
+              {isAvailable && activeForecast ? `${activeForecast.corrected_rainfall_mm.toFixed(1)}` : 'N/A'}
+            </span>
+            <span className="text-sm font-semibold text-slate-500">mm / 24h</span>
+            {rainCat && (
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto ${rainCat.color}`}>
+                {rainCat.label}
+              </span>
             )}
           </div>
-
-          {/* Quick Nav Actions */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => onNavigate('forecast')}
-              className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-600 transition text-left cursor-pointer group"
-            >
-              <div className="flex items-center justify-between text-indigo-600 dark:text-indigo-400 mb-1">
-                <CloudRain className="h-4 w-4" />
-                <ArrowRight className="h-3.5 w-3.5 transform group-hover:translate-x-0.5 transition" />
-              </div>
-              <div className="text-xs font-bold text-slate-900 dark:text-white">
-                Detailed Forecast Explorer
-              </div>
-              <span className="text-[10px] text-slate-400">High-res terrain map</span>
-            </button>
-
-            <button
-              onClick={() => onNavigate('verification')}
-              className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-600 transition text-left cursor-pointer group"
-            >
-              <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-1">
-                <TrendingDown className="h-4 w-4" />
-                <ArrowRight className="h-3.5 w-3.5 transform group-hover:translate-x-0.5 transition" />
-              </div>
-              <div className="text-xs font-bold text-slate-900 dark:text-white">
-                Model Verification
-              </div>
-              <span className="text-[10px] text-slate-400">3-Model skill benchmarks</span>
-            </button>
+          <div className="text-xs text-slate-500 dark:text-slate-400 pt-1 flex items-center justify-between">
+            <span>Raw NWP: {isAvailable && activeForecast ? `${rawRain.toFixed(1)} mm` : 'N/A'}</span>
+            {isAvailable && activeForecast && (
+              <span className={`font-semibold ${delta >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600 dark:text-indigo-400'}`}>
+                {delta >= 0 ? `+${delta.toFixed(1)} mm bias` : `${delta.toFixed(1)} mm bias`}
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Right Column (7 cols): Live Interactive Radar Map */}
-        <div className="lg:col-span-7">
+        {/* Card 2: Weather Regime */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Circulation Regime
+            </span>
+            <div className="p-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400">
+              <Compass className="h-4 w-4" />
+            </div>
+          </div>
+          <div className="text-lg font-bold text-slate-900 dark:text-white truncate">
+            {isAvailable && activeForecast ? getFriendlyRegimeName(activeForecast.predicted_regime) : 'N/A'}
+          </div>
+          <div className="text-xs text-slate-500 dark:text-slate-400 pt-1 flex items-center justify-between">
+            <span>Model Confidence</span>
+            <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+              {isAvailable && activeForecast ? `${regimeConfidence}%` : 'N/A'}
+            </span>
+          </div>
+          {isAvailable && activeForecast && (
+            <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div
+                className="bg-indigo-500 h-full rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(regimeConfidence, 100)}%` }}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Card 3: Heavy Rain Advisory Risk */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Heavy Rain Risk
+            </span>
+            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
+              <Activity className="h-4 w-4" />
+            </div>
+          </div>
+          <div className="flex items-baseline space-x-2">
+            {elevatedProb ? (
+              <span className="text-lg font-extrabold text-amber-600 dark:text-amber-400 truncate">
+                Elevated Risk (≥{elevatedProb.threshold_mm} mm)
+              </span>
+            ) : (
+              <span className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">
+                Normal Advisory
+              </span>
+            )}
+          </div>
+          <div className="text-xs text-slate-500 dark:text-slate-400 pt-1 flex items-center justify-between">
+            <span>Risk of &gt;15.6mm</span>
+            <span className="font-mono font-semibold text-slate-800 dark:text-slate-200">
+              {isAvailable && activeForecast && activeForecast.heavy_rainfall_probabilities?.length
+                ? `${((activeForecast.heavy_rainfall_probabilities.find((p) => p.threshold_mm === 15.6)?.exceedance_probability ?? 0) * 100).toFixed(1)}%`
+                : 'N/A'}
+            </span>
+          </div>
+        </div>
+
+        {/* Card 4: Location & Benchmark Status */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Monitoring Station
+            </span>
+            <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+              <MapPin className="h-4 w-4" />
+            </div>
+          </div>
+          <div className="text-lg font-bold text-slate-900 dark:text-white truncate">
+            {currentDistrict?.name || 'Pune'}
+          </div>
+          <div className="text-xs text-slate-500 dark:text-slate-400 pt-1 flex items-center justify-between">
+            <span>Status</span>
+            {isPuneBenchmark ? (
+              <span className="inline-flex items-center text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse" />
+                Benchmark Active
+              </span>
+            ) : isProcessedBenchmark ? (
+              <span className="inline-flex items-center text-[10px] font-bold text-sky-600 dark:text-sky-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-500 mr-1" />
+                Processed Archive
+              </span>
+            ) : (
+              <span className="inline-flex items-center text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500 mr-1" />
+                Unmonitored
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Hero Grid: Interactive Map (8 cols) + Meteorological Risk & Bias Panel (4 cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column (8 cols): Interactive GIS Cartography Map */}
+        <div className="lg:col-span-8 space-y-4">
           <ErrorBoundary fallbackTitle="Map Display Error">
             <RainfallMap
               districts={districts}
@@ -364,6 +303,161 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               isDarkMode={isDarkMode}
             />
           </ErrorBoundary>
+        </div>
+
+        {/* Right Column (4 cols): Detailed Forecast Intelligence & Risk Ladder */}
+        <div className="lg:col-span-4 space-y-4">
+          {/* Station Forecast Details Card */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Target Station
+                </span>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white truncate">
+                  {districtName}
+                </h3>
+              </div>
+              {isPuneBenchmark ? (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  Ground Truth Active
+                </span>
+              ) : isProcessedBenchmark ? (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                  Verified Replay
+                </span>
+              ) : (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                  Unmonitored
+                </span>
+              )}
+            </div>
+
+            {activeForecast ? (
+              <div className="space-y-4">
+                {/* Bias Correction Delta Bar */}
+                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3.5 space-y-2 border border-slate-200/60 dark:border-slate-700/60">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                    NWP vs AI Bias Correction
+                  </span>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <span className="text-[10px] text-slate-400 block">Raw NOAA GFS</span>
+                      <span className="text-sm font-bold font-mono text-slate-800 dark:text-slate-200">
+                        {rawRain.toFixed(1)} mm
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 block">
+                        AI Corrected
+                      </span>
+                      <span className="text-sm font-bold font-mono text-emerald-600 dark:text-emerald-400">
+                        {correctedRain.toFixed(1)} mm
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between">
+                    <span>Correction Adjustment</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                      {delta >= 0 ? `+${delta.toFixed(2)} mm` : `${delta.toFixed(2)} mm`}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Exceedance Risk Ladder */}
+                <div className="space-y-2">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                    Heavy Rain Risk Outlook (24-Hour Exceedance)
+                  </span>
+                  <div className="space-y-1.5">
+                    {activeForecast.heavy_rainfall_probabilities?.map((p) => {
+                      const pct = Math.round(p.exceedance_probability * 100);
+                      const isHigh = p.advisory_status === 'ELEVATED_RISK';
+                      return (
+                        <div
+                          key={p.threshold_mm}
+                          className="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 text-xs"
+                        >
+                          <span className="text-slate-600 dark:text-slate-400 font-medium">
+                            ≥{p.threshold_mm} mm ({p.threshold_name})
+                          </span>
+                          <div className="flex items-center space-x-2">
+                            <div className="w-16 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full ${
+                                  isHigh ? 'bg-amber-500' : 'bg-indigo-500'
+                                }`}
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                            <span
+                              className={`font-mono text-xs font-semibold ${
+                                isHigh
+                                  ? 'text-amber-600 dark:text-amber-400 font-bold'
+                                  : 'text-slate-700 dark:text-slate-300'
+                              }`}
+                            >
+                              {pct}%
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Submodel Attribution */}
+                <div className="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between">
+                  <span>Routing Submodel</span>
+                  <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">
+                    {activeForecast.selected_model}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="py-6 text-center space-y-3">
+                <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto" />
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Data unavailable for {districtName}. Select Pune for live benchmark.
+                </p>
+                <button
+                  onClick={() => onSelectDistrict('pune')}
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white cursor-pointer hover:bg-indigo-700 transition"
+                >
+                  View Pune Benchmark
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Quick Action Navigation Buttons */}
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => onNavigate('forecast')}
+              className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-600 transition text-left cursor-pointer group shadow-xs"
+            >
+              <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center justify-between">
+                <span>Forecast Explorer</span>
+                <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:translate-x-0.5 transition" />
+              </div>
+              <span className="text-[10px] text-slate-400 block mt-0.5">
+                Cartography & station details
+              </span>
+            </button>
+
+            <button
+              onClick={() => onNavigate('verification')}
+              className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-600 transition text-left cursor-pointer group shadow-xs"
+            >
+              <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center justify-between">
+                <span>Model Verification</span>
+                <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:translate-x-0.5 transition" />
+              </div>
+              <span className="text-[10px] text-slate-400 block mt-0.5">
+                Held-out test cohort skill
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
