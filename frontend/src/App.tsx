@@ -28,6 +28,7 @@ import { ErrorBoundary } from './components/Common/ErrorBoundary';
 import { WeatherProvider, useWeather } from './context/WeatherContext';
 import { LiveWeatherBackground } from './components/Weather/LiveWeatherBackground';
 import { WeatherControllerPill } from './components/Weather/WeatherControllerPill';
+import { RealtimeWeatherHUD } from './components/Weather/RealtimeWeatherHUD';
 import {
   AlertTriangle,
   ShieldCheck,
@@ -98,7 +99,7 @@ const AppContent: React.FC = () => {
   const [globalError, setGlobalError] = useState<string | null>(null);
 
   // Weather Context
-  const { setDistrictRegime } = useWeather();
+  const { setDistrictRegime, setStationTelemetry } = useWeather();
 
   // Synchronize HTML dark mode class
   useEffect(() => {
@@ -111,12 +112,22 @@ const AppContent: React.FC = () => {
     }
   }, [isDarkMode]);
 
-  // Synchronize weather simulation with active forecast regime
+  // Synchronize weather simulation and live telemetry with active forecast
   useEffect(() => {
-    if (activeForecast?.predicted_regime) {
+    if (activeForecast) {
       setDistrictRegime(activeForecast.predicted_regime);
+      const isBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
+      setStationTelemetry({
+        rainRateMmH: activeForecast.corrected_rainfall_mm,
+        conditionLabel: activeForecast.predicted_regime.replace(/_/g, ' '),
+        stationName: `${districtForecast?.name || selectedDistrictId.toUpperCase()} (${isBenchmark ? 'AWS 43063' : 'Operational NWP'})`,
+        stationCoordinates: {
+          lat: districtForecast?.latitude ?? 18.5204,
+          lon: districtForecast?.longitude ?? 73.8567,
+        },
+      });
     }
-  }, [activeForecast, setDistrictRegime]);
+  }, [activeForecast, districtForecast, selectedDistrictId, setDistrictRegime, setStationTelemetry]);
 
   const handleToggleTheme = () => {
     setIsDarkMode((prev) => !prev);
@@ -354,6 +365,9 @@ const AppContent: React.FC = () => {
             isLoggedIn={false}
           />
         </main>
+
+        {/* Real-time Weather HUD Floating Telemetry */}
+        <RealtimeWeatherHUD isDarkMode={isDarkMode} />
       </div>
     );
   }
@@ -610,6 +624,9 @@ const AppContent: React.FC = () => {
         onClose={() => setIsDemoModalOpen(false)}
         onApplyDemoForecast={handleApplyDemoForecast}
       />
+
+      {/* Real-time Weather HUD Floating Telemetry */}
+      <RealtimeWeatherHUD isDarkMode={isDarkMode} />
     </div>
   );
 };

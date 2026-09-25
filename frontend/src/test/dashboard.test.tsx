@@ -18,6 +18,7 @@ import { ProvenanceView } from '../views/ProvenanceView';
 import { SystemHealthView } from '../views/SystemHealthView';
 import { LandingPage } from '../components/Landing/LandingPage';
 import { WeatherControllerPill } from '../components/Weather/WeatherControllerPill';
+import { RealtimeWeatherHUD } from '../components/Weather/RealtimeWeatherHUD';
 import { WeatherProvider } from '../context/WeatherContext';
 import {
   CombinedForecastResponse,
@@ -750,5 +751,29 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
     const toggleBtn = screen.getByRole('button', { name: /^Active$/i });
     fireEvent.click(toggleBtn);
     expect(screen.getByText(/Disabled/i)).toBeInTheDocument();
+  });
+
+  it('23. RealtimeWeatherHUD renders live meteorological gauges, ticking clock, and lightning trigger', () => {
+    render(
+      <WeatherProvider>
+        <RealtimeWeatherHUD isDarkMode={true} />
+      </WeatherProvider>
+    );
+
+    const trigger = screen.getByText(/Real-Time Weather/i);
+    expect(trigger).toBeInTheDocument();
+
+    // Click to expand full meteorological HUD
+    fireEvent.click(trigger);
+
+    expect(screen.getByText(/Rain Rate/i)).toBeInTheDocument();
+    expect(screen.getByText(/Temperature/i)).toBeInTheDocument();
+    expect(screen.getByText(/Humidity/i)).toBeInTheDocument();
+    expect(screen.getByText(/Pressure/i)).toBeInTheDocument();
+    expect(screen.getByText(/CAPE/i)).toBeInTheDocument();
+
+    const strikeBtn = screen.getByTitle(/Strike lightning immediately across the sky/i);
+    expect(strikeBtn).toBeInTheDocument();
+    fireEvent.click(strikeBtn);
   });
 });
