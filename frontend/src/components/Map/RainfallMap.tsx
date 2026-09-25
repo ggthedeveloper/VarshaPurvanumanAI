@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import {
@@ -99,30 +99,68 @@ const benchmarkIconUnselected = createBenchmarkStationIcon(false);
 const referenceIconSelected = createReferenceDistrictIcon(true);
 const referenceIconUnselected = createReferenceDistrictIcon(false);
 
-// Component to dynamically resize and fly map view when target or viewport changes
+// Component to dynamically resize and fly map view ONLY on actual district change without shaking/jitter
 const MapViewportController: React.FC<{
+  targetDistrictId: string;
   center: [number, number];
   zoom: number;
   baseMap: BaseMapType;
-}> = ({ center, zoom, baseMap }) => {
+}> = ({ targetDistrictId, center, zoom, baseMap }) => {
   const map = useMap();
+  const lastFlownDistrictRef = useRef<string | null>(null);
+  const isInitialMountRef = useRef<boolean>(true);
 
-  // Invalidate size immediately and on slight delay to guarantee tiles fill container
+  // ResizeObserver for clean map container size invalidation without jitter or timers
   useEffect(() => {
     map.invalidateSize();
-    const timer = setTimeout(() => {
-      map.invalidateSize();
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [map, baseMap]);
 
-  // Smooth camera fly-to on coordinate changes
-  useEffect(() => {
-    map.flyTo(center, zoom, {
-      duration: 1.0,
-      easeLinearity: 0.25,
+    const container = map.getContainer();
+    if (!container || typeof ResizeObserver === 'undefined') return;
+
+    let resizeTimer: any = null;
+    const ro = new ResizeObserver(() => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        map.invalidateSize();
+      }, 100);
     });
-  }, [center, zoom, map]);
+
+    ro.observe(container);
+    return () => {
+      clearTimeout(resizeTimer);
+      ro.disconnect();
+    };
+  }, [map]);
+
+  // Smooth camera fly-to ONLY when selected district actually changes
+  useEffect(() => {
+    const [targetLat, targetLng] = center;
+
+    // On initial mount, set center immediately without animation to prevent bounce/shake
+    if (isInitialMountRef.current) {
+      isInitialMountRef.current = false;
+      lastFlownDistrictRef.current = targetDistrictId;
+      map.setView([targetLat, targetLng], zoom, { animate: false });
+      return;
+    }
+
+    // Only fly if the selected district changed
+    if (lastFlownDistrictRef.current !== targetDistrictId) {
+      lastFlownDistrictRef.current = targetDistrictId;
+      const currentCenter = map.getCenter();
+      const dist = Math.hypot(currentCenter.lat - targetLat, currentCenter.lng - targetLng);
+      const zoomDiff = Math.abs(map.getZoom() - zoom);
+
+      // Only fly if the camera is not already within precision range
+      if (dist > 0.005 || zoomDiff > 0.5) {
+        map.flyTo([targetLat, targetLng], zoom, {
+          duration: 0.8,
+          easeLinearity: 0.25,
+          noMoveStart: true,
+        });
+      }
+    }
+  }, [targetDistrictId, center, zoom, map]);
 
   return null;
 };
@@ -143,13 +181,21 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
     typeof lat === 'number' && !isNaN(lat) && lat >= -90 && lat <= 90 &&
     typeof lng === 'number' && !isNaN(lng) && lng >= -180 && lng <= 180;
 
-  // Compute map center based on selected district
-  const selectedDistrict = districts.find((d) => d.district_id === selectedDistrictId);
-  const mapCenter: [number, number] =
-    selectedDistrict && isValidCoord(selectedDistrict.latitude, selectedDistrict.longitude)
+  // Compute map center based on selected district with memoization
+  const selectedDistrict = useMemo(
+    () => districts.find((d) => d.district_id === selectedDistrictId),
+    [districts, selectedDistrictId]
+  );
+
+  const mapCenter: [number, number] = useMemo(() => {
+    return selectedDistrict && isValidCoord(selectedDistrict.latitude, selectedDistrict.longitude)
       ? [selectedDistrict.latitude, selectedDistrict.longitude]
       : [18.5204, 73.8567]; // Pune default
-  const mapZoom = selectedDistrict ? (selectedDistrictId === 'pune' ? 8 : 7) : 6;
+  }, [selectedDistrict]);
+
+  const mapZoom = useMemo(() => {
+    return selectedDistrict ? (selectedDistrictId === 'pune' ? 8 : 7) : 6;
+  }, [selectedDistrict, selectedDistrictId]);
 
   // Base map tile configuration with safe OpenStreetMap fallback when API key is not supplied
   const getTileConfig = () => {
@@ -469,6 +515,7 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
           style={{ height: '100%', width: '100%' }}
         >
           <MapViewportController
+            targetDistrictId={selectedDistrictId}
             center={mapCenter}
             zoom={mapZoom}
             baseMap={baseMap}

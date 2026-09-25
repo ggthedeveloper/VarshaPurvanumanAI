@@ -100,7 +100,7 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
   const ripplesRef = useRef<SplashRipple[]>([]);
   const splashDropletsRef = useRef<SplashDroplet[]>([]);
   const activeBoltsRef = useRef<LightningBolt[]>([]);
-  const [lightningFlash, setLightningFlash] = useState<number>(0);
+  const flashAlphaRef = useRef<number>(0);
 
   // Helper to construct branching lightning bolts
   const createLightningBolt = (startX?: number, startY?: number): LightningBolt => {
@@ -172,7 +172,7 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
   useEffect(() => {
     if (instantLightningSignal > 0 && enabled) {
       activeBoltsRef.current.push(createLightningBolt());
-      setLightningFlash(0.65);
+      flashAlphaRef.current = 0.65;
     }
   }, [instantLightningSignal, enabled]);
 
@@ -228,7 +228,7 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
       // Rapid double click triggers lightning in stormy regimes
       if (now - lastClickTime < 350 && (activeRegime === 'DEPRESSION' || activeRegime === 'ACTIVE_MONSOON')) {
         activeBoltsRef.current.push(createLightningBolt(e.clientX, 10));
-        setLightningFlash(0.55);
+        flashAlphaRef.current = 0.55;
       }
       lastClickTime = now;
     };
@@ -415,7 +415,7 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
 
           // Generate a photorealistic branching lightning bolt
           activeBoltsRef.current.push(createLightningBolt());
-          setLightningFlash(0.48);
+          flashAlphaRef.current = 0.48;
         }
       }
 
@@ -481,18 +481,14 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
         ctx.restore();
       }
 
-      // Flash illumination decay
-      setLightningFlash((prev) => {
-        if (prev <= 0.01) return 0;
-        const next = prev - dt * 1.5;
-        if (next > 0) {
-          ctx.fillStyle = isDarkMode
-            ? `rgba(224, 242, 254, ${next * 0.4})`
-            : `rgba(186, 230, 253, ${next * 0.55})`;
-          ctx.fillRect(0, 0, width, height);
-        }
-        return Math.max(0, next);
-      });
+      // Flash illumination decay directly on canvas without React state re-renders
+      if (flashAlphaRef.current > 0.01) {
+        ctx.fillStyle = isDarkMode
+          ? `rgba(224, 242, 254, ${flashAlphaRef.current * 0.4})`
+          : `rgba(186, 230, 253, ${flashAlphaRef.current * 0.55})`;
+        ctx.fillRect(0, 0, width, height);
+        flashAlphaRef.current = Math.max(0, flashAlphaRef.current - dt * 1.5);
+      }
 
       // -------------------------------------------------------------
       // 2. Rolling Cloud Layers & Fog Banks
