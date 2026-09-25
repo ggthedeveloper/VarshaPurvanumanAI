@@ -369,4 +369,44 @@ def test_20_operational_forecast_retrieval_workflow(client):
     ]
 
 
+def test_21_datasets_status_and_connectivity(client):
+    """21. Data provenance endpoints return authoritative status for all 4 required datasets."""
+    # Test /api/data/datasets-status
+    resp = client.get("/api/data/datasets-status")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["status"] == "ALL_REQUIREMENTS_FULFILLED"
+    datasets = data["datasets"]
+
+    # Verify all 4 required datasets are reported
+    assert "imd_gridded_rainfall" in datasets
+    assert "noaa_gfs_forecast" in datasets
+    assert "imd_regime_reports" in datasets
+    assert "india_district_geojson" in datasets
+
+    # Verify IMD gridded benchmark status
+    imd = datasets["imd_gridded_rainfall"]
+    assert imd["requirement_id"] == "IMD_GRIDDED_RAINFALL"
+    assert imd["local_benchmark_present"] is True
+    assert imd["binary_adapter_ready"] is True
+
+    # Verify NOAA GFS status
+    gfs = datasets["noaa_gfs_forecast"]
+    assert gfs["requirement_id"] == "NOAA_GFS_FORECAST"
+    assert gfs["local_forecast_files_count"] > 0
+
+    # Verify IMD Regime reports status
+    reg = datasets["imd_regime_reports"]
+    assert reg["requirement_id"] == "IMD_REGIME_REPORTS"
+    assert reg["local_file_present"] is True
+    assert reg["event_records_count"] > 0
+
+    # Verify India District GeoJSON status
+    geo = datasets["india_district_geojson"]
+    assert geo["requirement_id"] == "INDIA_DISTRICT_GEOJSON"
+    assert geo["bundled_in_repo"] is True
+    assert geo["district_polygon_count"] > 500
+
+
+
 

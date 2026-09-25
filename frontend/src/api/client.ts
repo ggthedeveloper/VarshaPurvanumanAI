@@ -193,6 +193,14 @@ class ApiClient {
       localStorage.removeItem('auth_user');
     }
   }
+
+  async getDatasetsStatus(): Promise<any> {
+    return this.fetchJson<any>('/api/data/datasets-status');
+  }
+
+  async checkConnectivity(): Promise<any> {
+    return this.fetchJson<any>('/api/data/connectivity');
+  }
 }
 
 export const api = new ApiClient();

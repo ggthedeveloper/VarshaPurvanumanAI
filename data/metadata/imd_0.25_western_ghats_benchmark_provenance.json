@@ -1,0 +1,18 @@
+{
+  "dataset_name": "IMD 0.25 Western Ghats Benchmark",
+  "provider": "IMD Pune / Zenodo Mirror (DOI: 10.5281/zenodo.20177433)",
+  "source_url": "https://zenodo.org/records/20177433/files/Daily_IMD_0.25x0.25Grid.xlsx",
+  "ingestion_timestamp_utc": "2026-09-25T10:42:09.237701+00:00",
+  "spatial_resolution": "0.25\u00b0 x 0.25\u00b0 (36 grid nodes over Western Ghats)",
+  "temporal_resolution": "Daily (08:30 IST accumulation)",
+  "variables": [
+    "rainfall"
+  ],
+  "units": {
+    "rainfall": "mm/day"
+  },
+  "record_count": 2253,
+  "raw_filepath": "data/raw/imd_gridded/Daily_IMD_0.25x0.25Grid.xlsx",
+  "processed_filepath": null,
+  "notes": "Temporal range: 2018-05-09 to 2024-07-10."
+}

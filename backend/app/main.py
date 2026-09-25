@@ -23,6 +23,7 @@ from backend.app.routes import (
     verification_router,
     auth_router,
     grid_router,
+    data_router,
 )
 
 
@@ -112,6 +113,7 @@ app.include_router(districts_router)
 app.include_router(verification_router)
 app.include_router(auth_router)
 app.include_router(grid_router)
+app.include_router(data_router)
 
 
 @app.get("/", summary="Root Status")

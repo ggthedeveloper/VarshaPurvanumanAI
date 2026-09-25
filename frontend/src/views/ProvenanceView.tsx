@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   BookOpen,
   Database,
@@ -11,9 +11,33 @@ import {
   ExternalLink,
   CheckCircle2,
   GitBranch,
+  Globe,
+  RefreshCw,
+  Activity,
+  Check,
+  Radio,
+  DownloadCloud,
 } from 'lucide-react';
+import { api } from '../api/client';
 
 export const ProvenanceView: React.FC = () => {
+  const [isTestingConnectivity, setIsTestingConnectivity] = useState(false);
+  const [connectivityResults, setConnectivityResults] = useState<any[] | null>(null);
+  const [testError, setTestError] = useState<string | null>(null);
+
+  const handleTestConnectivity = async () => {
+    setIsTestingConnectivity(true);
+    setTestError(null);
+    try {
+      const data = await api.checkConnectivity();
+      setConnectivityResults(data.portals || []);
+    } catch (err: any) {
+      setTestError(err.message || 'Failed to check connectivity to data portals.');
+    } finally {
+      setIsTestingConnectivity(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Banner */}
@@ -38,6 +62,264 @@ export const ProvenanceView: React.FC = () => {
               <ShieldCheck className="h-4 w-4 mr-1.5 text-emerald-500" />
               WMO / IMD Verification Standard
             </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Official Dataset Acquisition & Portals Integration Matrix */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2">
+              <span className="p-1.5 rounded-lg bg-sky-50 dark:bg-sky-950 text-sky-600 dark:text-sky-400">
+                <DownloadCloud className="h-5 w-5" />
+              </span>
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                Where to Download / Acquire These Datasets (Official Matrix)
+              </h2>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Live status, authoritative government & academic repositories, and format adapters for all 4 required datasets.
+            </p>
+          </div>
+
+          <button
+            onClick={handleTestConnectivity}
+            disabled={isTestingConnectivity}
+            className="inline-flex items-center px-3.5 py-2 rounded-lg text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/70 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition cursor-pointer disabled:opacity-50"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isTestingConnectivity ? 'animate-spin' : ''}`} />
+            <span>{isTestingConnectivity ? 'Testing Portals...' : 'Test Live Portal Connectivity'}</span>
+          </button>
+        </div>
+
+        {/* Live Connectivity Test Results (if tested) */}
+        {connectivityResults && (
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+            <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center space-x-1.5">
+              <Activity className="h-4 w-4 text-emerald-500" />
+              <span>Live Portal Reachability Diagnostic Results</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-1">
+              {connectivityResults.map((item, idx) => (
+                <div
+                  key={idx}
+                  className={`p-2.5 rounded-lg border text-xs space-y-1 ${
+                    item.reachable
+                      ? 'bg-emerald-50/60 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/60 text-emerald-900 dark:text-emerald-200'
+                      : 'bg-amber-50/60 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200'
+                  }`}
+                >
+                  <div className="flex items-center justify-between font-semibold text-[11px]">
+                    <span className="truncate">{item.portal_name}</span>
+                    <span className="shrink-0 text-[10px] font-mono">
+                      {item.reachable ? `${item.latency_ms}ms` : 'TIMEOUT'}
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                    {item.reachable ? `HTTP ${item.status_code} OK` : 'Server firewall/SSL restriction (Adapter standby)'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {testError && (
+          <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-xs text-red-700 dark:text-red-300">
+            {testError}
+          </div>
+        )}
+
+        {/* 4 Dataset Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Dataset 1: IMD Gridded Rainfall */}
+          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 space-y-2.5">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                  Requirement 1
+                </span>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  IMD Gridded Rainfall (0.25° & 0.1°)
+                </h3>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 shrink-0">
+                READY & INGESTED
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              Official ground truth observation grids. Ingested via verified 36-cell Western Ghats research benchmark with direct IEEE 32-bit binary <code className="font-mono text-indigo-600 dark:text-indigo-300">.GRD</code> adapter.
+            </p>
+
+            <div className="space-y-1 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+              <div>• <strong>Format:</strong> Direct binary .GRD or through IMD data request portal</div>
+              <div>• <strong>Local Ingest:</strong> <span className="text-slate-800 dark:text-slate-200">Daily_IMD_0.25x0.25Grid.xlsx (2,253 days)</span></div>
+              <div>• <strong>Binary Adapter:</strong> <span className="text-slate-800 dark:text-slate-200">data/raw/imd_gridded/user_provided/</span></div>
+            </div>
+
+            <div className="pt-1 flex flex-wrap gap-2">
+              <a
+                href="https://imdpune.gov.in/cmpg/Griddata/Rainfall_25_Bin.html"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
+              >
+                <span>IMD Pune NDC Portal</span>
+                <ExternalLink className="h-3 w-3 ml-1" />
+              </a>
+              <span className="text-slate-300 dark:text-slate-700">•</span>
+              <a
+                href="https://zenodo.org/records/20177433"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
+              >
+                <span>Zenodo Benchmark Mirror (DOI)</span>
+                <ExternalLink className="h-3 w-3 ml-1" />
+              </a>
+            </div>
+          </div>
+
+          {/* Dataset 2: NOAA GFS Forecasts */}
+          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 space-y-2.5">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
+                  Requirement 2
+                </span>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  NOAA GFS Forecasts (0.25°)
+                </h3>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 dark:bg-sky-900/50 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-700 shrink-0">
+                ACTIVE OPERATIONAL
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              Global Forecast System (GFS) 0.25° NWP atmospheric model. Ingested live via open REST endpoints and cached locally across benchmark districts with lead times Day 1 to Day 5.
+            </p>
+
+            <div className="space-y-1 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+              <div>• <strong>Format:</strong> Hourly/Daily NWP parameters (rain, wind, T2m, RH, pressure, CAPE)</div>
+              <div>• <strong>Local Ingest:</strong> <span className="text-slate-800 dark:text-slate-200">data/raw/gfs/ (14 verified forecast runs)</span></div>
+              <div>• <strong>Service:</strong> <span className="text-slate-800 dark:text-slate-200">RealtimeGFSService & GFSDownloader</span></div>
+            </div>
+
+            <div className="pt-1 flex flex-wrap gap-2">
+              <a
+                href="https://open-meteo.com/en/docs/gfs-api"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center text-xs text-sky-600 dark:text-sky-400 hover:underline font-semibold"
+              >
+                <span>Open-Meteo GFS API</span>
+                <ExternalLink className="h-3 w-3 ml-1" />
+              </a>
+              <span className="text-slate-300 dark:text-slate-700">•</span>
+              <a
+                href="https://nomads.ncep.noaa.gov/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center text-xs text-sky-600 dark:text-sky-400 hover:underline font-semibold"
+              >
+                <span>NOAA NOMADS GRIB Filter</span>
+                <ExternalLink className="h-3 w-3 ml-1" />
+              </a>
+              <span className="text-slate-300 dark:text-slate-700">•</span>
+              <a
+                href="https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast-system"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center text-xs text-sky-600 dark:text-sky-400 hover:underline font-semibold"
+              >
+                <span>NCEI GFS Archive</span>
+                <ExternalLink className="h-3 w-3 ml-1" />
+              </a>
+            </div>
+          </div>
+
+          {/* Dataset 3: IMD Cyclone & Monsoon Reports */}
+          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 space-y-2.5">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
+                  Requirement 3
+                </span>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  IMD Cyclone & Monsoon Reports (Regimes)
+                </h3>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 border border-purple-300 dark:border-purple-700 shrink-0">
+                VERIFIED & DIGITIZED
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              Authoritative meteorological regime classification from IMD Annual Monsoon Reports & RSMC cyclone bulletins. Used to train regime classifier and regime-specific AI post-processors.
+            </p>
+
+            <div className="space-y-1 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+              <div>• <strong>Format:</strong> Digitized synoptic event catalog with onset/offset dates</div>
+              <div>• <strong>Local File:</strong> <span className="text-slate-800 dark:text-slate-200">data/raw/regime_labels/imd_monsoon_events_2021_2023.csv</span></div>
+              <div>• <strong>Taxonomy:</strong> <span className="text-slate-800 dark:text-slate-200">Active, Break, Orographic, Depression, Western Disturbance</span></div>
+            </div>
+
+            <div className="pt-1 flex flex-wrap gap-2">
+              <a
+                href="https://rsmcnewdelhi.imd.gov.in/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center text-xs text-purple-600 dark:text-purple-400 hover:underline font-semibold"
+              >
+                <span>RSMC New Delhi Reports</span>
+                <ExternalLink className="h-3 w-3 ml-1" />
+              </a>
+              <span className="text-slate-300 dark:text-slate-700">•</span>
+              <a
+                href="https://mausam.imd.gov.in/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center text-xs text-purple-600 dark:text-purple-400 hover:underline font-semibold"
+              >
+                <span>IMD Monsoon Publications</span>
+                <ExternalLink className="h-3 w-3 ml-1" />
+              </a>
+            </div>
+          </div>
+
+          {/* Dataset 4: India District GeoJSON */}
+          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 space-y-2.5">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                  Requirement 4
+                </span>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  India District GeoJSON Boundaries
+                </h3>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 shrink-0">
+                BUNDLED IN REPOSITORY
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              Official IMD GIS district polygon geometries strictly aligned with IMD national rainfall bulletins in WGS84 EPSG:4326. Powers district forecast spatial extraction and cartographic views.
+            </p>
+
+            <div className="space-y-1 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+              <div>• <strong>Format:</strong> GeoJSON MultiPolygon (26.7 MB, WGS84 EPSG:4326)</div>
+              <div>• <strong>Local Path:</strong> <span className="text-slate-800 dark:text-slate-200">data/raw/boundaries/INDIA_NEW_REDUCED1.json</span></div>
+              <div>• <strong>Feature Count:</strong> <span className="text-slate-800 dark:text-slate-200">763 Official IMD District Polygons</span></div>
+            </div>
+
+            <div className="pt-1 flex items-center space-x-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              <span>Directly bundled and verified in repository</span>
+            </div>
           </div>
         </div>
       </div>

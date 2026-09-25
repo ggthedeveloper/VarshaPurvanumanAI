@@ -673,6 +673,11 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
   it('20. ProvenanceView and SystemHealthView render complete documentation & telemetry', async () => {
     const { unmount } = render(<ProvenanceView />);
     expect(screen.getByText(/Data Provenance & Scientific Methodology/i)).toBeInTheDocument();
+    expect(screen.getByText(/Where to Download \/ Acquire These Datasets/i)).toBeInTheDocument();
+    expect(screen.getByText(/IMD Gridded Rainfall \(0.25° & 0.1°\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/NOAA GFS Forecasts \(0.25°\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/IMD Cyclone & Monsoon Reports \(Regimes\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/India District GeoJSON Boundaries/i)).toBeInTheDocument();
     expect(screen.getByText(/IMD Gridded Daily Rainfall Analysis/i)).toBeInTheDocument();
     expect(screen.getByText(/NOAA Global Forecast System/i)).toBeInTheDocument();
     unmount();
