@@ -19,6 +19,7 @@ import { SystemHealthView } from '../views/SystemHealthView';
 import { LandingPage } from '../components/Landing/LandingPage';
 import { WeatherControllerPill } from '../components/Weather/WeatherControllerPill';
 import { RealtimeWeatherHUD } from '../components/Weather/RealtimeWeatherHUD';
+import { Navbar } from '../components/Navigation/Navbar';
 import { WeatherProvider } from '../context/WeatherContext';
 import {
   CombinedForecastResponse,
@@ -776,4 +777,68 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
     expect(strikeBtn).toBeInTheDocument();
     fireEvent.click(strikeBtn);
   });
+
+  it('24. Navbar displays real-time weather metrics, location trigger, and opens meteorological telemetry popover', () => {
+    const handleDetectLocation = vi.fn();
+    const handleToggleTheme = vi.fn();
+    const handleRefresh = vi.fn();
+    const handleOpenMobileMenu = vi.fn();
+
+    render(
+      <WeatherProvider>
+        <Navbar
+          currentRoute="dashboard"
+          selectedDistrictName="Pune"
+          isBenchmarkActive={true}
+          isDataUnavailable={false}
+          apiConnected={true}
+          dataStatus="HISTORICAL_BENCHMARK"
+          isDarkMode={true}
+          onToggleTheme={handleToggleTheme}
+          onRefresh={handleRefresh}
+          isRefreshing={false}
+          onOpenMobileMenu={handleOpenMobileMenu}
+          user={{
+            username: 'Gaurav',
+            name: 'Gaurav Gautam',
+            role: 'Lead Meteorologist',
+            is_demo: false,
+          }}
+          onDetectLocation={handleDetectLocation}
+        />
+      </WeatherProvider>
+    );
+
+    // Verifies route and district context
+    expect(screen.getByText('Monsoon Dashboard')).toBeInTheDocument();
+    expect(screen.getByText(/Pune/i)).toBeInTheDocument();
+
+    // Verifies unwanted debug pill is removed
+    expect(screen.queryByText('API ONLINE')).not.toBeInTheDocument();
+
+    // Verifies location trigger button is rendered and functional
+    const locBtn = screen.getByRole('button', { name: /Use Location/i });
+    expect(locBtn).toBeInTheDocument();
+    fireEvent.click(locBtn);
+    expect(handleDetectLocation).toHaveBeenCalledTimes(1);
+
+    // Verifies real-time weather metrics are displayed normally on navbar
+    expect(screen.getByText(/°C/i)).toBeInTheDocument();
+    expect(screen.getByText(/mm\/h/i)).toBeInTheDocument();
+
+    // Click weather cluster on navbar to open meteorological popover
+    const weatherTrigger = screen.getByTitle(/Real-time Meteorological Telemetry & Controls/i);
+    expect(weatherTrigger).toBeInTheDocument();
+    fireEvent.click(weatherTrigger);
+
+    // Verifies popover gauges and controls are displayed
+    expect(screen.getByText(/Rain Rate/i)).toBeInTheDocument();
+    expect(screen.getByText(/Temperature/i)).toBeInTheDocument();
+    expect(screen.getByText(/Humidity/i)).toBeInTheDocument();
+    expect(screen.getByText(/Wind/i)).toBeInTheDocument();
+    expect(screen.getByText(/Pressure/i)).toBeInTheDocument();
+    expect(screen.getByText(/CAPE/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Strike Lightning ⚡/i })).toBeInTheDocument();
+  });
 });
+

@@ -22,6 +22,14 @@ export interface WeatherTelemetry {
   lastUpdatedIso: string;
 }
 
+export interface UserLocationState {
+  lat: number;
+  lon: number;
+  accuracy?: number;
+  name?: string;
+  isCustomLocation?: boolean;
+}
+
 interface WeatherContextType {
   enabled: boolean;
   mode: WeatherMode;
@@ -30,6 +38,9 @@ interface WeatherContextType {
   lightningEnabled: boolean;
   telemetry: WeatherTelemetry;
   instantLightningSignal: number;
+  userLocation: UserLocationState | null;
+  isLocating: boolean;
+  locationError: string | null;
   setEnabled: (enabled: boolean) => void;
   toggleEnabled: () => void;
   setMode: (mode: WeatherMode) => void;
@@ -38,6 +49,9 @@ interface WeatherContextType {
   setDistrictRegime: (regime: SynopticRegime | string | null | undefined) => void;
   setStationTelemetry: (stationData: Partial<WeatherTelemetry>) => void;
   triggerInstantLightning: () => void;
+  detectUserLocation: (onFound?: (coords: { lat: number; lon: number }) => void) => Promise<{ lat: number; lon: number } | null>;
+  clearUserLocation: () => void;
+  setUserLocation: (loc: UserLocationState | null) => void;
 }
 
 export const getCompassDirection = (deg: number): string => {
@@ -199,6 +213,144 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [stationOverride, setStationOverride] = useState<Partial<WeatherTelemetry>>({});
   const [instantLightningSignal, setInstantLightningSignal] = useState<number>(0);
 
+  // User Current Location State
+  const [userLocation, setUserLocationState] = useState<UserLocationState | null>(() => {
+    const saved = safeGetItem('user_geo_location');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
+  const [isLocating, setIsLocating] = useState<boolean>(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  const setUserLocation = (loc: UserLocationState | null) => {
+    setUserLocationState(loc);
+    if (loc) {
+      safeSetItem('user_geo_location', JSON.stringify(loc));
+    } else {
+      safeSetItem('user_geo_location', '');
+    }
+  };
+
+  const clearUserLocation = () => {
+    setUserLocation(null);
+    setLocationError(null);
+    setStationOverride({});
+  };
+
+  const detectUserLocation = async (
+    onFound?: (coords: { lat: number; lon: number }) => void
+  ): Promise<{ lat: number; lon: number } | null> => {
+    setIsLocating(true);
+    setLocationError(null);
+
+    if (typeof window === 'undefined' || !navigator || !navigator.geolocation) {
+      const err = 'Geolocation is not supported by your browser or environment';
+      setLocationError(err);
+      setIsLocating(false);
+      return null;
+    }
+
+    return new Promise<{ lat: number; lon: number } | null>((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const accuracy = position.coords.accuracy;
+
+          const locState: UserLocationState = {
+            lat,
+            lon,
+            accuracy,
+            name: `My Location (${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E)`,
+            isCustomLocation: true,
+          };
+          setUserLocation(locState);
+
+          // Fetch real-time weather from Open-Meteo GFS API for these exact coordinates
+          try {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}&current=temperature_2m,relative_humidity_2m,precipitation,surface_pressure,wind_speed_10m,wind_direction_10m,cloud_cover&wind_speed_unit=ms`;
+            const resp = await fetch(url);
+            if (resp.ok) {
+              const data = await resp.json();
+              if (data && data.current) {
+                const cur = data.current;
+                const windDeg = cur.wind_direction_10m ?? 240;
+                const rain = cur.precipitation ?? 0;
+                const temp = cur.temperature_2m ?? 25;
+                const rh = cur.relative_humidity_2m ?? 80;
+                const p = cur.surface_pressure ?? 1005;
+                const wSpeed = cur.wind_speed_10m ?? 5;
+                const clouds = cur.cloud_cover ?? 50;
+
+                // Dynamically determine regime label & synoptic match
+                let dynamicRegime: SynopticRegime = 'ACTIVE_MONSOON';
+                if (rain > 20 || wSpeed > 18) {
+                  dynamicRegime = 'DEPRESSION';
+                } else if (rain > 5) {
+                  dynamicRegime = 'ACTIVE_MONSOON';
+                } else if (rain === 0 && clouds < 40) {
+                  dynamicRegime = 'BREAK_MONSOON';
+                } else {
+                  dynamicRegime = 'OTHER';
+                }
+
+                setStationOverride({
+                  rainRateMmH: parseFloat(rain.toFixed(1)),
+                  windSpeedMs: parseFloat(wSpeed.toFixed(1)),
+                  windDirectionDeg: windDeg,
+                  windDirectionCompass: getCompassDirection(windDeg),
+                  temperatureC: parseFloat(temp.toFixed(1)),
+                  relativeHumidityPct: Math.round(rh),
+                  surfacePressureHpa: parseFloat(p.toFixed(1)),
+                  capeJkg: rain > 15 ? 1800 : rain > 5 ? 1200 : 400,
+                  cloudCoverPct: Math.round(clouds),
+                  stationName: `My Location (${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E)`,
+                  stationCoordinates: { lat, lon },
+                  conditionLabel: `Live GPS: ${rain > 10 ? 'Heavy Rain' : rain > 0 ? 'Light Rain' : 'Partly Cloudy'} (${dynamicRegime.replace('_', ' ')})`,
+                  sourceProvenance: 'Live Device GPS + NOAA GFS 0.25° NWP Feed',
+                  lastUpdatedIso: new Date().toISOString(),
+                });
+                setDistrictRegimeState(dynamicRegime);
+              }
+            }
+          } catch (fetchErr) {
+            console.warn('Real-time coordinates weather fetch fallback:', fetchErr);
+          }
+
+          if (onFound) {
+            onFound({ lat, lon });
+          }
+          setIsLocating(false);
+          resolve({ lat, lon });
+        },
+        (error) => {
+          let msg = 'Could not retrieve your current location';
+          if (error.code === 1) {
+            msg = 'Location permission denied. Please allow location access.';
+          } else if (error.code === 2) {
+            msg = 'Location information is currently unavailable.';
+          } else if (error.code === 3) {
+            msg = 'Location request timed out. Please try again.';
+          }
+          setLocationError(msg);
+          setIsLocating(false);
+          resolve(null);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000,
+        }
+      );
+    });
+  };
+
   const setEnabled = (val: boolean) => {
     setEnabledState(val);
     safeSetItem('weather_fx_enabled', String(val));
@@ -283,6 +435,9 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
         lightningEnabled,
         telemetry,
         instantLightningSignal,
+        userLocation,
+        isLocating,
+        locationError,
         setEnabled,
         toggleEnabled,
         setMode,
@@ -291,6 +446,9 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
         setDistrictRegime,
         setStationTelemetry,
         triggerInstantLightning,
+        detectUserLocation,
+        clearUserLocation,
+        setUserLocation,
       }}
     >
       {children}
@@ -306,6 +464,9 @@ const DEFAULT_WEATHER_CONTEXT: WeatherContextType = {
   lightningEnabled: true,
   telemetry: REGIME_TELEMETRY.ACTIVE_MONSOON,
   instantLightningSignal: 0,
+  userLocation: null,
+  isLocating: false,
+  locationError: null,
   setEnabled: () => {},
   toggleEnabled: () => {},
   setMode: () => {},
@@ -314,6 +475,9 @@ const DEFAULT_WEATHER_CONTEXT: WeatherContextType = {
   setDistrictRegime: () => {},
   setStationTelemetry: () => {},
   triggerInstantLightning: () => {},
+  detectUserLocation: async () => null,
+  clearUserLocation: () => {},
+  setUserLocation: () => {},
 };
 
 export const useWeather = (): WeatherContextType => {

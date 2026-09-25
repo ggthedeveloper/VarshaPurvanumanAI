@@ -28,7 +28,6 @@ import { ErrorBoundary } from './components/Common/ErrorBoundary';
 import { WeatherProvider, useWeather } from './context/WeatherContext';
 import { LiveWeatherBackground } from './components/Weather/LiveWeatherBackground';
 import { WeatherControllerPill } from './components/Weather/WeatherControllerPill';
-import { RealtimeWeatherHUD } from './components/Weather/RealtimeWeatherHUD';
 import {
   AlertTriangle,
   ShieldCheck,
@@ -99,7 +98,38 @@ const AppContent: React.FC = () => {
   const [globalError, setGlobalError] = useState<string | null>(null);
 
   // Weather Context
-  const { setDistrictRegime, setStationTelemetry } = useWeather();
+  const { setDistrictRegime, setStationTelemetry, detectUserLocation } = useWeather();
+
+  // Geolocation & Nearest District Matcher
+  const handleDetectLocation = async () => {
+    await detectUserLocation((foundCoords) => {
+      if (districts && districts.length > 0) {
+        let closest = districts[0];
+        let minDistance = Infinity;
+        for (const d of districts) {
+          if (typeof d.latitude === 'number' && typeof d.longitude === 'number') {
+            const dLat = ((d.latitude - foundCoords.lat) * Math.PI) / 180;
+            const dLon = ((d.longitude - foundCoords.lon) * Math.PI) / 180;
+            const a =
+              Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos((foundCoords.lat * Math.PI) / 180) *
+                Math.cos((d.latitude * Math.PI) / 180) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const dist = 6371 * c;
+            if (dist < minDistance) {
+              minDistance = dist;
+              closest = d;
+            }
+          }
+        }
+        if (closest) {
+          handleSelectDistrict(closest.district_id);
+        }
+      }
+    });
+  };
 
   // Synchronize HTML dark mode class
   useEffect(() => {
@@ -365,9 +395,6 @@ const AppContent: React.FC = () => {
             isLoggedIn={false}
           />
         </main>
-
-        {/* Real-time Weather HUD Floating Telemetry */}
-        <RealtimeWeatherHUD isDarkMode={isDarkMode} />
       </div>
     );
   }
@@ -425,6 +452,7 @@ const AppContent: React.FC = () => {
           onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
           onOpenInfoModal={() => setIsInfoModalOpen(true)}
           user={user}
+          onDetectLocation={handleDetectLocation}
         />
 
         {/* Global Network or API Error Banner */}
@@ -624,9 +652,6 @@ const AppContent: React.FC = () => {
         onClose={() => setIsDemoModalOpen(false)}
         onApplyDemoForecast={handleApplyDemoForecast}
       />
-
-      {/* Real-time Weather HUD Floating Telemetry */}
-      <RealtimeWeatherHUD isDarkMode={isDarkMode} />
     </div>
   );
 };
