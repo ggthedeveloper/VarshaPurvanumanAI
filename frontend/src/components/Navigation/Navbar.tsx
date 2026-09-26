@@ -349,9 +349,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                       {telemetry.stationName}
                     </h4>
                   </div>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                    {telemetry.conditionLabel}
-                  </p>
+                  <div className="flex items-center space-x-2 mt-0.5">
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                      {telemetry.conditionLabel}
+                    </p>
+                    {userLocation && (
+                      <button
+                        onClick={() => {
+                          clearUserLocation();
+                          setIsWeatherDropdownOpen(false);
+                        }}
+                        className="text-[10px] font-semibold text-rose-500 hover:text-rose-600 underline shrink-0 cursor-pointer"
+                        title="Clear GPS override and revert to selected district forecast"
+                      >
+                        Reset to District
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="text-right shrink-0">
                   <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200 block">

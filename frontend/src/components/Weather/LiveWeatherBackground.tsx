@@ -84,7 +84,7 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
   interactive = true,
   overrideRegime,
 }) => {
-  const { enabled, effectiveRegime: contextRegime, intensity, lightningEnabled, instantLightningSignal } = useWeather();
+  const { enabled, effectiveRegime: contextRegime, intensity, lightningEnabled, instantLightningSignal, telemetry } = useWeather();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animFrameIdRef = useRef<number | null>(null);
 
@@ -239,57 +239,72 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
       window.addEventListener('click', handleClick);
     }
 
-    // Determine particle counts and physics parameters
+    // Determine particle counts and physics parameters from live telemetry
     const intensityMultiplier = intensity === 'subtle' ? 0.5 : intensity === 'dramatic' ? 1.7 : 1.0;
+    const rainRate = typeof telemetry?.rainRateMmH === 'number' ? telemetry.rainRateMmH : 10;
+    const windSpeed = typeof telemetry?.windSpeedMs === 'number' ? telemetry.windSpeedMs : 5;
+    const cloudCover = typeof telemetry?.cloudCoverPct === 'number' ? telemetry.cloudCoverPct : 50;
 
     let dropCount = 0;
-    let baseWind = 0;
+    let baseWind = Math.max(0.8, windSpeed * 0.3);
     let baseDropSpeed = 16;
-    let cloudCount = 0;
+    let cloudCount = Math.max(3, Math.round(cloudCover / 10));
     let mistCount = 0;
     let moteCount = 0;
 
     switch (activeRegime) {
       case 'ACTIVE_MONSOON':
-        dropCount = Math.round(220 * intensityMultiplier);
-        baseWind = 4.8;
+        dropCount = Math.round(Math.max(60, Math.min(320, rainRate * 12)) * intensityMultiplier);
+        baseWind = Math.max(2.5, windSpeed * 0.35);
         baseDropSpeed = 20;
-        cloudCount = 8;
+        cloudCount = Math.max(6, Math.round(cloudCover / 10));
         mistCount = 2;
         break;
       case 'BREAK_MONSOON':
-        dropCount = Math.round(35 * intensityMultiplier);
-        baseWind = 1.2;
+        // When rain rate is 0 or trace, no raindrops fall from the sky. Show clear warm sun motes.
+        if (rainRate <= 0.1) {
+          dropCount = 0;
+          moteCount = Math.round(45 * intensityMultiplier);
+        } else {
+          dropCount = Math.round(Math.min(90, Math.max(15, rainRate * 25)) * intensityMultiplier);
+          moteCount = 15;
+        }
+        baseWind = Math.max(0.6, windSpeed * 0.25);
         baseDropSpeed = 10;
-        cloudCount = 6;
-        moteCount = 35;
+        cloudCount = Math.max(2, Math.round(cloudCover / 15));
         break;
       case 'COASTAL_OROGRAPHIC':
-        dropCount = Math.round(180 * intensityMultiplier);
-        baseWind = 9.5; // Strong low-level jet
-        baseDropSpeed = 18;
-        cloudCount = 9;
+        dropCount = Math.round(Math.max(120, Math.min(380, rainRate * 10)) * intensityMultiplier);
+        baseWind = Math.max(5.0, windSpeed * 0.4);
+        baseDropSpeed = 19;
+        cloudCount = Math.max(8, Math.round(cloudCover / 10));
         mistCount = 4;
         break;
       case 'DEPRESSION':
-        dropCount = Math.round(380 * intensityMultiplier);
-        baseWind = 10.5; // Cyclonic squall
+        dropCount = Math.round(Math.max(180, Math.min(480, rainRate * 9)) * intensityMultiplier);
+        baseWind = Math.max(6.0, windSpeed * 0.45);
         baseDropSpeed = 25;
-        cloudCount = 14;
+        cloudCount = Math.max(10, Math.round(cloudCover / 8));
         mistCount = 5;
         break;
       case 'WESTERN_DISTURBANCE':
-        dropCount = Math.round(110 * intensityMultiplier);
-        baseWind = 7.0;
+        dropCount = Math.round(Math.max(50, Math.min(220, rainRate * 11)) * intensityMultiplier);
+        baseWind = Math.max(3.5, windSpeed * 0.38);
         baseDropSpeed = 14;
-        cloudCount = 8;
+        cloudCount = Math.max(6, Math.round(cloudCover / 12));
         break;
       case 'OTHER':
       default:
-        dropCount = Math.round(80 * intensityMultiplier);
-        baseWind = 2.5;
+        if (rainRate <= 0.1) {
+          dropCount = 0;
+          moteCount = Math.round(25 * intensityMultiplier);
+        } else {
+          dropCount = Math.round(Math.max(25, Math.min(180, rainRate * 15)) * intensityMultiplier);
+          moteCount = 0;
+        }
+        baseWind = Math.max(1.5, windSpeed * 0.3);
         baseDropSpeed = 15;
-        cloudCount = 6;
+        cloudCount = Math.max(4, Math.round(cloudCover / 14));
         break;
     }
 
@@ -531,9 +546,9 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
       });
 
       // -------------------------------------------------------------
-      // 3. Sunbeams & Floating Motes (Break Monsoon)
+      // 3. Sunbeams & Floating Motes (Break Monsoon or Dry Atmosphere)
       // -------------------------------------------------------------
-      if (activeRegime === 'BREAK_MONSOON') {
+      if (activeRegime === 'BREAK_MONSOON' || moteCount > 0) {
         sunMotes.forEach((mote) => {
           mote.x += (mote.vx + Math.sin(mote.phase) * 0.4) * dt * 60;
           mote.y += mote.vy * dt * 60;
@@ -704,7 +719,17 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
         window.removeEventListener('click', handleClick);
       }
     };
-  }, [enabled, activeRegime, intensity, lightningEnabled, isDarkMode, interactive]);
+  }, [
+    enabled,
+    activeRegime,
+    intensity,
+    lightningEnabled,
+    isDarkMode,
+    interactive,
+    telemetry.rainRateMmH,
+    telemetry.windSpeedMs,
+    telemetry.cloudCoverPct,
+  ]);
 
   if (!enabled) return null;
 

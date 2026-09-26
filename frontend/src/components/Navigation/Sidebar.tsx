@@ -15,7 +15,6 @@ import {
   ChevronRight,
   ShieldCheck,
   Award,
-  Sparkles,
 } from 'lucide-react';
 import { AppRoute, UserProfile } from '../../types/api';
 
@@ -114,27 +113,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Navigation Items */}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
           <div>
-            {!isCollapsed && (
-              <span className="px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1.5">
-                Overview & Showcase
-              </span>
-            )}
-            <button
-              onClick={() => {
-                onNavigate('landing');
-                onCloseMobile();
-              }}
-              title={isCollapsed ? 'Interactive Showcase' : undefined}
-              className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer mb-3 ${
-                currentRoute === 'landing'
-                  ? 'bg-gradient-to-r from-indigo-600 to-sky-600 text-white shadow-xs font-bold'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
-              } ${isCollapsed ? 'justify-center' : ''}`}
-            >
-              <Sparkles className={`h-4 w-4 shrink-0 ${currentRoute === 'landing' ? 'text-white' : 'text-indigo-500'}`} />
-              {!isCollapsed && <span className="truncate flex-1 text-left">Showcase & Live FX</span>}
-            </button>
-
             {!isCollapsed && (
               <span className="px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1.5">
                 Forecast & Intelligence

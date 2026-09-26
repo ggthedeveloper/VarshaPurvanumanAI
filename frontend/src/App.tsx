@@ -98,7 +98,7 @@ const AppContent: React.FC = () => {
   const [globalError, setGlobalError] = useState<string | null>(null);
 
   // Weather Context
-  const { setDistrictRegime, setStationTelemetry, detectUserLocation } = useWeather();
+  const { setDistrictRegime, setStationTelemetry, detectUserLocation, userLocation } = useWeather();
 
   // Geolocation & Nearest District Matcher
   const handleDetectLocation = async () => {
@@ -144,7 +144,8 @@ const AppContent: React.FC = () => {
 
   // Synchronize weather simulation and live telemetry with active forecast
   useEffect(() => {
-    if (activeForecast) {
+    // Only synchronize from active forecast if user location is NOT active
+    if (activeForecast && !userLocation) {
       setDistrictRegime(activeForecast.predicted_regime);
       const isBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
       setStationTelemetry({
@@ -157,7 +158,7 @@ const AppContent: React.FC = () => {
         },
       });
     }
-  }, [activeForecast, districtForecast, selectedDistrictId, setDistrictRegime, setStationTelemetry]);
+  }, [activeForecast, districtForecast, selectedDistrictId, setDistrictRegime, setStationTelemetry, userLocation]);
 
   const handleToggleTheme = () => {
     setIsDarkMode((prev) => !prev);

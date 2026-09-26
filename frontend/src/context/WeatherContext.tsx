@@ -50,6 +50,7 @@ interface WeatherContextType {
   setStationTelemetry: (stationData: Partial<WeatherTelemetry>) => void;
   triggerInstantLightning: () => void;
   detectUserLocation: (onFound?: (coords: { lat: number; lon: number }) => void) => Promise<{ lat: number; lon: number } | null>;
+  fetchLocationWeather: (lat: number, lon: number) => Promise<boolean>;
   clearUserLocation: () => void;
   setUserLocation: (loc: UserLocationState | null) => void;
 }
@@ -241,6 +242,77 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
     setUserLocation(null);
     setLocationError(null);
     setStationOverride({});
+    setDistrictRegimeState('ACTIVE_MONSOON');
+  };
+
+  const fetchLocationWeather = async (lat: number, lon: number): Promise<boolean> => {
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,cloud_cover&wind_speed_unit=ms`;
+      const resp = await fetch(url);
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data && data.current) {
+          const cur = data.current;
+          const windDeg = cur.wind_direction_10m ?? 240;
+          const rain = cur.precipitation ?? 0;
+          const temp = cur.temperature_2m ?? 25;
+          const rh = cur.relative_humidity_2m ?? 75;
+          const p = cur.surface_pressure ?? 1010;
+          const wSpeed = cur.wind_speed_10m ?? 4;
+          const clouds = cur.cloud_cover ?? 40;
+          const wCode = cur.weather_code ?? 0;
+
+          // Dynamically determine regime label & synoptic match based on physical meteorology & WMO codes
+          let dynamicRegime: SynopticRegime = 'ACTIVE_MONSOON';
+          let conditionLabel = 'Fair Weather';
+
+          if (wCode >= 95 || rain > 25 || wSpeed > 20) {
+            dynamicRegime = 'DEPRESSION';
+            conditionLabel = 'Thunderstorm & Squall (Monsoon Depression)';
+          } else if ([71, 73, 75, 77, 85, 86].includes(wCode) || (temp < 18 && (windDeg > 260 || windDeg < 40) && wSpeed > 10)) {
+            dynamicRegime = 'WESTERN_DISTURBANCE';
+            conditionLabel = 'Western Disturbance Flow';
+          } else if (rain > 15 && wSpeed > 10 && rh > 85) {
+            dynamicRegime = 'COASTAL_OROGRAPHIC';
+            conditionLabel = 'Coastal / Orographic Surge';
+          } else if (rain > 1.5 || [61, 63, 65, 80, 81, 82].includes(wCode)) {
+            dynamicRegime = 'ACTIVE_MONSOON';
+            conditionLabel = rain > 10 ? 'Heavy Monsoon Rain' : 'Active Monsoon Showers';
+          } else if (rain <= 0.1 && (wCode === 0 || wCode === 1 || clouds < 45)) {
+            dynamicRegime = 'BREAK_MONSOON';
+            conditionLabel = wCode === 0 ? 'Sunny & Clear Skies' : 'Mostly Clear (Monsoon Break)';
+          } else if (rain > 0.1 && rain <= 1.5) {
+            dynamicRegime = 'BREAK_MONSOON';
+            conditionLabel = 'Subdued Monsoon (Light Drizzle)';
+          } else {
+            dynamicRegime = 'OTHER';
+            conditionLabel = clouds > 70 ? 'Cloudy Circulation' : 'Partly Cloudy';
+          }
+
+          setStationOverride({
+            rainRateMmH: parseFloat(rain.toFixed(1)),
+            windSpeedMs: parseFloat(wSpeed.toFixed(1)),
+            windDirectionDeg: windDeg,
+            windDirectionCompass: getCompassDirection(windDeg),
+            temperatureC: parseFloat(temp.toFixed(1)),
+            relativeHumidityPct: Math.round(rh),
+            surfacePressureHpa: parseFloat(p.toFixed(1)),
+            capeJkg: rain > 15 ? 1800 : rain > 5 ? 1200 : 400,
+            cloudCoverPct: Math.round(clouds),
+            stationName: `My Location (${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E)`,
+            stationCoordinates: { lat, lon },
+            conditionLabel: `Live GPS: ${conditionLabel}`,
+            sourceProvenance: 'Live Device GPS + Open-Meteo GFS NWP Feed',
+            lastUpdatedIso: new Date().toISOString(),
+          });
+          setDistrictRegimeState(dynamicRegime);
+          return true;
+        }
+      }
+    } catch (fetchErr) {
+      console.warn('Real-time coordinates weather fetch fallback:', fetchErr);
+    }
+    return false;
   };
 
   const detectUserLocation = async (
@@ -273,55 +345,7 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
           setUserLocation(locState);
 
           // Fetch real-time weather from Open-Meteo GFS API for these exact coordinates
-          try {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}&current=temperature_2m,relative_humidity_2m,precipitation,surface_pressure,wind_speed_10m,wind_direction_10m,cloud_cover&wind_speed_unit=ms`;
-            const resp = await fetch(url);
-            if (resp.ok) {
-              const data = await resp.json();
-              if (data && data.current) {
-                const cur = data.current;
-                const windDeg = cur.wind_direction_10m ?? 240;
-                const rain = cur.precipitation ?? 0;
-                const temp = cur.temperature_2m ?? 25;
-                const rh = cur.relative_humidity_2m ?? 80;
-                const p = cur.surface_pressure ?? 1005;
-                const wSpeed = cur.wind_speed_10m ?? 5;
-                const clouds = cur.cloud_cover ?? 50;
-
-                // Dynamically determine regime label & synoptic match
-                let dynamicRegime: SynopticRegime = 'ACTIVE_MONSOON';
-                if (rain > 20 || wSpeed > 18) {
-                  dynamicRegime = 'DEPRESSION';
-                } else if (rain > 5) {
-                  dynamicRegime = 'ACTIVE_MONSOON';
-                } else if (rain === 0 && clouds < 40) {
-                  dynamicRegime = 'BREAK_MONSOON';
-                } else {
-                  dynamicRegime = 'OTHER';
-                }
-
-                setStationOverride({
-                  rainRateMmH: parseFloat(rain.toFixed(1)),
-                  windSpeedMs: parseFloat(wSpeed.toFixed(1)),
-                  windDirectionDeg: windDeg,
-                  windDirectionCompass: getCompassDirection(windDeg),
-                  temperatureC: parseFloat(temp.toFixed(1)),
-                  relativeHumidityPct: Math.round(rh),
-                  surfacePressureHpa: parseFloat(p.toFixed(1)),
-                  capeJkg: rain > 15 ? 1800 : rain > 5 ? 1200 : 400,
-                  cloudCoverPct: Math.round(clouds),
-                  stationName: `My Location (${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E)`,
-                  stationCoordinates: { lat, lon },
-                  conditionLabel: `Live GPS: ${rain > 10 ? 'Heavy Rain' : rain > 0 ? 'Light Rain' : 'Partly Cloudy'} (${dynamicRegime.replace('_', ' ')})`,
-                  sourceProvenance: 'Live Device GPS + NOAA GFS 0.25° NWP Feed',
-                  lastUpdatedIso: new Date().toISOString(),
-                });
-                setDistrictRegimeState(dynamicRegime);
-              }
-            }
-          } catch (fetchErr) {
-            console.warn('Real-time coordinates weather fetch fallback:', fetchErr);
-          }
+          await fetchLocationWeather(lat, lon);
 
           if (onFound) {
             onFound({ lat, lon });
@@ -350,6 +374,35 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
       );
     });
   };
+
+  // Load real-time weather on mount for saved location or check for granted permission
+  useEffect(() => {
+    let mounted = true;
+
+    const initLocationWeather = async () => {
+      if (userLocation && typeof userLocation.lat === 'number' && typeof userLocation.lon === 'number') {
+        await fetchLocationWeather(userLocation.lat, userLocation.lon);
+        return;
+      }
+
+      if (typeof window !== 'undefined' && navigator && navigator.permissions && typeof navigator.permissions.query === 'function') {
+        try {
+          const perm = await navigator.permissions.query({ name: 'geolocation' });
+          if (perm.state === 'granted' && mounted) {
+            await detectUserLocation();
+          }
+        } catch {
+          // Permissions API query not supported in some browsers
+        }
+      }
+    };
+
+    initLocationWeather();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const setEnabled = (val: boolean) => {
     setEnabledState(val);
@@ -447,6 +500,7 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
         setStationTelemetry,
         triggerInstantLightning,
         detectUserLocation,
+        fetchLocationWeather,
         clearUserLocation,
         setUserLocation,
       }}
@@ -476,6 +530,7 @@ const DEFAULT_WEATHER_CONTEXT: WeatherContextType = {
   setStationTelemetry: () => {},
   triggerInstantLightning: () => {},
   detectUserLocation: async () => null,
+  fetchLocationWeather: async () => false,
   clearUserLocation: () => {},
   setUserLocation: () => {},
 };
