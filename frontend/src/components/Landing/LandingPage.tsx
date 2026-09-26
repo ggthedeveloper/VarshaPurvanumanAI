@@ -8,7 +8,6 @@ import {
   Activity,
   MapPin,
   Sparkles,
-  BarChart3,
   Award,
   Zap,
   Sun,
@@ -23,7 +22,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { DistrictItem, CombinedForecastResponse, SynopticRegime } from '../../types/api';
-import { RainfallMap } from '../Map/RainfallMap';
+import { NationalCitiesWeatherGrid } from './NationalCitiesWeatherGrid';
 import { ErrorBoundary } from '../Common/ErrorBoundary';
 import { LiveWeatherBackground } from '../Weather/LiveWeatherBackground';
 import { useWeather } from '../../context/WeatherContext';
@@ -204,12 +203,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
   const simResult = calculateSimulatedCorrection(simRawNwp, simRegime);
 
-  // Key showcase locations across India
-  const showcaseIds = ['pune', 'raigad', 'thane', 'satara', 'ahmednagar', 'ratnagiri', 'mumbai', 'nagpur'];
-  const showcaseDistricts = showcaseIds
-    .map((id) => districts.find((d) => d.district_id === id))
-    .filter(Boolean) as DistrictItem[];
-
   return (
     <div className="space-y-16 pb-16">
       {/* 1. Hero Stage with Western Ghats Monsoon Hills Background */}
@@ -266,41 +259,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </p>
           </div>
 
-          {/* Primary Action Buttons */}
-          <div className="flex flex-wrap items-center gap-4 pt-2">
-            <button
-              onClick={() => onNavigateToForecast()}
-              className="inline-flex items-center px-6 py-3.5 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-xl shadow-indigo-600/30 transition transform hover:-translate-y-0.5 cursor-pointer"
-            >
-              <span>Explore Operational Forecast</span>
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </button>
-
-            {!isLoggedIn && onLoginClick && (
+          {/* Sign In / Register (if not logged in) */}
+          {!isLoggedIn && onLoginClick && (
+            <div className="pt-2">
               <button
                 onClick={onLoginClick}
-                className={`inline-flex items-center px-5 py-3.5 rounded-xl text-sm font-semibold transition cursor-pointer border ${
-                  isDarkMode
-                    ? 'bg-slate-800/80 hover:bg-slate-700 text-slate-200 border-white/10 backdrop-blur-md'
-                    : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-300 shadow-sm'
-                }`}
+                className="inline-flex items-center px-6 py-3.5 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-xl shadow-indigo-600/40 transition transform hover:-translate-y-0.5 cursor-pointer"
               >
                 <span>Sign In / Register</span>
               </button>
-            )}
-
-            <button
-              onClick={() => onNavigateToVerification()}
-              className={`inline-flex items-center px-5 py-3.5 rounded-xl text-sm font-semibold transition cursor-pointer border ${
-                isDarkMode
-                  ? 'bg-slate-900/60 hover:bg-slate-800 text-slate-300 border-white/10 backdrop-blur-md'
-                  : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-sm'
-              }`}
-            >
-              <BarChart3 className="h-4 w-4 mr-2 text-indigo-500 dark:text-indigo-400" />
-              <span>Inspect Verification Benchmarks</span>
-            </button>
-          </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -483,146 +452,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* 3. Live Maharashtra & National Station Showcase */}
-      <section className="space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
-          <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
-              <Sparkles className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-              <span>National Monsoon Station Hubs</span>
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Verified NOAA GFS grid ingestion & station telemetry across major meteorological centers
-            </p>
-          </div>
-          <button
-            onClick={() => onNavigateToForecast()}
-            className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center self-start sm:self-auto cursor-pointer"
-          >
-            <span>View all 78 districts</span>
-            <ArrowRight className="h-4 w-4 ml-1" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {showcaseDistricts.map((d) => {
-            const isPune = d.coverage_status === 'BENCHMARK_ACTIVE';
-            const isOperational = d.coverage_status === 'OPERATIONAL_NWP';
-            const raw = d.raw_nwp_rainfall_mm ?? 5.4;
-            const corr = d.corrected_rainfall_mm ?? 3.3;
-            const regime = d.predicted_regime ?? 'COASTAL_OROGRAPHIC';
-
-            return (
-              <div
-                key={d.district_id}
-                onClick={() => {
-                  onSelectDistrict(d.district_id);
-                  onNavigateToForecast(d.district_id);
-                }}
-                className={`group rounded-2xl p-5 border transition-all cursor-pointer shadow-sm hover:shadow-lg transform hover:-translate-y-0.5 ${
-                  isPune
-                    ? 'bg-gradient-to-br from-indigo-50/80 to-emerald-50/80 dark:from-indigo-950/40 dark:to-emerald-950/30 border-indigo-300 dark:border-indigo-800'
-                    : isOperational
-                    ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-600'
-                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700'
-                }`}
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <div className="flex items-center space-x-1.5">
-                      <MapPin className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">
-                        {d.name}
-                      </h4>
-                    </div>
-                    <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 ml-5 block">
-                      {d.state}
-                    </span>
-                  </div>
-
-                  {isPune ? (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 uppercase">
-                      Benchmark Station
-                    </span>
-                  ) : isOperational ? (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 uppercase">
-                      Operational NWP
-                    </span>
-                  ) : (
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase">
-                      Admin Station
-                    </span>
-                  )}
-                </div>
-
-                {/* Values row */}
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <div>
-                    <span className="text-[10px] uppercase font-semibold text-slate-400 block">
-                      Raw NWP
-                    </span>
-                    <span className="text-sm font-mono text-slate-700 dark:text-slate-300">
-                      {raw.toFixed(1)} mm
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-semibold text-slate-400 block">
-                      AI Corrected
-                    </span>
-                    <span className="text-sm font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                      {corr.toFixed(1)} mm
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mt-3 flex items-center justify-between text-[11px] pt-1">
-                  <span className="px-2 py-0.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-medium">
-                    {regime.replace(/_/g, ' ')}
-                  </span>
-                  <span className="text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 inline-flex items-center font-semibold">
-                    Inspect <ArrowRight className="h-3 w-3 ml-1" />
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 4. Live Interactive National Monsoon Map */}
-      <section className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
-          <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
-              <Compass className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              <span>Live National Monsoon Radar & Cartography</span>
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Interactive 2D spatial map across all 78 Indian district stations with terrain topography and boundary polygons
-            </p>
-          </div>
-          <button
-            onClick={() => onNavigateToForecast()}
-            className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center self-start sm:self-auto cursor-pointer"
-          >
-            <span>Open Advanced Forecast Cockpit</span>
-            <ArrowRight className="h-4 w-4 ml-1" />
-          </button>
-        </div>
-
-        <ErrorBoundary fallbackTitle="Forecast Map Error">
-          <div className="rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-md">
-            <RainfallMap
-              districts={districts}
-              selectedDistrictId={selectedDistrictId}
-              onSelectDistrict={onSelectDistrict}
-              activeForecast={activeForecast}
-              geoJsonData={geoJsonData}
-              isDarkMode={isDarkMode}
-            />
-          </div>
-        </ErrorBoundary>
-      </section>
+      {/* 3. National Monsoon Station Hubs • 10 Priority Indian Cities (in place of map) */}
+      <NationalCitiesWeatherGrid
+        onSelectCity={(districtId) => onNavigateToForecast(districtId)}
+        isDarkMode={isDarkMode}
+      />
 
       {/* 5. End-to-End Scientific Architecture Workflow */}
       <section className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 shadow-sm space-y-6">
