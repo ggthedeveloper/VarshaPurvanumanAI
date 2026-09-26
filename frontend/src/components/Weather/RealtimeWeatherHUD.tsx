@@ -30,7 +30,6 @@ export const RealtimeWeatherHUD: React.FC<RealtimeWeatherHUDProps> = ({ isDarkMo
     telemetry,
     intensity,
     setIntensity,
-    setMode,
     triggerInstantLightning,
   } = useWeather();
 
@@ -82,14 +81,6 @@ export const RealtimeWeatherHUD: React.FC<RealtimeWeatherHUDProps> = ({ isDarkMo
         return <Wind className="h-4 w-4 text-slate-400" />;
     }
   };
-
-  const regimesQuickList: { id: SynopticRegime; label: string; icon: React.ReactNode }[] = [
-    { id: 'ACTIVE_MONSOON', label: 'Active', icon: <CloudRain className="h-3 w-3" /> },
-    { id: 'BREAK_MONSOON', label: 'Break', icon: <Sun className="h-3 w-3" /> },
-    { id: 'COASTAL_OROGRAPHIC', label: 'Coastal', icon: <Waves className="h-3 w-3" /> },
-    { id: 'DEPRESSION', label: 'Depression', icon: <Zap className="h-3 w-3" /> },
-    { id: 'WESTERN_DISTURBANCE', label: 'WD', icon: <Snowflake className="h-3 w-3" /> },
-  ];
 
   return (
     <aside
@@ -245,27 +236,10 @@ export const RealtimeWeatherHUD: React.FC<RealtimeWeatherHUDProps> = ({ isDarkMo
 
             {/* Quick Interactive Actions & Live Triggers */}
             <div className="flex items-center justify-between pt-1 gap-2">
-              {/* Regime Quick Switching Chips */}
-              <div className="flex items-center space-x-1 overflow-x-auto py-0.5">
-                {regimesQuickList.map((r) => {
-                  const isSel = effectiveRegime === r.id;
-                  return (
-                    <button
-                      key={r.id}
-                      onClick={() => setMode(r.id)}
-                      title={`Simulate ${r.label}`}
-                      className={`px-2 py-1 rounded-md text-[10px] font-bold flex items-center space-x-1 border transition cursor-pointer shrink-0 ${
-                        isSel
-                          ? 'bg-indigo-600 text-white border-indigo-500 shadow-xs'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-400'
-                      }`}
-                    >
-                      <span>{r.icon}</span>
-                      <span>{r.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              <span className="text-[10px] text-slate-400 font-mono flex items-center space-x-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
+                <span>Live Surface Telemetry</span>
+              </span>
 
               {/* Electric Lightning Trigger Button */}
               <button
@@ -274,7 +248,7 @@ export const RealtimeWeatherHUD: React.FC<RealtimeWeatherHUDProps> = ({ isDarkMo
                 className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center space-x-1 shadow-sm transition cursor-pointer shrink-0"
               >
                 <Zap className="h-3 w-3 fill-slate-950" />
-                <span>Strike</span>
+                <span>Strike Lightning ⚡</span>
               </button>
             </div>
 

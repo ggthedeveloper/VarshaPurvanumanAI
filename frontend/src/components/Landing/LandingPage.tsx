@@ -26,7 +26,6 @@ import { DistrictItem, CombinedForecastResponse, SynopticRegime } from '../../ty
 import { RainfallMap } from '../Map/RainfallMap';
 import { ErrorBoundary } from '../Common/ErrorBoundary';
 import { LiveWeatherBackground } from '../Weather/LiveWeatherBackground';
-import { InteractiveWeatherShowcase } from './InteractiveWeatherShowcase';
 import { useWeather } from '../../context/WeatherContext';
 
 interface LandingPageProps {
@@ -211,95 +210,61 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     .map((id) => districts.find((d) => d.district_id === id))
     .filter(Boolean) as DistrictItem[];
 
-  const handleSelectInteractiveRegime = (regimeId: SynopticRegime) => {
-    setSelectedRegime(regimeId);
-    setSimRegime(regimeId);
-    setMode(regimeId);
-  };
-
   return (
     <div className="space-y-16 pb-16">
-      {/* 1. Hero Stage with Live Weather Background Simulation */}
+      {/* 1. Hero Stage with Western Ghats Monsoon Hills Background */}
       <section
-        className={`relative overflow-hidden rounded-3xl p-8 md:p-14 shadow-2xl border transition-colors duration-300 ${
-          isDarkMode
-            ? 'bg-slate-900/60 text-white border-white/10 backdrop-blur-xl'
-            : 'bg-white/95 text-slate-900 border-slate-200/90 backdrop-blur-xl shadow-xl'
-        }`}
+        className="relative overflow-hidden rounded-3xl p-8 md:p-14 shadow-2xl border border-slate-700/60 transition-all duration-300 min-h-[500px] flex flex-col justify-center"
       >
-        {/* Interactive Weather Simulation Layer inside the Hero Card */}
+        {/* Background Image: Monsoon Hills */}
+        <img
+          src="/images/monsoon_hills_rain.jpg"
+          alt="Monsoon rain over Western Ghats hills"
+          className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
+        />
+
+        {/* Cinematic Atmospheric Overlay for Impeccable Text Contrast */}
+        <div
+          className={`absolute inset-0 pointer-events-none ${
+            isDarkMode
+              ? 'bg-gradient-to-r from-slate-950/90 via-slate-950/75 to-slate-950/50'
+              : 'bg-gradient-to-r from-slate-950/85 via-slate-950/70 to-slate-900/40'
+          }`}
+        />
+
+        {/* Live Weather Rain & Mist Particle Background Layer */}
         <LiveWeatherBackground
           fixed={false}
-          overrideRegime={selectedRegime}
-          isDarkMode={isDarkMode}
-          interactive={true}
-          opacity={isDarkMode ? 0.85 : 0.40}
+          isDarkMode={true}
+          interactive={false}
+          opacity={0.65}
         />
 
-        {/* Ambient Gradient Glows */}
-        <div
-          className={`absolute top-0 right-0 -mt-16 -mr-16 w-96 h-96 rounded-full blur-3xl pointer-events-none ${
-            isDarkMode ? 'bg-indigo-500/20' : 'bg-sky-400/20'
-          }`}
-        />
-        <div
-          className={`absolute bottom-0 left-0 -mb-16 -ml-16 w-96 h-96 rounded-full blur-3xl pointer-events-none ${
-            isDarkMode ? 'bg-emerald-500/15' : 'bg-emerald-400/20'
-          }`}
-        />
-
-        <div className="relative z-10 max-w-5xl space-y-8">
+        <div className="relative z-10 max-w-4xl space-y-7">
           {/* MoES Accreditation Badges */}
           <div className="flex flex-wrap items-center gap-2.5">
-            <span
-              className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold border backdrop-blur-md shadow-xs ${
-                isDarkMode
-                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30'
-                  : 'bg-emerald-100 text-emerald-800 border-emerald-300'
-              }`}
-            >
-              <ShieldCheck className="h-4 w-4 mr-1.5 text-emerald-500 dark:text-emerald-400" />
+            <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold border border-emerald-400/40 bg-emerald-950/80 text-emerald-300 backdrop-blur-md shadow-lg">
+              <ShieldCheck className="h-4 w-4 mr-1.5 text-emerald-400" />
               Ministry of Earth Sciences (MoES) / IMD
             </span>
-            <span
-              className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border backdrop-blur-md ${
-                isDarkMode
-                  ? 'bg-slate-800/80 text-slate-300 border-slate-700/80'
-                  : 'bg-white/90 text-slate-700 border-slate-300 shadow-xs'
-              }`}
-            >
-              <span className="h-2 w-2 rounded-full bg-emerald-500 mr-2 animate-ping" />
+            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border border-white/20 bg-slate-900/80 text-slate-200 backdrop-blur-md shadow-lg">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 mr-2 animate-ping" />
               Live Meteorological AI Engine
             </span>
           </div>
 
           {/* Headline & Mission */}
           <div className="space-y-4">
-            <h1
-              className={`text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight ${
-                isDarkMode ? 'text-white' : 'text-slate-950'
-              }`}
-            >
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-white drop-shadow-md">
               Regime-Aware AI Post-Processing of{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-indigo-600 to-emerald-600 dark:from-sky-300 dark:via-indigo-300 dark:to-emerald-300">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-emerald-300">
                 Monsoon Rainfall Forecasts
               </span>
             </h1>
-            <p
-              className={`text-sm sm:text-base max-w-2xl leading-relaxed ${
-                isDarkMode ? 'text-slate-200' : 'text-slate-700'
-              }`}
-            >
+            <p className="text-sm sm:text-base max-w-2xl leading-relaxed text-slate-200 drop-shadow-sm font-medium">
               Raw NWP forecasts routinely suffer from orographic and peak-intensity biases. VarshaPurvanuman AI classifies synoptic circulation regimes and downscales rainfall predictions to eliminate false alarms and deliver calibrated probabilities.
             </p>
           </div>
-
-          {/* Interactive Live Weather Simulation Picture & Showcase */}
-          <InteractiveWeatherShowcase
-            selectedRegime={selectedRegime}
-            onSelectRegime={handleSelectInteractiveRegime}
-            isDarkMode={isDarkMode}
-          />
 
           {/* Primary Action Buttons */}
           <div className="flex flex-wrap items-center gap-4 pt-2">

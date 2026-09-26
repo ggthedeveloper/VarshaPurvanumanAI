@@ -29,7 +29,6 @@ import { UserProfileModal } from './components/Modals/UserProfileModal';
 import { ErrorBoundary } from './components/Common/ErrorBoundary';
 import { WeatherProvider, useWeather, WeatherTelemetry } from './context/WeatherContext';
 import { LiveWeatherBackground } from './components/Weather/LiveWeatherBackground';
-import { WeatherControllerPill } from './components/Weather/WeatherControllerPill';
 import {
   AlertTriangle,
   ShieldCheck,
@@ -518,8 +517,6 @@ const AppContent: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <WeatherControllerPill isDarkMode={isDarkMode} />
-
             {/* Theme Switcher in Guest Header */}
             <button
               onClick={handleToggleTheme}

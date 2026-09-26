@@ -112,8 +112,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   const {
     telemetry,
     effectiveRegime,
-    mode,
-    setMode,
     enabled,
     toggleEnabled,
     intensity,
@@ -183,45 +181,6 @@ export const Navbar: React.FC<NavbarProps> = ({
         return <Wind className="h-4 w-4 text-slate-400" />;
     }
   };
-
-  const regimesList: { id: WeatherMode; label: string; icon: React.ReactNode; desc: string }[] = [
-    {
-      id: 'AUTO',
-      label: 'Auto (Sync Station)',
-      icon: <Sparkles className="h-3.5 w-3.5 text-indigo-400" />,
-      desc: 'Synchronizes dynamically with active district',
-    },
-    {
-      id: 'ACTIVE_MONSOON',
-      label: 'Active Monsoon',
-      icon: <CloudRain className="h-3.5 w-3.5 text-sky-400" />,
-      desc: 'Heavy monsoon downpour with surface splashes',
-    },
-    {
-      id: 'BREAK_MONSOON',
-      label: 'Break Monsoon',
-      icon: <SunIcon className="h-3.5 w-3.5 text-amber-400" />,
-      desc: 'Scattered clouds, clear sky, light mist',
-    },
-    {
-      id: 'COASTAL_OROGRAPHIC',
-      label: 'Coastal / Offshore',
-      icon: <Waves className="h-3.5 w-3.5 text-teal-400" />,
-      desc: 'Ghats onshore low-level jet & sea spray',
-    },
-    {
-      id: 'DEPRESSION',
-      label: 'Monsoon Depression',
-      icon: <Zap className="h-3.5 w-3.5 text-purple-400" />,
-      desc: 'Cyclonic storm, dense rain, thunder flashes',
-    },
-    {
-      id: 'WESTERN_DISTURBANCE',
-      label: 'Western Disturbance',
-      icon: <Snowflake className="h-3.5 w-3.5 text-cyan-400" />,
-      desc: 'Cool mid-latitude westerly trough winds',
-    },
-  ];
 
   const istTimeString = time.toLocaleTimeString('en-IN', {
     timeZone: 'Asia/Kolkata',
@@ -487,35 +446,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <Zap className="h-3.5 w-3.5 fill-white" />
                   <span>Strike Lightning ⚡</span>
                 </button>
-              </div>
-
-              {/* Synoptic Regime Presets */}
-              <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block">
-                  Synoptic Weather Simulation
-                </span>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {regimesList.map((item) => {
-                    const isSelected = mode === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => setMode(item.id)}
-                        className={`text-left px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between transition cursor-pointer ${
-                          isSelected
-                            ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 font-semibold border border-indigo-200 dark:border-indigo-800'
-                            : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300 border border-transparent'
-                        }`}
-                      >
-                        <div className="flex items-center space-x-1.5 truncate">
-                          {item.icon}
-                          <span className="truncate text-[11px]">{item.label}</span>
-                        </div>
-                        {isSelected && <Check className="h-3 w-3 text-indigo-500 shrink-0" />}
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
 
               {/* Controls Footer: Toggle FX & Density */}

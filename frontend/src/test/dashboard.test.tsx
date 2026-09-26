@@ -696,7 +696,7 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
     expect(screen.getByText('ZERO SYNTHETIC')).toBeInTheDocument();
   });
 
-  it('21. LandingPage renders interactive weather regime switcher, NWP bias-correction sandbox, and station showcase', () => {
+  it('21. LandingPage renders Western Ghats hills hero stage, NWP bias-correction sandbox, and station showcase', () => {
     const handleNavigateToForecast = vi.fn();
     const handleNavigateToVerification = vi.fn();
     const handleSelectDistrict = vi.fn();
@@ -716,15 +716,10 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
     );
 
     expect(screen.getByText(/Ministry of Earth Sciences \(MoES\) \/ IMD/i)).toBeInTheDocument();
-    expect(screen.getByText(/Interactive Weather Simulation • Click to Test Regimes/i)).toBeInTheDocument();
+    expect(screen.getByText(/Regime-Aware AI Post-Processing of/i)).toBeInTheDocument();
     expect(screen.getByText(/Test Regime-Conditioned Bias Correction Live/i)).toBeInTheDocument();
     expect(screen.getByText(/Raw NOAA GFS Forecast Accumulation:/i)).toBeInTheDocument();
     expect(screen.getByText(/National Monsoon Station Hubs/i)).toBeInTheDocument();
-
-    // Test regime switcher interaction
-    const breakSpellBtn = screen.getByRole('button', { name: /Break Spell/i });
-    fireEvent.click(breakSpellBtn);
-    expect(screen.getAllByText(/Break Monsoon Spell/i)[0]).toBeInTheDocument();
 
     // Test bias correction slider interaction
     const slider = screen.getByRole('slider');
