@@ -225,7 +225,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         className={`relative overflow-hidden rounded-3xl p-8 md:p-14 shadow-2xl border transition-colors duration-300 ${
           isDarkMode
             ? 'bg-slate-900/60 text-white border-white/10 backdrop-blur-xl'
-            : 'bg-gradient-to-br from-sky-50/80 via-white/85 to-indigo-50/70 text-slate-900 border-indigo-200 backdrop-blur-xl shadow-xl'
+            : 'bg-white/95 text-slate-900 border-slate-200/90 backdrop-blur-xl shadow-xl'
         }`}
       >
         {/* Interactive Weather Simulation Layer inside the Hero Card */}
@@ -234,7 +234,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           overrideRegime={selectedRegime}
           isDarkMode={isDarkMode}
           interactive={true}
-          opacity={isDarkMode ? 0.92 : 0.90}
+          opacity={isDarkMode ? 0.85 : 0.40}
         />
 
         {/* Ambient Gradient Glows */}
@@ -278,11 +278,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div className="space-y-4">
             <h1
               className={`text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight ${
-                isDarkMode ? 'text-white' : 'text-slate-900'
+                isDarkMode ? 'text-white' : 'text-slate-950'
               }`}
             >
               Regime-Aware AI Post-Processing of{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 via-indigo-600 to-emerald-600 dark:from-sky-300 dark:via-indigo-300 dark:to-emerald-300">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-indigo-600 to-emerald-600 dark:from-sky-300 dark:via-indigo-300 dark:to-emerald-300">
                 Monsoon Rainfall Forecasts
               </span>
             </h1>
@@ -297,16 +297,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
           {/* Interactive Live Weather Switcher Bar */}
           <div className="space-y-3 pt-2">
-            <div className="flex items-center justify-between text-xs text-slate-400">
+            <div className="flex items-center justify-between text-xs">
               <span
-                className={`font-semibold uppercase tracking-wider flex items-center space-x-1.5 ${
-                  isDarkMode ? 'text-indigo-300' : 'text-indigo-700'
+                className={`font-bold uppercase tracking-wider flex items-center space-x-1.5 ${
+                  isDarkMode ? 'text-indigo-300' : 'text-indigo-800'
                 }`}
               >
                 <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
                 <span>Interactive Weather Simulation • Click to Test Regimes</span>
               </span>
-              <span className={`hidden sm:inline-block text-[11px] ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+              <span className={`hidden sm:inline-block text-[11px] font-medium ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
                 Move cursor over canvas to interact with rain & wind
               </span>
             </div>

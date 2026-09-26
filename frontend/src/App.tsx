@@ -367,7 +367,7 @@ const AppContent: React.FC = () => {
         {/* Guest Header */}
         <header
           className={`sticky top-0 z-40 backdrop-blur-md border-b px-4 sm:px-8 py-3.5 flex items-center justify-between transition-colors ${
-            isDarkMode ? 'bg-slate-950/70 border-white/10' : 'bg-white/80 border-slate-200/80 shadow-xs'
+            isDarkMode ? 'bg-slate-950/70 border-white/10' : 'bg-white/95 border-slate-200/90 shadow-xs'
           }`}
         >
           <div className="flex items-center space-x-3">
@@ -380,7 +380,7 @@ const AppContent: React.FC = () => {
                   VarshaPurvanuman AI
                 </span>
               </div>
-              <span className={`text-[11px] hidden sm:block ${isDarkMode ? 'text-slate-300' : 'text-slate-500'}`}>
+              <span className={`text-[11px] hidden sm:block ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
                 Ministry of Earth Sciences (MoES) / IMD Monsoon Intelligence
               </span>
             </div>
