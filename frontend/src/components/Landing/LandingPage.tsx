@@ -384,45 +384,54 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                 <div
-                  className={`rounded-xl p-3 border ${
+                  className={`rounded-xl p-3.5 border transition ${
                     isDarkMode
-                      ? 'bg-slate-950/60 border-slate-800/80 text-slate-300'
-                      : 'bg-slate-50/80 border-slate-200 text-slate-700'
+                      ? 'bg-slate-950/60 border-slate-800 text-slate-300'
+                      : 'bg-slate-50/90 border-slate-200 text-slate-700'
                   }`}
                 >
-                  <span className={`text-[10px] font-bold uppercase tracking-wider block mb-1 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                    Synoptic Mechanism
-                  </span>
-                  <p className="leading-relaxed text-[11px]">
+                  <div className="flex items-center space-x-1.5 mb-1 text-indigo-600 dark:text-indigo-400">
+                    <Layers className="h-3.5 w-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">
+                      Synoptic Trigger
+                    </span>
+                  </div>
+                  <p className="leading-relaxed text-[11px] text-slate-600 dark:text-slate-300">
                     {activeMeta.synopticMechanism}
                   </p>
                 </div>
 
                 <div
-                  className={`rounded-xl p-3 border ${
+                  className={`rounded-xl p-3.5 border transition ${
                     isDarkMode
-                      ? 'bg-slate-950/60 border-slate-800/80 text-slate-300'
-                      : 'bg-slate-50/80 border-slate-200 text-slate-700'
+                      ? 'bg-amber-950/20 border-amber-800/40 text-amber-200'
+                      : 'bg-amber-50/90 border-amber-200 text-amber-900'
                   }`}
                 >
-                  <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block mb-1">
-                    NWP Error Pattern
-                  </span>
+                  <div className="flex items-center space-x-1.5 mb-1 text-amber-600 dark:text-amber-400">
+                    <TrendingDown className="h-3.5 w-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">
+                      Raw NWP Error Pattern
+                    </span>
+                  </div>
                   <p className="leading-relaxed text-[11px]">
                     {activeMeta.biasTendency}
                   </p>
                 </div>
 
                 <div
-                  className={`rounded-xl p-3 border ${
+                  className={`rounded-xl p-3.5 border transition ${
                     isDarkMode
-                      ? 'bg-slate-950/60 border-slate-800/80 text-slate-300'
-                      : 'bg-slate-50/80 border-slate-200 text-slate-700'
+                      ? 'bg-emerald-950/20 border-emerald-800/40 text-emerald-200'
+                      : 'bg-emerald-50/90 border-emerald-200 text-emerald-900'
                   }`}
                 >
-                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-1">
-                    AI Post-Processing Solution
-                  </span>
+                  <div className="flex items-center space-x-1.5 mb-1 text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">
+                      AI Calibration Solution
+                    </span>
+                  </div>
                   <p className="leading-relaxed text-[11px]">
                     {activeMeta.aiRemedy}
                   </p>
@@ -594,8 +603,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </span>
               <div className="h-6 w-full rounded-xl bg-slate-100 dark:bg-slate-800 overflow-hidden flex">
                 <div
-                  style={{ width: `${Math.min(100, (simResult.corrected / 120) * 100)}%` }}
-                  className="bg-emerald-500 h-full flex items-center justify-center text-[10px] font-bold text-white transition-all duration-200"
+                  style={{ width: `${Math.min(100, Math.max(8, (simResult.corrected / 120) * 100))}%` }}
+                  className="bg-emerald-500 h-full flex items-center justify-center text-[10px] font-bold text-white transition-all duration-200 truncate px-1.5"
                 >
                   AI Output ({simResult.corrected} mm)
                 </div>
@@ -603,10 +612,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   style={{
                     width: `${Math.min(
                       100,
-                      ((simRawNwp - simResult.corrected) / 120) * 100
+                      Math.max(8, ((simRawNwp - simResult.corrected) / 120) * 100)
                     )}%`,
                   }}
-                  className="bg-rose-400/80 h-full flex items-center justify-center text-[10px] font-bold text-white transition-all duration-200"
+                  className="bg-rose-400/80 h-full flex items-center justify-center text-[10px] font-bold text-white transition-all duration-200 truncate px-1.5"
                 >
                   Bias Cut (-{(simRawNwp - simResult.corrected).toFixed(1)} mm)
                 </div>

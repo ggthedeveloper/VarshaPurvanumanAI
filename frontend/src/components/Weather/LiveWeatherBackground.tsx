@@ -739,7 +739,7 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
     }
   };
 
-  const defaultOpacity = fixed ? (isDarkMode ? 0.45 : 0.70) : (isDarkMode ? 0.85 : 0.95);
+  const defaultOpacity = fixed ? (isDarkMode ? 0.38 : 0.48) : (isDarkMode ? 0.75 : 0.85);
   const effectiveOpacity = opacity !== undefined ? opacity : defaultOpacity;
 
   return (
