@@ -259,26 +259,45 @@ class DistrictService:
         try:
             df_hourly = GFSReader.from_file(gfs_file, lead_time_days=1)
             daily_gfs = TemporalAligner.aggregate_to_imd_observation_day(df_hourly, lead_time_days=1)
-            if daily_gfs.empty:
+            if not daily_gfs.empty:
+                row = daily_gfs.iloc[0]
+                raw_nwp_val = float(row["nwp_rainfall"])
+                ws = float(row["wind_speed_10m"])
+                wd = float(row["wind_direction_10m"])
+                t2m = float(row["temperature_2m"])
+                rh = float(row["relative_humidity_2m"])
+                sp = float(row["surface_pressure"])
+                cape = float(row["cape"])
+                obs_dt = pd.to_datetime(row["observation_date"])
+                fcst_init = str(row["forecast_initialization"])
+                fcst_valid = str(row["forecast_valid_time"])
+            elif not df_hourly.empty:
+                raw_nwp_val = float(df_hourly["precipitation"].sum())
+                ws = float(df_hourly["wind_speed_10m"].max())
+                wd = float(df_hourly["wind_direction_10m"].mean())
+                t2m = float(df_hourly["temperature_2m"].mean())
+                rh = float(df_hourly["relative_humidity_2m"].mean())
+                sp = float(df_hourly["surface_pressure"].mean())
+                cape = float(df_hourly["cape"].mean())
+                obs_dt = pd.to_datetime(df_hourly["timestamp"].iloc[-1])
+                fcst_init = str(df_hourly["forecast_initialization"].iloc[0] if "forecast_initialization" in df_hourly.columns else obs_dt)
+                fcst_valid = str(obs_dt)
+            else:
                 return None
 
-            row = daily_gfs.iloc[0]
-            ws = float(row["wind_speed_10m"])
-            wd = float(row["wind_direction_10m"])
             rad = np.radians(wd)
             u10 = -ws * np.sin(rad)
             v10 = -ws * np.cos(rad)
-            obs_dt = pd.to_datetime(row["observation_date"])
 
             req = RainfallPredictionRequest(
-                nwp_rainfall=float(row["nwp_rainfall"]),
+                nwp_rainfall=raw_nwp_val,
                 wind_speed_ms=ws,
                 u_wind_10m=u10,
                 v_wind_10m=v10,
-                temperature_2m=float(row["temperature_2m"]),
-                relative_humidity_2m=float(row["relative_humidity_2m"]),
-                surface_pressure=float(row["surface_pressure"]),
-                cape=float(row["cape"]),
+                temperature_2m=t2m,
+                relative_humidity_2m=rh,
+                surface_pressure=sp,
+                cape=cape,
                 month=obs_dt.month,
                 day_of_year=obs_dt.dayofyear,
                 latitude=coords[0],
@@ -292,8 +311,8 @@ class DistrictService:
             fcst.prediction_source = "noaa_gfs_0.25_raw_archive"
 
             meta = {
-                "forecast_initialization": str(row["forecast_initialization"]),
-                "forecast_valid_time": str(row["forecast_valid_time"]),
+                "forecast_initialization": fcst_init,
+                "forecast_valid_time": fcst_valid,
                 "sample_timestamp": str(obs_dt),
                 "latitude": coords[0],
                 "longitude": coords[1],
@@ -340,6 +359,8 @@ class DistrictService:
             elif use_processed:
                 disp_name = name.title()
                 raw_file = cls._find_raw_gfs_file(coords[0], coords[1], max_dist_deg=0.5)
+                if not raw_file:
+                    raw_file = cls._find_raw_gfs_file(coords[0], coords[1], max_dist_deg=2.5)
                 if raw_file:
                     proc_res = cls._compute_raw_gfs_archive_forecast(raw_file, name, coords)
                     if proc_res:
@@ -528,6 +549,26 @@ class DistrictService:
         # 3. Processed Raw GFS Archive Fallback (if use_processed=True)
         if use_processed:
             raw_file = cls._find_raw_gfs_file(matched_coords[0], matched_coords[1], max_dist_deg=0.5)
+            if raw_file is None:
+                raw_file = cls._find_raw_gfs_file(matched_coords[0], matched_coords[1], max_dist_deg=2.5)
+
+            # If still None, attempt on-demand GFS fetch
+            if raw_file is None:
+                try:
+                    from src.ingestion.gfs.downloader import GFSDownloader
+                    dl = GFSDownloader()
+                    dl.fetch_point_forecast(
+                        latitude=matched_coords[0],
+                        longitude=matched_coords[1],
+                        start_date="2024-06-06",
+                        end_date="2024-06-07",
+                        lead_time_days=1,
+                        save_raw=True,
+                    )
+                    raw_file = cls._find_raw_gfs_file(matched_coords[0], matched_coords[1], max_dist_deg=0.5)
+                except Exception as e:
+                    logger.warning(f"On-demand GFS fetch failed for {matched_name}: {e}")
+
             if raw_file is not None:
                 proc_res = cls._compute_raw_gfs_archive_forecast(raw_file, matched_name, matched_coords)
                 if proc_res is not None:

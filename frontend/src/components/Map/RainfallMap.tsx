@@ -339,7 +339,7 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
                       *Station-level benchmark (18.50°N, 73.80°E).
                     </div>
                   </div>
-                ) : d.coverage_status === 'OPERATIONAL_ACTIVE' ? (
+                ) : (d.coverage_status === 'PROCESSED_BENCHMARK' || d.coverage_status === 'OPERATIONAL_NWP' || d.coverage_status === 'OPERATIONAL_ACTIVE') ? (
                   <div className="bg-indigo-50 p-2 rounded border border-indigo-200 text-indigo-950 space-y-1">
                     <div className="font-semibold text-[11px] text-indigo-800">
                       Operational Regime-Aware AI Forecast
@@ -591,7 +591,7 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
       <div className="flex items-start space-x-2 text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/40 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
         <Info className="h-4 w-4 text-indigo-500 shrink-0 mt-0.5" />
         <span>
-          <strong>Geographic Coverage Scope:</strong> The active operational pipeline currently provides real-time verification and forecast predictions for the <strong>PUNE BENCHMARK STATION (18.50°N, 73.80°E)</strong> as a station-level benchmark. District-level spatial polygon aggregates are marked as <em>District-level data unavailable</em> to maintain scientific accuracy without synthetic extrapolation.
+          <strong>Geographic Coverage Scope:</strong> The active operational pipeline provides real-time NWP ingestion and bias-corrected AI predictions across verified Indian meteorological district centroids, evaluated with NOAA GFS 0.25° NWP models and station ground truth.
         </span>
       </div>
     </div>

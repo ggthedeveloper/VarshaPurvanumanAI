@@ -30,6 +30,9 @@ class PredictionService:
         """
         Executes Phase 4 Gradient Boosting Regime Classifier.
         """
+        if not registry.is_loaded:
+            registry.load_all_models()
+
         if registry.regime_classifier is None:
             raise RuntimeError("Regime classifier model is not loaded.")
 
@@ -56,6 +59,9 @@ class PredictionService:
         Executes operational post-processing pipeline:
         Features -> Phase 4 Classifier -> Predicted Regime -> Dedicated Regime Regressor -> Non-Negative Rainfall.
         """
+        if not registry.is_loaded:
+            registry.load_all_models()
+
         if registry.regime_postprocessor is None or registry.regime_classifier is None:
             raise RuntimeError("Post-processor or regime classifier is not loaded.")
 
@@ -103,6 +109,9 @@ class PredictionService:
         """
         Executes Phase 7 Calibrated Probability of Exceedance Suite across all verified thresholds.
         """
+        if not registry.is_loaded:
+            registry.load_all_models()
+
         if registry.probability_suite is None:
             raise RuntimeError("Probability suite model is not loaded.")
 
@@ -147,6 +156,9 @@ class PredictionService:
         """
         Generates full operational forecast combining deterministic and probabilistic layers.
         """
+        if not registry.is_loaded:
+            registry.load_all_models()
+
         rainfall_res = PredictionService.predict_rainfall(df_features, raw_nwp_val)
         prob_res = PredictionService.predict_probability(df_features, predicted_regime=rainfall_res.predicted_regime)
 

@@ -37,7 +37,8 @@ class RealtimeGFSService:
         latitude: float,
         longitude: float,
         target_date: str,
-        lead_time_days: int = 1
+        lead_time_days: int = 1,
+        max_dist_deg: float = 0.5
     ) -> Optional[str]:
         """Looks for an exact or near-match cached file in data/raw/gfs/."""
         clean_date = target_date.replace("-", "")
@@ -50,12 +51,22 @@ class RealtimeGFSService:
         if matches:
             return matches[0]
 
-        # Check all json files in dir for date match
+        # Check files matching target date that are geographically close
+        import re
+        best_file = None
+        min_dist = float("inf")
         for f in glob.glob(os.path.join(self.raw_dir, "*.json")):
             if target_date in f or clean_date in f:
-                return f
+                m = re.search(r"lat([0-9\.]+)_lon([0-9\.]+)", f)
+                if m:
+                    f_lat = float(m.group(1))
+                    f_lon = float(m.group(2))
+                    dist = np.hypot(latitude - f_lat, longitude - f_lon)
+                    if dist < min_dist and dist <= max_dist_deg:
+                        min_dist = dist
+                        best_file = f
 
-        return None
+        return best_file
 
     def _find_nearest_fallback_file(self, latitude: float, longitude: float) -> str:
         """Finds the nearest geographic or Pune benchmark cached file as fallback."""

@@ -41,6 +41,11 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
     return ['ALL', ...Array.from(s).sort()];
   }, [districts]);
 
+  const isCovered = (d: DistrictItem) =>
+    d.coverage_status === 'BENCHMARK_ACTIVE' ||
+    d.coverage_status === 'PROCESSED_BENCHMARK' ||
+    d.coverage_status === 'OPERATIONAL_NWP';
+
   // Filter districts
   const filteredDistricts = useMemo(() => {
     return districts
@@ -52,11 +57,11 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
 
         const matchesState = selectedState === 'ALL' || d.state === selectedState;
 
-        const isBenchmark = d.coverage_status === 'BENCHMARK_ACTIVE';
+        const covered = isCovered(d);
         const matchesStatus =
           statusFilter === 'ALL' ||
-          (statusFilter === 'BENCHMARK' && isBenchmark) ||
-          (statusFilter === 'UNAVAILABLE' && !isBenchmark);
+          (statusFilter === 'BENCHMARK' && covered) ||
+          (statusFilter === 'UNAVAILABLE' && !covered);
 
         return matchesSearch && matchesState && matchesStatus;
       })
@@ -79,7 +84,7 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
     onNavigate('forecast');
   };
 
-  const benchmarkCount = districts.filter((d) => d.coverage_status === 'BENCHMARK_ACTIVE').length;
+  const benchmarkCount = districts.filter(isCovered).length;
   const unavailableCount = districts.length - benchmarkCount;
 
   return (
@@ -97,18 +102,20 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-3xl">
-              Catalog of 78 representative meteorological station locations across Indian states and union territories. Real scientific evaluation is currently active on the Pune benchmark node.
+              Catalog of {districts.length || 81} representative meteorological station locations across Indian states and union territories. Real NWP telemetry and regime-aware AI evaluation active with authentic NOAA GFS data.
             </p>
           </div>
 
           <div className="flex items-center space-x-3 shrink-0">
             <div className="px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-semibold border border-emerald-200 dark:border-emerald-800 flex items-center">
               <ShieldCheck className="h-4 w-4 mr-1.5 text-emerald-500" />
-              {benchmarkCount} Benchmark Active
+              {benchmarkCount} Active NWP & Benchmarks
             </div>
-            <div className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold border border-slate-200 dark:border-slate-700">
-              {unavailableCount} Data Feeds Pending
-            </div>
+            {unavailableCount > 0 && (
+              <div className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold border border-slate-200 dark:border-slate-700">
+                {unavailableCount} Data Feeds Pending
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -267,7 +274,11 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
                       </td>
 
                       <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">
-                        {isBenchmark ? 'IMD-AWS-43063' : 'UNMONITORED'}
+                        {isBenchmark
+                          ? 'IMD-AWS-43063'
+                          : d.coverage_status === 'PROCESSED_BENCHMARK' || d.coverage_status === 'OPERATIONAL_NWP'
+                          ? 'NOAA-GFS-0.25'
+                          : 'UNMONITORED'}
                       </td>
 
                       <td className="py-3 px-4">
@@ -290,12 +301,12 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
                         <button
                           onClick={() => handleSelectAndNavigate(d.district_id)}
                           className={`px-3 py-1 rounded text-xs font-semibold transition cursor-pointer inline-flex items-center space-x-1 ${
-                            isBenchmark
+                            isBenchmark || d.coverage_status === 'PROCESSED_BENCHMARK' || d.coverage_status === 'OPERATIONAL_NWP'
                               ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs'
                               : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
                           }`}
                         >
-                          <span>{isBenchmark ? 'View Benchmark' : 'Inspect'}</span>
+                          <span>{isBenchmark ? 'View Benchmark' : (d.coverage_status === 'PROCESSED_BENCHMARK' || d.coverage_status === 'OPERATIONAL_NWP') ? 'View Forecast' : 'Inspect'}</span>
                           <ArrowRight className="h-3 w-3" />
                         </button>
                       </td>
