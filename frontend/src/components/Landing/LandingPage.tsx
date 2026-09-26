@@ -250,18 +250,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         />
 
         <div className="relative z-10 max-w-5xl space-y-8">
-          {/* SIH / MoES Accreditation Badges */}
+          {/* MoES Accreditation Badges */}
           <div className="flex flex-wrap items-center gap-2.5">
-            <span
-              className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold border backdrop-blur-md shadow-xs ${
-                isDarkMode
-                  ? 'bg-indigo-500/25 text-indigo-300 border-indigo-400/40'
-                  : 'bg-indigo-100 text-indigo-800 border-indigo-300'
-              }`}
-            >
-              <Award className="h-4 w-4 mr-1.5 text-indigo-500 dark:text-indigo-400" />
-              Smart India Hackathon 2026 • SIH26080
-            </span>
             <span
               className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold border backdrop-blur-md shadow-xs ${
                 isDarkMode
@@ -301,7 +291,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 isDarkMode ? 'text-slate-300' : 'text-slate-600'
               }`}
             >
-              Numerical Weather Prediction (NWP) models systematically over-predict heavy rainfall across the Western Ghats and Indian coastline. VarshaPurvanumanAI objectively classifies synoptic weather circulation regimes and downscales precipitation using specialized machine learning to eliminate orographic bias.
+              Numerical Weather Prediction (NWP) models systematically over-predict heavy rainfall across the Western Ghats and Indian coastline. VarshaPurvanuman AI objectively classifies synoptic weather circulation regimes and downscales precipitation using specialized machine learning to eliminate orographic bias.
             </p>
           </div>
 
@@ -456,7 +446,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 className="inline-flex items-center px-5 py-3.5 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30 transition cursor-pointer"
               >
                 <Sparkles className="h-4 w-4 mr-2" />
-                <span>1-Click SIH Evaluator Access</span>
+                <span>1-Click Demo Access</span>
               </button>
             )}
 
@@ -873,7 +863,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* 6. Scientific Rigor & Hackathon Trust Footer */}
+      {/* 6. Scientific Rigor & Operational Trust Footer */}
       <section className="rounded-3xl bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-8 border border-indigo-500/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
         <div className="space-y-2 max-w-2xl">
           <div className="flex items-center space-x-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">

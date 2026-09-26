@@ -92,10 +92,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {!isCollapsed && (
               <div className="overflow-hidden">
                 <span className="font-extrabold text-sm tracking-tight text-slate-900 dark:text-white block truncate">
-                  Varsha AI
+                  VarshaPurvanuman AI
                 </span>
                 <span className="text-[10px] text-slate-400 font-semibold block truncate">
-                  SIH26080 • MoES
+                  MoES • IMD Operational
                 </span>
               </div>
             )}
@@ -229,7 +229,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     {user?.name || 'Gaurav Gautam'}
                   </span>
                   <span className="text-[10px] text-slate-400 block truncate">
-                    {user?.role || 'SIH Evaluator'}
+                    {user?.role || 'Lead Meteorologist'}
                   </span>
                 </div>
               </div>

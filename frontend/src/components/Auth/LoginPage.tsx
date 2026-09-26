@@ -51,7 +51,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       onLoginSuccess(resp.user);
     } catch (err: any) {
       setError(
-        err.message || 'Invalid username or password. You can also use Quick SIH Demo Access.'
+        err.message || 'Invalid username or password. You can also use Quick Demo Access.'
       );
     } finally {
       setIsLoading(false);
@@ -69,7 +69,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       const fallbackUser: UserProfile = {
         username: 'Gaurav',
         name: 'Gaurav Gautam',
-        role: 'Lead Meteorologist / SIH 2026 Evaluator',
+        role: 'Lead Meteorologist',
         is_demo: true,
       };
       api.setToken('demo_session_token_sih26080');
@@ -101,8 +101,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       {/* Top Header Badge */}
       <div className="relative z-10 mb-6 flex flex-col items-center text-center space-y-2 max-w-lg">
         <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-indigo-300 text-xs font-semibold">
-          <Award className="h-3.5 w-3.5 text-indigo-400" />
-          <span>Smart India Hackathon 2026 • SIH26080</span>
+          <ShieldCheck className="h-3.5 w-3.5 text-indigo-400" />
+          <span>MoES / IMD Meteorological Intelligence</span>
         </div>
 
         <div className="flex items-center space-x-3 mt-2">
@@ -110,7 +110,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             <CloudRain className="h-6 w-6 text-white" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-            VarshaPurvanumanAI
+            VarshaPurvanuman AI
           </h1>
         </div>
 
@@ -128,11 +128,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               <span>Platform Access</span>
             </h2>
             <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              SIH Demo Mode
+              Interactive Demo
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Sign in with evaluator credentials or launch instant demo session.
+            Sign in with operational credentials or launch instant demo session.
           </p>
         </div>
 
@@ -197,7 +197,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               />
               <span>Remember session</span>
             </label>
-            <span className="text-[11px] text-slate-500 font-mono">Default: Varsha@SIH2026</span>
+            <span className="text-[11px] text-slate-500 font-mono">Pre-configured Access</span>
           </div>
 
           <button
@@ -232,7 +232,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           className="w-full py-2.5 px-4 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-bold text-xs sm:text-sm rounded-lg transition cursor-pointer flex items-center justify-center space-x-2 disabled:opacity-50"
         >
           <Sparkles className="h-4 w-4 text-emerald-400" />
-          <span>Quick SIH Demo Access</span>
+          <span>Quick Demo Access</span>
         </button>
       </div>
 

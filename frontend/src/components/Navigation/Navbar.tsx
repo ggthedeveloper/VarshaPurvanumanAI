@@ -2,8 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   Menu,
   RefreshCw,
-  Sun,
-  Moon,
   CloudRain,
   Sun as SunIcon,
   Zap,
@@ -52,8 +50,8 @@ const ROUTE_TITLES: Record<AppRoute, { title: string; subtitle: string }> = {
     subtitle: 'Interactive live weather & regime simulation',
   },
   dashboard: {
-    title: 'Monsoon Dashboard',
-    subtitle: 'AI rainfall post-processing & spatial verification',
+    title: '',
+    subtitle: '',
   },
   forecast: {
     title: 'Rainfall Forecast',
@@ -242,24 +240,30 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         <div className="min-w-0">
           <div className="flex items-center space-x-2">
-            <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-tight truncate">
-              {routeMeta.title}
-            </h2>
-            <span className="hidden lg:inline-flex text-[11px] text-slate-400">•</span>
-            {/* Subtle district badge */}
-            <span className="hidden lg:inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-              <MapPin className="h-3 w-3 mr-1 text-indigo-500" />
+            {routeMeta.title ? (
+              <>
+                <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-tight truncate">
+                  {routeMeta.title}
+                </h2>
+                <span className="hidden lg:inline-flex text-[11px] text-slate-400">•</span>
+              </>
+            ) : null}
+            {/* Station badge */}
+            <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-100/90 dark:bg-slate-800/90 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-xs">
+              <MapPin className="h-3.5 w-3.5 mr-1.5 text-indigo-500" />
               {selectedDistrictName}
               {isBenchmarkActive && (
-                <span className="ml-1.5 text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase">
-                  (Benchmark)
+                <span className="ml-1.5 text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                  Benchmark
                 </span>
               )}
             </span>
           </div>
-          <p className="hidden sm:block text-[11px] text-slate-500 dark:text-slate-400 truncate">
-            {routeMeta.subtitle}
-          </p>
+          {routeMeta.subtitle ? (
+            <p className="hidden sm:block text-[11px] text-slate-500 dark:text-slate-400 truncate">
+              {routeMeta.subtitle}
+            </p>
+          ) : null}
         </div>
       </div>
 
@@ -531,25 +535,6 @@ export const Navbar: React.FC<NavbarProps> = ({
         >
           <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin text-indigo-500' : ''}`} />
         </button>
-
-        {/* 4. Theme Switcher */}
-        <button
-          onClick={onToggleTheme}
-          title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-        >
-          {isDarkMode ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4" />}
-        </button>
-
-        {/* 5. User Badge */}
-        <div className="hidden sm:flex items-center pl-2 border-l border-slate-200 dark:border-slate-800 space-x-2">
-          <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white font-bold flex items-center justify-center text-xs shadow-xs">
-            {user?.name ? user.name.charAt(0).toUpperCase() : 'G'}
-          </div>
-          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 hidden md:inline-block">
-            {user?.name || 'Gaurav'}
-          </span>
-        </div>
       </div>
     </header>
   );

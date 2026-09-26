@@ -196,7 +196,7 @@ const AppContent: React.FC = () => {
       const fallbackUser: UserProfile = {
         username: 'Gaurav',
         name: 'Gaurav Gautam',
-        role: 'Lead Meteorologist / SIH 2026 Evaluator',
+        role: 'Lead Meteorologist',
         is_demo: true,
       };
       api.setToken('demo_session_token_sih26080');
@@ -329,10 +329,7 @@ const AppContent: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2">
                 <span className={`font-extrabold text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                  Varsha AI
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-mono font-bold">
-                  SIH26080
+                  VarshaPurvanuman AI
                 </span>
               </div>
               <span className={`text-[11px] hidden sm:block ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
@@ -358,7 +355,7 @@ const AppContent: React.FC = () => {
               className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20 transition cursor-pointer flex items-center space-x-1.5"
             >
               <Sparkles className="h-3.5 w-3.5" />
-              <span>SIH Demo Access</span>
+              <span>Demo Access</span>
             </button>
             <button
               onClick={() => setAuthView('login')}
@@ -468,7 +465,7 @@ const AppContent: React.FC = () => {
           <div className="bg-amber-500 text-slate-950 px-4 py-2 text-xs font-bold text-center flex items-center justify-center space-x-2 shadow-sm">
             <AlertTriangle className="h-4 w-4" />
             <span>
-              SIH SIMULATION MODE ACTIVE: Visualizing scenario data. Real benchmark ground truth is preserved.
+              SIMULATION MODE ACTIVE: Visualizing scenario data. Real benchmark ground truth is preserved.
             </span>
             <button
               onClick={() => {
@@ -580,13 +577,13 @@ const AppContent: React.FC = () => {
           </ErrorBoundary>
         </main>
 
-        {/* Polished SIH / MoES Footer */}
+        {/* Polished MoES Footer */}
         <footer className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 py-6 text-xs text-slate-500 dark:text-slate-400 transition-colors mt-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3">
             <div className="flex items-center space-x-2">
               <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               <span className="font-semibold text-slate-700 dark:text-slate-300">
-                VarshaPurvanumanAI (SIH26080)
+                VarshaPurvanuman AI
               </span>
               <span>• Ministry of Earth Sciences (MoES) / IMD Monsoon Intelligence</span>
             </div>
@@ -605,7 +602,7 @@ const AppContent: React.FC = () => {
               <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400">
                 <Sparkles className="h-5 w-5" />
                 <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                  About VarshaPurvanumanAI
+                  About VarshaPurvanuman AI
                 </h3>
               </div>
               <button
@@ -618,7 +615,7 @@ const AppContent: React.FC = () => {
 
             <div className="space-y-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
               <p>
-                <strong>VarshaPurvanumanAI (SIH26080)</strong> is an operational meteorological artificial intelligence system developed for post-processing Indian monsoon rainfall predictions.
+                <strong>VarshaPurvanuman AI</strong> is an operational meteorological artificial intelligence system developed for post-processing Indian monsoon rainfall predictions.
               </p>
               <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
                 <div className="font-bold text-slate-900 dark:text-white">Scientific Principles:</div>
@@ -630,7 +627,7 @@ const AppContent: React.FC = () => {
                 </ul>
               </div>
               <p className="text-[11px] text-slate-400">
-                Developed for Smart India Hackathon 2026. Aligned with WMO and IMD weather verification standards.
+                Developed in alignment with WMO and IMD weather verification standards.
               </p>
             </div>
 

@@ -53,7 +53,7 @@ export const ProvenanceView: React.FC = () => {
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-3xl">
-              Comprehensive scientific documentation of input datasets, temporal split protocols, meteorological feature pipelines, and machine learning architectures for SIH evaluation judges.
+              Comprehensive scientific documentation of input datasets, temporal split protocols, meteorological feature pipelines, and machine learning architectures for operational meteorological evaluation.
             </p>
           </div>
 

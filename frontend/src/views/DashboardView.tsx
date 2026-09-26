@@ -11,9 +11,7 @@ import {
   Wind,
   Gauge,
   Thermometer,
-  Clock,
   Sparkles,
-  Sun,
   Waves,
   Zap,
 } from 'lucide-react';
@@ -116,35 +114,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     .reverse()
     .find((p) => p.advisory_status === 'ELEVATED_RISK');
 
-  // Realistic 24-hour hourly forecast timeline
-  const timelineSlots = useMemo(() => {
-    const slots = [];
-    const baseHour = new Date().getHours();
-    const baseTemp = telemetry?.temperatureC ?? 26.5;
 
-    for (let i = 0; i < 8; i++) {
-      const h = (baseHour + i * 3) % 24;
-      const timeLabel = i === 0 ? 'Now' : `${String(h).padStart(2, '0')}:00`;
-      const tempOffset = Math.sin(((h - 6) / 24) * 2 * Math.PI) * 2.8;
-      const slotTemp = (baseTemp + tempOffset).toFixed(1);
-      const slotRainMm = Math.max(
-        0,
-        parseFloat((correctedRain * (0.12 + 0.08 * Math.sin(i * 1.1 + 0.5))).toFixed(1))
-      );
-      const slotProb = Math.min(
-        95,
-        Math.max(10, Math.round(slotRainMm > 2 ? 75 + i * 2 : slotRainMm > 0 ? 40 : 15))
-      );
-
-      slots.push({
-        time: timeLabel,
-        temp: slotTemp,
-        rainMm: slotRainMm,
-        prob: slotProb,
-      });
-    }
-    return slots;
-  }, [correctedRain, telemetry?.temperatureC]);
 
   return (
     <div className="space-y-6">
@@ -306,48 +276,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="text-[10px] text-slate-400">Barometric Normal</span>
           </div>
         </div>
-
-        {/* Next 24-Hour Hourly Timeline Strip */}
-        <div className="pt-2">
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-2.5">
-            <span className="font-semibold uppercase tracking-wider text-[10px] flex items-center space-x-1.5">
-              <Clock className="h-3 w-3 text-indigo-500" />
-              <span>24-Hour Forecast Timeline</span>
-            </span>
-            <span className="text-[10px]">Hourly Precipitation & Probability</span>
-          </div>
-
-          <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-            {timelineSlots.map((slot, idx) => (
-              <div
-                key={idx}
-                className="rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 p-2.5 text-center border border-slate-100 dark:border-slate-800 flex flex-col items-center justify-between space-y-1.5 hover:border-indigo-300 dark:hover:border-indigo-700 transition"
-              >
-                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                  {slot.time}
-                </span>
-                <div className="my-0.5">
-                  {slot.rainMm > 2 ? (
-                    <CloudRain className="h-4 w-4 text-sky-500" />
-                  ) : slot.rainMm > 0 ? (
-                    <Droplets className="h-4 w-4 text-sky-400" />
-                  ) : (
-                    <Sun className="h-4 w-4 text-amber-500" />
-                  )}
-                </div>
-                <span className="text-xs font-bold font-mono text-slate-900 dark:text-white">
-                  {slot.temp}°
-                </span>
-                <span className="text-[10px] font-mono font-medium text-sky-600 dark:text-sky-400">
-                  {slot.rainMm > 0 ? `${slot.rainMm} mm` : '0 mm'}
-                </span>
-                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-semibold">
-                  {slot.prob}%
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* 2. Four Clean, Impactful Key Metric Cards */}
@@ -366,7 +294,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="text-3xl font-black font-mono text-slate-900 dark:text-white">
               {isAvailable && activeForecast ? `${activeForecast.corrected_rainfall_mm.toFixed(1)}` : 'N/A'}
             </span>
-            <span className="text-sm font-semibold text-slate-500">mm / 24h</span>
+            <span className="text-sm font-semibold text-slate-500">mm</span>
             {rainCat && (
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto ${rainCat.color}`}>
                 {rainCat.label}
@@ -556,7 +484,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 {/* Exceedance Risk Ladder */}
                 <div className="space-y-2">
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
-                    Heavy Rain Risk Outlook (24-Hour Exceedance)
+                    Heavy Rain Risk Outlook (Exceedance Probability)
                   </span>
                   <div className="space-y-1.5">
                     {activeForecast.heavy_rainfall_probabilities?.map((p) => {

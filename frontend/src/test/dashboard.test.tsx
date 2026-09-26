@@ -212,8 +212,8 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
       />
     );
 
-    expect(screen.getByText('VarshaPurvanumanAI')).toBeInTheDocument();
-    expect(screen.getByText('SIH26080')).toBeInTheDocument();
+    expect(screen.getByText('VarshaPurvanuman AI')).toBeInTheDocument();
+    expect(screen.getByText('Meteorological AI')).toBeInTheDocument();
     expect(screen.getByText('REAL DATA')).toBeInTheDocument();
     expect(screen.getByText('API Connected')).toBeInTheDocument();
   });
@@ -551,10 +551,10 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
       />
     );
 
-    expect(screen.getByText(/Smart India Hackathon 2026 • SIH26080/i)).toBeInTheDocument();
+    expect(screen.getByText(/MoES \/ IMD Meteorological Intelligence/i)).toBeInTheDocument();
     expect(screen.getByText(/Platform Access/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Quick SIH Demo Access/i })).toBeInTheDocument();
-    expect(screen.getByText(/Default: Varsha@SIH2026/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Quick Demo Access/i })).toBeInTheDocument();
+    expect(screen.getByText(/Pre-configured Access/i)).toBeInTheDocument();
     expect(screen.getByDisplayValue('Gaurav')).toBeInTheDocument();
   });
 
@@ -575,7 +575,7 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
         user={{
           username: 'Gaurav',
           name: 'Gaurav Gautam',
-          role: 'Lead Meteorologist / SIH 2026 Evaluator',
+          role: 'Lead Meteorologist',
           is_demo: true,
         }}
         onLogout={handleLogout}
@@ -715,7 +715,7 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
       />
     );
 
-    expect(screen.getByText(/Smart India Hackathon 2026 • SIH26080/i)).toBeInTheDocument();
+    expect(screen.getByText(/Ministry of Earth Sciences \(MoES\) \/ IMD/i)).toBeInTheDocument();
     expect(screen.getByText(/Interactive Weather Simulation • Click to Test Regimes/i)).toBeInTheDocument();
     expect(screen.getByText(/Test Regime-Conditioned Bias Correction Live/i)).toBeInTheDocument();
     expect(screen.getByText(/Raw NOAA GFS Forecast Accumulation:/i)).toBeInTheDocument();
@@ -809,8 +809,8 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
       </WeatherProvider>
     );
 
-    // Verifies route and district context
-    expect(screen.getByText('Monsoon Dashboard')).toBeInTheDocument();
+    // Verifies Monsoon Dashboard is not on navbar and station context is present
+    expect(screen.queryByText('Monsoon Dashboard')).not.toBeInTheDocument();
     expect(screen.getByText(/Pune/i)).toBeInTheDocument();
 
     // Verifies unwanted debug pill is removed

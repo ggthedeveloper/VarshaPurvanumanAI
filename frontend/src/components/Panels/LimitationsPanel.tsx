@@ -13,7 +13,7 @@ export const LimitationsPanel: React.FC = () => {
             Scientific & Data Limitations Disclosure
           </h3>
           <p className="text-xs text-amber-800/80 dark:text-amber-400">
-            Mandatory MoES / SIH26080 Scientific Integrity Standards
+            Mandatory MoES Scientific Integrity Standards
           </p>
         </div>
       </div>

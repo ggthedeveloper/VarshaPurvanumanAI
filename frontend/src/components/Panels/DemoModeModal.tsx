@@ -76,7 +76,7 @@ export const DemoModeModal: React.FC<DemoModeModalProps> = ({
         <div className="bg-amber-100 dark:bg-amber-950 border border-amber-300 dark:border-amber-700 rounded-lg p-2.5 flex items-center justify-between text-xs text-amber-900 dark:text-amber-200">
           <div className="flex items-center space-x-1.5 font-bold uppercase tracking-wider">
             <AlertTriangle className="h-4 w-4 text-amber-600 animate-pulse" />
-            <span>SIH Interactive Demo Mode (Simulated Inputs)</span>
+            <span>Interactive Scenario Demo Mode (Simulated Inputs)</span>
           </div>
           <span className="font-semibold text-[10px] bg-amber-200 dark:bg-amber-800 px-2 py-0.5 rounded">
             DEMO DATA ONLY
