@@ -111,7 +111,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
           <div>
             {!isCollapsed && (
-              <span className="px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1.5">
+              <span className="px-3 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">
                 Forecast & Intelligence
               </span>
             )}
@@ -143,7 +143,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           <div>
             {!isCollapsed && (
-              <span className="px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1.5">
+              <span className="px-3 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">
                 Verification & Data
               </span>
             )}

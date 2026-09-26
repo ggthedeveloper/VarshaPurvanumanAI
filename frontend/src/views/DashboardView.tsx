@@ -192,88 +192,88 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Realistic Physical Conditions Strip */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-1">
           {/* 1. Air Temp */}
-          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800 min-w-0">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center justify-between mb-1">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-200/60 dark:border-slate-800 min-w-0">
+            <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 tracking-wider flex items-center justify-between mb-1">
               <span>Temperature</span>
               <Thermometer className="h-3.5 w-3.5 text-amber-500" />
             </span>
             <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white truncate">
               {telemetry.temperatureC.toFixed(1)}°C
             </div>
-            <span className="text-[10px] text-slate-400 truncate block">
+            <span className="text-[10px] text-slate-600 dark:text-slate-400 font-medium truncate block">
               Feels like {(telemetry.temperatureC + 1.8).toFixed(1)}°C
             </span>
           </div>
 
           {/* 2. AI Rain Forecast */}
-          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800 min-w-0">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center justify-between mb-1">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-200/60 dark:border-slate-800 min-w-0">
+            <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 tracking-wider flex items-center justify-between mb-1">
               <span>AI Rainfall</span>
               <Droplets className="h-3.5 w-3.5 text-sky-500" />
             </span>
             <div className="text-xl sm:text-2xl font-bold font-mono text-sky-600 dark:text-sky-400 truncate">
               {isAvailable && activeForecast ? `${activeForecast.corrected_rainfall_mm.toFixed(1)} mm` : '—'}
             </div>
-            <span className="text-[10px] text-slate-400 truncate block">
+            <span className="text-[10px] text-slate-600 dark:text-slate-400 font-medium truncate block">
               {rainCat?.label || 'General Forecast'}
             </span>
           </div>
 
           {/* 3. Model Bias Delta */}
-          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800 min-w-0">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center justify-between mb-1">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-200/60 dark:border-slate-800 min-w-0">
+            <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 tracking-wider flex items-center justify-between mb-1">
               <span>Model Bias</span>
               <TrendingDown className="h-3.5 w-3.5 text-indigo-500" />
             </span>
             <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white truncate">
               {isAvailable && activeForecast ? `${delta >= 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1)}` : '—'}{' '}
-              <span className="text-xs font-normal text-slate-400">mm</span>
+              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">mm</span>
             </div>
-            <span className="text-[10px] text-slate-400 truncate block">
+            <span className="text-[10px] text-slate-600 dark:text-slate-400 font-medium truncate block">
               Raw GFS: {rawRain.toFixed(1)} mm
             </span>
           </div>
 
           {/* 4. Wind Vector */}
-          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800 min-w-0">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center justify-between mb-1">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-200/60 dark:border-slate-800 min-w-0">
+            <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 tracking-wider flex items-center justify-between mb-1">
               <span>Wind</span>
               <Wind className="h-3.5 w-3.5 text-teal-500" />
             </span>
             <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white truncate">
               {telemetry.windSpeedMs.toFixed(1)}{' '}
-              <span className="text-xs font-normal text-slate-400">m/s</span>
+              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">m/s</span>
             </div>
-            <span className="text-[10px] text-slate-400 truncate block">
+            <span className="text-[10px] text-slate-600 dark:text-slate-400 font-medium truncate block">
               {telemetry.windDirectionCompass} ({telemetry.windDirectionDeg}°)
             </span>
           </div>
 
           {/* 5. Humidity */}
-          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800 min-w-0">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center justify-between mb-1">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-200/60 dark:border-slate-800 min-w-0">
+            <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 tracking-wider flex items-center justify-between mb-1">
               <span>Humidity</span>
               <Activity className="h-3.5 w-3.5 text-blue-500" />
             </span>
             <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white truncate">
               {telemetry.relativeHumidityPct}%
             </div>
-            <span className="text-[10px] text-slate-400 truncate block">
+            <span className="text-[10px] text-slate-600 dark:text-slate-400 font-medium truncate block">
               {telemetry.relativeHumidityPct > 85 ? 'High Moisture' : 'Moderate'}
             </span>
           </div>
 
           {/* 6. Pressure */}
-          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800 min-w-0">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center justify-between mb-1">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-200/60 dark:border-slate-800 min-w-0">
+            <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 tracking-wider flex items-center justify-between mb-1">
               <span>Pressure</span>
               <Gauge className="h-3.5 w-3.5 text-emerald-500" />
             </span>
             <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white truncate">
               {telemetry.surfacePressureHpa.toFixed(0)}{' '}
-              <span className="text-xs font-normal text-slate-400">hPa</span>
+              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">hPa</span>
             </div>
-            <span className="text-[10px] text-slate-400 truncate block">Barometric Normal</span>
+            <span className="text-[10px] text-slate-600 dark:text-slate-400 font-medium truncate block">Barometric Normal</span>
           </div>
         </div>
       </div>

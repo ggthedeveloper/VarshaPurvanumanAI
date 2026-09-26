@@ -279,68 +279,41 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
     const windSpeed = typeof telemetry?.windSpeedMs === 'number' ? telemetry.windSpeedMs : 5;
     const cloudCover = typeof telemetry?.cloudCoverPct === 'number' ? telemetry.cloudCoverPct : 50;
 
+    // -------------------------------------------------------------------------
+    // Realistic Live Meteorological Parameter Binding
+    // -------------------------------------------------------------------------
+    const isDry = rainRate <= 0.1;
     let dropCount = 0;
-    let baseWind = Math.max(0.8, windSpeed * 0.3);
     let baseDropSpeed = 16;
-    let cloudCount = Math.max(3, Math.round(cloudCover / 10));
-    let mistCount = 0;
     let moteCount = 0;
 
-    switch (activeRegime) {
-      case 'ACTIVE_MONSOON':
-        dropCount = Math.round(Math.max(60, Math.min(320, rainRate * 12)) * intensityMultiplier);
-        baseWind = Math.max(2.5, windSpeed * 0.35);
-        baseDropSpeed = 20;
-        cloudCount = Math.max(6, Math.round(cloudCover / 10));
-        mistCount = 2;
-        break;
-      case 'BREAK_MONSOON':
-        // When rain rate is 0 or trace, no raindrops fall from the sky. Show clear warm sun motes.
-        if (rainRate <= 0.1) {
-          dropCount = 0;
-          moteCount = Math.round(45 * intensityMultiplier);
-        } else {
-          dropCount = Math.round(Math.min(90, Math.max(15, rainRate * 25)) * intensityMultiplier);
-          moteCount = 15;
-        }
-        baseWind = Math.max(0.6, windSpeed * 0.25);
-        baseDropSpeed = 10;
-        cloudCount = Math.max(2, Math.round(cloudCover / 15));
-        break;
-      case 'COASTAL_OROGRAPHIC':
-        dropCount = Math.round(Math.max(120, Math.min(380, rainRate * 10)) * intensityMultiplier);
-        baseWind = Math.max(5.0, windSpeed * 0.4);
-        baseDropSpeed = 19;
-        cloudCount = Math.max(8, Math.round(cloudCover / 10));
-        mistCount = 4;
-        break;
-      case 'DEPRESSION':
-        dropCount = Math.round(Math.max(180, Math.min(480, rainRate * 9)) * intensityMultiplier);
-        baseWind = Math.max(6.0, windSpeed * 0.45);
-        baseDropSpeed = 25;
-        cloudCount = Math.max(10, Math.round(cloudCover / 8));
-        mistCount = 5;
-        break;
-      case 'WESTERN_DISTURBANCE':
-        dropCount = Math.round(Math.max(50, Math.min(220, rainRate * 11)) * intensityMultiplier);
-        baseWind = Math.max(3.5, windSpeed * 0.38);
-        baseDropSpeed = 14;
-        cloudCount = Math.max(6, Math.round(cloudCover / 12));
-        break;
-      case 'OTHER':
-      default:
-        if (rainRate <= 0.1) {
-          dropCount = 0;
-          moteCount = Math.round(25 * intensityMultiplier);
-        } else {
-          dropCount = Math.round(Math.max(25, Math.min(180, rainRate * 15)) * intensityMultiplier);
-          moteCount = 0;
-        }
-        baseWind = Math.max(1.5, windSpeed * 0.3);
-        baseDropSpeed = 15;
-        cloudCount = Math.max(4, Math.round(cloudCover / 14));
-        break;
+    if (isDry) {
+      // Dry weather at station: zero rain, clear or calm motes
+      dropCount = 0;
+      moteCount = activeRegime === 'BREAK_MONSOON' ? Math.round(40 * intensityMultiplier) : 15;
+    } else {
+      // Actively raining at station: scale dropCount with actual rainRate (mm/h)
+      const multiplier =
+        activeRegime === 'DEPRESSION' ? 20 :
+        activeRegime === 'COASTAL_OROGRAPHIC' ? 16 :
+        activeRegime === 'ACTIVE_MONSOON' ? 14 : 10;
+      dropCount = Math.round(Math.min(360, Math.max(25, rainRate * multiplier)) * intensityMultiplier);
+      baseDropSpeed = Math.min(26, 14 + rainRate * 0.4);
+      moteCount = 0;
     }
+
+    // Realistic wind speed & cloud puffs bound to live telemetry
+    let baseWind = Math.max(0.6, Math.min(14, windSpeed * 0.35));
+    let cloudCount =
+      cloudCover < 15 ? 0 :
+      cloudCover < 40 ? 2 :
+      cloudCover < 70 ? 4 :
+      cloudCover < 85 ? 7 : 10;
+
+    let mistCount =
+      telemetry.relativeHumidityPct > 88 && (rainRate > 2 || activeRegime === 'COASTAL_OROGRAPHIC')
+        ? Math.min(5, Math.round((telemetry.relativeHumidityPct - 85) * 0.4))
+        : 0;
 
     // 1. Initialize 3-Tier Raindrops
     const rainDrops: RainDrop[] = [];
@@ -493,10 +466,7 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
       // -------------------------------------------------------------
       const skyGrad = ctx.createLinearGradient(0, 0, 0, height);
       const currentTod = effectiveTimeOfDayRef.current;
-      const isRainy =
-        activeRegime === 'ACTIVE_MONSOON' ||
-        activeRegime === 'DEPRESSION' ||
-        activeRegime === 'COASTAL_OROGRAPHIC';
+      const isRainy = rainRate > 0.3;
 
       // For embedded cards (fixed === false), adjust alpha so underlying card styling/contrast is maintained
       const skyAlphaMultiplier = fixed ? 1.0 : (isDarkMode ? 0.70 : 0.28);
@@ -553,14 +523,14 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
         } else {
           // Light Mode Night: Luminous celestial moonlit silver & periwinkle (crisp contrast for dark text)
           if (isRainy) {
-            skyGrad.addColorStop(0, `rgba(203, 213, 225, ${0.92 * skyAlphaMultiplier})`); // Soft moonlit overcast slate
-            skyGrad.addColorStop(0.5, `rgba(226, 232, 240, ${0.88 * skyAlphaMultiplier})`); // Silvery rain mist
-            skyGrad.addColorStop(1, `rgba(241, 245, 249, ${0.92 * skyAlphaMultiplier})`); // Luminous pearl silver
+            skyGrad.addColorStop(0, `rgba(215, 224, 235, ${0.92 * skyAlphaMultiplier})`); // Soft moonlit overcast slate
+            skyGrad.addColorStop(0.5, `rgba(230, 236, 245, ${0.88 * skyAlphaMultiplier})`); // Silvery rain mist
+            skyGrad.addColorStop(1, `rgba(245, 248, 252, ${0.92 * skyAlphaMultiplier})`); // Luminous pearl silver
           } else {
-            skyGrad.addColorStop(0, `rgba(214, 226, 242, ${0.92 * skyAlphaMultiplier})`); // Soft moonlit celestial periwinkle (#d6e2f2)
-            skyGrad.addColorStop(0.35, `rgba(226, 235, 248, ${0.88 * skyAlphaMultiplier})`); // Silvery luminous moonlit blue (#e2ebf8)
-            skyGrad.addColorStop(0.70, `rgba(238, 242, 250, ${0.90 * skyAlphaMultiplier})`); // Pale luminous moonlight (#eef2fa)
-            skyGrad.addColorStop(1, `rgba(248, 250, 253, ${0.94 * skyAlphaMultiplier})`); // Soft pearl white/silver glow (#f8fafd)
+            skyGrad.addColorStop(0, `rgba(224, 234, 248, ${0.95 * skyAlphaMultiplier})`); // Soft moonlit celestial periwinkle
+            skyGrad.addColorStop(0.35, `rgba(235, 242, 252, ${0.92 * skyAlphaMultiplier})`); // Silvery luminous moonlit blue
+            skyGrad.addColorStop(0.70, `rgba(244, 247, 254, ${0.94 * skyAlphaMultiplier})`); // Pale luminous moonlight
+            skyGrad.addColorStop(1, `rgba(250, 252, 255, ${0.96 * skyAlphaMultiplier})`); // Soft pearl white/silver glow
           }
         }
       } else {
@@ -580,12 +550,13 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
       ctx.fillRect(0, 0, width, height);
 
       // Render night stars (active during nocturnal clear/partly cloudy skies)
-      if (currentTod === 'night' && !isRainy) {
+      if (currentTod === 'night' && !isRainy && cloudCover < 85) {
+        const starSkyClarity = Math.max(0.15, (100 - cloudCover) / 100);
         nightStars.forEach((star) => {
           star.twinklePhase += star.twinkleSpeed * dt;
-          const currentAlpha = star.alpha * (0.55 + Math.sin(star.twinklePhase) * 0.45);
-          const starColor = isDarkMode ? '255, 255, 255' : '148, 163, 184';
-          ctx.fillStyle = `rgba(${starColor}, ${currentAlpha * (isDarkMode ? 0.95 : 0.45)})`;
+          const currentAlpha = star.alpha * (0.55 + Math.sin(star.twinklePhase) * 0.45) * starSkyClarity;
+          const starColor = isDarkMode ? '255, 255, 255' : '100, 116, 139';
+          ctx.fillStyle = `rgba(${starColor}, ${currentAlpha * (isDarkMode ? 0.95 : 0.65)})`;
           ctx.beginPath();
           ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
           ctx.fill();
@@ -988,7 +959,7 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
     if (effectiveTimeOfDay === 'night') {
       return isDarkMode
         ? 'from-slate-950 via-slate-900 to-slate-950'
-        : 'from-slate-200 via-sky-100/70 to-slate-100';
+        : 'from-slate-50 via-sky-50/60 to-slate-50';
     }
 
     // Day

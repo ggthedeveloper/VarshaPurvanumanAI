@@ -60,53 +60,53 @@ export const ForecastSummaryCards: React.FC<ForecastSummaryCardsProps> = ({
         {/* Explicit 4-Card N/A Grid for Unavailable District */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
-            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+            <div className="flex items-center justify-between text-slate-600 dark:text-slate-400 mb-2">
               <span className="text-xs font-semibold uppercase tracking-wider">Forecast</span>
               <Droplets className="h-4 w-4 text-slate-400" />
             </div>
             <div className="text-lg font-bold text-rose-600 dark:text-rose-400 truncate">
               DATA UNAVAILABLE
             </div>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 truncate">
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 truncate">
               No verified station telemetry
             </p>
           </div>
 
           <div className="rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
-            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+            <div className="flex items-center justify-between text-slate-600 dark:text-slate-400 mb-2">
               <span className="text-xs font-semibold uppercase tracking-wider">Regime</span>
               <Compass className="h-4 w-4 text-slate-400" />
             </div>
-            <div className="text-2xl font-bold text-slate-400 dark:text-slate-500">
+            <div className="text-2xl font-bold text-slate-500 dark:text-slate-500">
               N/A
             </div>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 truncate">
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 truncate">
               Regime routing: N/A
             </p>
           </div>
 
           <div className="rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
-            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+            <div className="flex items-center justify-between text-slate-600 dark:text-slate-400 mb-2">
               <span className="text-xs font-semibold uppercase tracking-wider truncate">Confidence & Model</span>
               <ArrowRightLeft className="h-4 w-4 text-slate-400 shrink-0" />
             </div>
-            <div className="text-2xl font-bold text-slate-400 dark:text-slate-500">
+            <div className="text-2xl font-bold text-slate-500 dark:text-slate-500">
               N/A
             </div>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 truncate">
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 truncate">
               Model: N/A • Confidence: N/A
             </p>
           </div>
 
           <div className="rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
-            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+            <div className="flex items-center justify-between text-slate-600 dark:text-slate-400 mb-2">
               <span className="text-xs font-semibold uppercase tracking-wider">Probabilities</span>
               <AlertOctagon className="h-4 w-4 text-slate-400" />
             </div>
-            <div className="text-2xl font-bold text-slate-400 dark:text-slate-500">
+            <div className="text-2xl font-bold text-slate-500 dark:text-slate-500">
               N/A
             </div>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 truncate">
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 truncate">
               Exceedance probabilities: N/A
             </p>
           </div>
@@ -174,7 +174,7 @@ export const ForecastSummaryCards: React.FC<ForecastSummaryCardsProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Raw NWP Forecast */}
         <div className="rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+          <div className="flex items-center justify-between text-slate-600 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider truncate">Raw NWP Forecast</span>
             <Droplets className="h-4 w-4 text-sky-500 shrink-0 ml-1" />
           </div>
@@ -182,16 +182,16 @@ export const ForecastSummaryCards: React.FC<ForecastSummaryCardsProps> = ({
             <span className="text-2xl font-bold text-slate-900 dark:text-white">
               {rawRain.toFixed(1)}
             </span>
-            <span className="text-xs text-slate-500">mm / 24h</span>
+            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">mm / 24h</span>
           </div>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 truncate">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 truncate">
             Global Forecast System (0.25° grid)
           </p>
         </div>
 
         {/* Card 2: AI Bias-Corrected Rainfall */}
         <div className="rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+          <div className="flex items-center justify-between text-slate-600 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider truncate">AI-Corrected Rainfall</span>
             <ArrowRightLeft className="h-4 w-4 text-emerald-500 shrink-0 ml-1" />
           </div>
@@ -199,7 +199,7 @@ export const ForecastSummaryCards: React.FC<ForecastSummaryCardsProps> = ({
             <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
               {correctedRain.toFixed(1)}
             </span>
-            <span className="text-xs text-slate-500">mm / 24h</span>
+            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">mm / 24h</span>
             <span
               className={`text-xs font-medium px-1.5 py-0.5 rounded whitespace-nowrap ${
                 delta > 0
@@ -210,14 +210,14 @@ export const ForecastSummaryCards: React.FC<ForecastSummaryCardsProps> = ({
               {delta >= 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1)} mm
             </span>
           </div>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 truncate">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 truncate">
             Regime-conditioned bias correction
           </p>
         </div>
 
         {/* Card 3: Operational Synoptic Regime */}
         <div className="rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+          <div className="flex items-center justify-between text-slate-600 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider truncate">Predicted Regime</span>
             <Compass className="h-4 w-4 text-indigo-500 shrink-0 ml-1" />
           </div>
@@ -226,14 +226,14 @@ export const ForecastSummaryCards: React.FC<ForecastSummaryCardsProps> = ({
               {regime.replace('_', ' ')}
             </span>
           </div>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 truncate">
-            Model Confidence: <span className="font-semibold text-slate-700 dark:text-slate-300">{regimeConf.toFixed(1)}%</span>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 truncate">
+            Model Confidence: <span className="font-semibold text-slate-800 dark:text-slate-200">{regimeConf.toFixed(1)}%</span>
           </p>
         </div>
 
         {/* Card 4: Heavy Rainfall Advisory Status */}
         <div className="rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+          <div className="flex items-center justify-between text-slate-600 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider truncate">Risk Advisory</span>
             <AlertOctagon
               className={`h-4 w-4 shrink-0 ml-1 ${
@@ -252,7 +252,7 @@ export const ForecastSummaryCards: React.FC<ForecastSummaryCardsProps> = ({
               </span>
             )}
           </div>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 break-words leading-tight">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 break-words leading-tight">
             {elevatedItem
               ? `${(elevatedItem.exceedance_probability * 100).toFixed(1)}% prob exceeds decision threshold`
               : 'All thresholds below decision tau'}

@@ -13,6 +13,8 @@ import {
   AlertCircle,
   CheckCircle2,
   UserPlus,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { api } from '../../api/client';
 import { UserProfile } from '../../types/api';
@@ -143,7 +145,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col justify-center items-center text-slate-100 relative overflow-hidden px-4 py-8">
+    <div className="min-h-screen w-full flex items-center justify-center text-slate-100 relative overflow-y-auto px-4 py-8">
       {/* Live Atmospheric Weather Canvas Background */}
       <LiveWeatherBackground fixed={true} isDarkMode={true} opacity={0.92} />
 
@@ -154,35 +156,45 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       {onBackToLanding && (
         <button
           onClick={onBackToLanding}
-          className="relative z-20 mb-4 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900/60 hover:bg-slate-900/80 text-slate-300 border border-white/10 backdrop-blur-md transition flex items-center space-x-1.5 cursor-pointer shadow-lg"
+          className="fixed top-4 left-4 sm:top-6 sm:left-6 z-30 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900/80 hover:bg-slate-900 text-slate-200 border border-white/15 backdrop-blur-md transition flex items-center space-x-1.5 cursor-pointer shadow-lg"
         >
           <span>← Back to Operational Overview</span>
         </button>
       )}
 
-      {/* Top Header Badge */}
-      <div className="relative z-10 mb-6 flex flex-col items-center text-center space-y-2 max-w-lg">
-        <div className="flex items-center space-x-2 px-3.5 py-1 rounded-full bg-white/10 border border-white/15 text-indigo-200 text-xs font-semibold backdrop-blur-md shadow-sm">
-          <ShieldCheck className="h-3.5 w-3.5 text-indigo-400" />
-          <span>MoES / IMD Meteorological Intelligence</span>
-        </div>
+      <button
+        onClick={onToggleTheme}
+        title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        className="fixed top-4 right-4 sm:top-6 sm:right-6 z-30 p-2 rounded-xl text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-900 border border-white/15 backdrop-blur-md transition cursor-pointer shadow-lg"
+      >
+        {isDarkMode ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-300" />}
+      </button>
 
-        <div className="flex items-center space-x-3 mt-2">
-          <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-sky-400 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-            <CloudRain className="h-6 w-6 text-white" />
+      {/* Main Centered Column */}
+      <div className="relative z-10 w-full max-w-md my-auto space-y-3.5">
+        {/* Compact Centered Header */}
+        <div className="flex flex-col items-center text-center space-y-1.5">
+          <div className="inline-flex items-center space-x-1.5 px-3 py-0.5 rounded-full bg-white/10 border border-white/15 text-indigo-200 text-[11px] font-semibold backdrop-blur-md shadow-xs">
+            <ShieldCheck className="h-3 w-3 text-indigo-400" />
+            <span>MoES / IMD Meteorological Intelligence</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-sm">
-            VarshaPurvanuman AI
-          </h1>
+
+          <div className="flex items-center space-x-2.5">
+            <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-sky-400 flex items-center justify-center shadow-md shadow-indigo-500/30">
+              <CloudRain className="h-4 w-4 text-white" />
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white drop-shadow-sm">
+              VarshaPurvanuman AI
+            </h1>
+          </div>
+
+          <p className="text-[11px] sm:text-xs text-slate-300 drop-shadow-xs">
+            Regime-Aware AI Post-Processing of Monsoon Rainfall Forecasts
+          </p>
         </div>
 
-        <p className="text-xs sm:text-sm text-slate-300 drop-shadow-xs">
-          Regime-Aware AI Post-Processing of Monsoon Rainfall Forecasts
-        </p>
-      </div>
-
-      {/* Auth Card */}
-      <div className="relative z-10 w-full max-w-md bg-slate-900/75 backdrop-blur-xl border border-white/15 rounded-3xl shadow-2xl p-6 sm:p-8 space-y-5">
+        {/* Auth Card */}
+        <div className="w-full bg-slate-900/80 backdrop-blur-xl border border-white/15 rounded-3xl shadow-2xl p-5 sm:p-7 space-y-4">
         {/* Header & Tabs */}
         <div>
           <div className="flex items-center justify-between pb-3">
@@ -475,6 +487,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         </div>
       </div>
 
+        {/* Footer Info */}
+        <div className="text-center space-y-1 pt-1">
+          <div className="flex items-center justify-center space-x-2 text-[11px] text-slate-300">
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+            <span>Ministry of Earth Sciences (MoES) / IMD Monsoon Benchmark</span>
+          </div>
+          <p className="text-[10px] text-slate-400">
+            Verified IMD 0.25° Gridded Rainfall & NOAA GFS 0.25° Atmospheric Dataset
+          </p>
+        </div>
+      </div>
+
       {/* Google Account Chooser Modal */}
       {showGoogleModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
@@ -550,17 +574,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           </div>
         </div>
       )}
-
-      {/* Footer Info */}
-      <div className="relative z-10 mt-6 text-center space-y-1">
-        <div className="flex items-center justify-center space-x-2 text-[11px] text-slate-300">
-          <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-          <span>Ministry of Earth Sciences (MoES) / IMD Monsoon Benchmark</span>
-        </div>
-        <p className="text-[10px] text-slate-400">
-          Verified IMD 0.25° Gridded Rainfall & NOAA GFS 0.25° Atmospheric Dataset
-        </p>
-      </div>
     </div>
   );
 };
