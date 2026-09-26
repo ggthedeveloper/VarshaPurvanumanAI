@@ -8,9 +8,6 @@ import {
   MapPin,
   BookOpen,
   HeartPulse,
-  Sun,
-  Moon,
-  LogOut,
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
@@ -176,59 +173,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           </div>
         </nav>
-
-        {/* Bottom Profile & Actions */}
-        <div className="p-3 border-t border-slate-200 dark:border-slate-800 space-y-2 shrink-0">
-          {/* Theme Toggle Button */}
-          <button
-            onClick={onToggleTheme}
-            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition cursor-pointer ${
-              isCollapsed ? 'justify-center' : ''
-            }`}
-          >
-            {isDarkMode ? (
-              <Sun className="h-4 w-4 text-amber-400 shrink-0" />
-            ) : (
-              <Moon className="h-4 w-4 text-slate-500 shrink-0" />
-            )}
-            {!isCollapsed && <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>}
-          </button>
-
-          {/* User Profile Card */}
-          {!isCollapsed ? (
-            <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60">
-              <div className="flex items-center space-x-2.5 overflow-hidden">
-                <div className="h-8 w-8 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold flex items-center justify-center shrink-0 text-xs">
-                  {user?.name ? user.name.charAt(0).toUpperCase() : 'G'}
-                </div>
-                <div className="overflow-hidden">
-                  <span className="text-xs font-bold text-slate-900 dark:text-white block truncate">
-                    {user?.name || 'Gaurav Gautam'}
-                  </span>
-                  <span className="text-[10px] text-slate-400 block truncate">
-                    {user?.role || 'Lead Meteorologist'}
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={onLogout}
-                title="Log Out"
-                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer shrink-0"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={onLogout}
-              title="Log Out"
-              className="w-full flex justify-center p-2 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
-          )}
-        </div>
       </aside>
     </>
   );

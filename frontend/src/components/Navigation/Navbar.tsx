@@ -4,6 +4,7 @@ import {
   RefreshCw,
   CloudRain,
   Sun as SunIcon,
+  Moon,
   Zap,
   Waves,
   Snowflake,
@@ -22,6 +23,8 @@ import {
   MapPin,
   Clock,
   Activity,
+  User,
+  LogOut,
 } from 'lucide-react';
 import { AppRoute, DataStatus, UserProfile, SynopticRegime } from '../../types/api';
 import { useWeather, WeatherMode, WeatherIntensity } from '../../context/WeatherContext';
@@ -41,6 +44,7 @@ interface NavbarProps {
   onOpenMobileMenu: () => void;
   onOpenInfoModal?: () => void;
   user: UserProfile | null;
+  onLogout?: () => void;
   onDetectLocation?: () => void;
 }
 
@@ -98,6 +102,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenMobileMenu,
   onOpenInfoModal,
   user,
+  onLogout,
   onDetectLocation,
 }) => {
   const routeMeta = ROUTE_TITLES[currentRoute] || ROUTE_TITLES.dashboard;
@@ -122,8 +127,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   } = useWeather();
 
   const [isWeatherDropdownOpen, setIsWeatherDropdownOpen] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [time, setTime] = useState<Date>(new Date());
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const userDropdownRef = useRef<HTMLDivElement>(null);
 
   // Live ticking clock for IST and UTC
   useEffect(() => {
@@ -131,20 +138,23 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => clearInterval(timer);
   }, []);
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setIsWeatherDropdownOpen(false);
       }
+      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target as Node)) {
+        setIsUserDropdownOpen(false);
+      }
     };
-    if (isWeatherDropdownOpen) {
+    if (isWeatherDropdownOpen || isUserDropdownOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isWeatherDropdownOpen]);
+  }, [isWeatherDropdownOpen, isUserDropdownOpen]);
 
   const handleLocationClick = async () => {
     if (onDetectLocation) {
@@ -549,6 +559,99 @@ export const Navbar: React.FC<NavbarProps> = ({
         >
           <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin text-indigo-500' : ''}`} />
         </button>
+
+        {/* Subtle Vertical Divider */}
+        <div className="h-5 w-px bg-slate-300/70 dark:bg-slate-700/70 my-auto hidden xs:block" />
+
+        {/* 4. Dark Mode Changer */}
+        <button
+          onClick={onToggleTheme}
+          title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+          aria-label={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        >
+          {isDarkMode ? (
+            <SunIcon className="h-4 w-4 text-amber-400" />
+          ) : (
+            <Moon className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+          )}
+        </button>
+
+        {/* 5. User Profile Thing */}
+        {user && (
+          <div className="relative" ref={userDropdownRef}>
+            <button
+              onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+              title={`User Profile: ${user.name || 'Gaurav Gautam'}`}
+              className="flex items-center space-x-2 p-1 sm:px-2 sm:py-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition cursor-pointer"
+              aria-label="User profile menu"
+            >
+              <div className="h-7 w-7 rounded-lg bg-gradient-to-tr from-indigo-600 to-sky-500 text-white font-bold flex items-center justify-center text-xs shadow-xs shrink-0">
+                {user.name ? user.name.charAt(0).toUpperCase() : 'G'}
+              </div>
+              <div className="hidden md:block text-left min-w-0 max-w-[110px]">
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block truncate leading-tight">
+                  {user.name || 'Gaurav'}
+                </span>
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 block truncate leading-tight">
+                  {user.role || 'Lead Meteorologist'}
+                </span>
+              </div>
+              <ChevronDown className="h-3 w-3 text-slate-400 hidden sm:block" />
+            </button>
+
+            {isUserDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-60 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-50 p-3 space-y-3 animate-in fade-in zoom-in-95 duration-150">
+                {/* Header with Avatar & Details */}
+                <div className="flex items-center space-x-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                  <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-500 text-white font-bold flex items-center justify-center text-sm shadow-xs shrink-0">
+                    {user.name ? user.name.charAt(0).toUpperCase() : 'G'}
+                  </div>
+                  <div className="min-w-0 overflow-hidden">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white block truncate">
+                      {user.name || 'Gaurav Gautam'}
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">
+                      {user.role || 'Lead Meteorologist'}
+                    </span>
+                    <span className="inline-block mt-0.5 px-1.5 py-0.5 rounded text-[9px] font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+                      Active Meteorologist
+                    </span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="space-y-1">
+                  {onOpenInfoModal && (
+                    <button
+                      onClick={() => {
+                        setIsUserDropdownOpen(false);
+                        onOpenInfoModal();
+                      }}
+                      className="w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-xs text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                    >
+                      <User className="h-3.5 w-3.5 text-slate-400" />
+                      <span>System Information</span>
+                    </button>
+                  )}
+
+                  {onLogout && (
+                    <button
+                      onClick={() => {
+                        setIsUserDropdownOpen(false);
+                        onLogout();
+                      }}
+                      className="w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      <span>Log Out</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </header>
   );

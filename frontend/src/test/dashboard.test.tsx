@@ -839,6 +839,19 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
     expect(screen.getByText(/Pressure/i)).toBeInTheDocument();
     expect(screen.getByText(/CAPE/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Strike Lightning ⚡/i })).toBeInTheDocument();
+
+    // Verifies dark mode changer is present on right corner of navbar and toggles theme
+    const themeBtn = screen.getByRole('button', { name: /Switch to Light Mode/i });
+    expect(themeBtn).toBeInTheDocument();
+    fireEvent.click(themeBtn);
+    expect(handleToggleTheme).toHaveBeenCalledTimes(1);
+
+    // Verifies user profile is present on right corner of navbar and opens dropdown
+    const profileBtn = screen.getByRole('button', { name: /User profile menu/i });
+    expect(profileBtn).toBeInTheDocument();
+    expect(screen.getByText(/Gaurav/i)).toBeInTheDocument();
+    fireEvent.click(profileBtn);
+    expect(screen.getByText('Active Meteorologist')).toBeInTheDocument();
   });
 });
 

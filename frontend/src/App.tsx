@@ -450,6 +450,7 @@ const AppContent: React.FC = () => {
           onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
           onOpenInfoModal={() => setIsInfoModalOpen(true)}
           user={user}
+          onLogout={handleLogout}
           onDetectLocation={handleDetectLocation}
         />
 
