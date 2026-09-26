@@ -272,11 +272,13 @@ export interface ProbabilityMetricItem {
   brier_score: number;
   roc_auc: number | string;
   pr_auc: number | string;
-  reliability_slope: number | string;
-  optimal_tau: number;
-  contingency_at_optimal_tau: Record<string, any>;
-  observed_positive_rate: number;
-  forecast_positive_rate: number;
+  reliability_slope?: number | string;
+  optimal_tau?: number;
+  decision_threshold?: number;
+  contingency_at_optimal_tau?: Record<string, any>;
+  observed_positive_rate?: number;
+  base_rate?: number;
+  forecast_positive_rate?: number;
 }
 
 export interface VerificationProbabilityResponse {
@@ -285,8 +287,22 @@ export interface VerificationProbabilityResponse {
   data_status: DataStatus;
 }
 
+export interface RegimeModelMetrics {
+  rmse?: number;
+  mae?: number;
+  bias?: number;
+  mean_obs?: number;
+  sample_count?: number;
+}
+
+export interface RegimeVerificationDetail {
+  sample_count?: number;
+  status?: string;
+  models?: Record<string, RegimeModelMetrics>;
+}
+
 export interface VerificationRegimesResponse {
-  regimes: Record<string, Record<string, ContinuousMetricsItem>>;
+  regimes: Record<string, RegimeVerificationDetail | Record<string, ContinuousMetricsItem> | any>;
   data_status: DataStatus;
 }
 

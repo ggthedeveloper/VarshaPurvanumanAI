@@ -306,7 +306,7 @@ export const VerificationDashboard: React.FC<VerificationDashboardProps> = ({
                         </td>
                         <td className="py-3 px-4 font-mono font-semibold text-emerald-600 dark:text-emerald-400">
                           {typeof globalCat?.POD === 'number' ? globalCat.POD.toFixed(3) : globalCat?.POD ?? 'N/A'}
-                          {typeof rawCat?.POD === 'number' && typeof globalCat?.POD === 'number' && globalCat.POD > rawCat.POD && (
+                          {typeof rawCat?.POD === 'number' && typeof globalCat?.POD === 'number' && rawCat.POD > 0 && globalCat.POD > rawCat.POD && (
                             <span className="ml-1 text-[10px] font-normal text-emerald-600 dark:text-emerald-400">
                               (+{(((globalCat.POD - rawCat.POD) / rawCat.POD) * 100).toFixed(1)}%)
                             </span>
@@ -314,7 +314,7 @@ export const VerificationDashboard: React.FC<VerificationDashboardProps> = ({
                         </td>
                         <td className="py-3 px-4 font-mono font-semibold text-emerald-600 dark:text-emerald-400">
                           {typeof regimeCat?.POD === 'number' ? regimeCat.POD.toFixed(3) : regimeCat?.POD ?? 'N/A'}
-                          {typeof rawCat?.POD === 'number' && typeof regimeCat?.POD === 'number' && regimeCat.POD > rawCat.POD && (
+                          {typeof rawCat?.POD === 'number' && typeof regimeCat?.POD === 'number' && rawCat.POD > 0 && regimeCat.POD > rawCat.POD && (
                             <span className="ml-1 text-[10px] font-normal text-emerald-600 dark:text-emerald-400">
                               (+{(((regimeCat.POD - rawCat.POD) / rawCat.POD) * 100).toFixed(1)}%)
                             </span>
@@ -445,27 +445,33 @@ export const VerificationDashboard: React.FC<VerificationDashboardProps> = ({
                         {rawInfo.category}
                       </td>
                       <td className="py-2 px-3 text-slate-600 dark:text-slate-300">Raw NWP</td>
-                      <td className="py-2 px-3 font-mono">{rawInfo.contingency_table.observed_events} / {rawInfo.contingency_table.forecast_events}</td>
-                      <td className="py-2 px-3 font-mono">{typeof rawInfo.POD === 'number' ? rawInfo.POD.toFixed(3) : rawInfo.POD}</td>
-                      <td className="py-2 px-3 font-mono">{typeof rawInfo.FAR === 'number' ? rawInfo.FAR.toFixed(3) : rawInfo.FAR}</td>
-                      <td className="py-2 px-3 font-mono">{typeof rawInfo.CSI === 'number' ? rawInfo.CSI.toFixed(3) : rawInfo.CSI}</td>
-                      <td className="py-2 px-3 font-mono">{typeof rawInfo.ETS === 'number' ? rawInfo.ETS.toFixed(3) : rawInfo.ETS}</td>
+                      <td className="py-2 px-3 font-mono">
+                        {rawInfo.contingency_table ? `${rawInfo.contingency_table.observed_events} / ${rawInfo.contingency_table.forecast_events}` : '—'}
+                      </td>
+                      <td className="py-2 px-3 font-mono">{typeof rawInfo.POD === 'number' ? rawInfo.POD.toFixed(3) : rawInfo.POD ?? '—'}</td>
+                      <td className="py-2 px-3 font-mono">{typeof rawInfo.FAR === 'number' ? rawInfo.FAR.toFixed(3) : rawInfo.FAR ?? '—'}</td>
+                      <td className="py-2 px-3 font-mono">{typeof rawInfo.CSI === 'number' ? rawInfo.CSI.toFixed(3) : rawInfo.CSI ?? '—'}</td>
+                      <td className="py-2 px-3 font-mono">{typeof rawInfo.ETS === 'number' ? rawInfo.ETS.toFixed(3) : rawInfo.ETS ?? '—'}</td>
                     </tr>
                     <tr>
                       <td className="py-2 px-3 text-blue-600 font-medium">Global ML</td>
-                      <td className="py-2 px-3 font-mono">{globalInfo.contingency_table.observed_events} / {globalInfo.contingency_table.forecast_events}</td>
-                      <td className="py-2 px-3 font-mono">{typeof globalInfo.POD === 'number' ? globalInfo.POD.toFixed(3) : globalInfo.POD}</td>
-                      <td className="py-2 px-3 font-mono">{typeof globalInfo.FAR === 'number' ? globalInfo.FAR.toFixed(3) : globalInfo.FAR}</td>
-                      <td className="py-2 px-3 font-mono">{typeof globalInfo.CSI === 'number' ? globalInfo.CSI.toFixed(3) : globalInfo.CSI}</td>
-                      <td className="py-2 px-3 font-mono">{typeof globalInfo.ETS === 'number' ? globalInfo.ETS.toFixed(3) : globalInfo.ETS}</td>
+                      <td className="py-2 px-3 font-mono">
+                        {globalInfo?.contingency_table ? `${globalInfo.contingency_table.observed_events} / ${globalInfo.contingency_table.forecast_events}` : '—'}
+                      </td>
+                      <td className="py-2 px-3 font-mono">{typeof globalInfo?.POD === 'number' ? globalInfo.POD.toFixed(3) : globalInfo?.POD ?? '—'}</td>
+                      <td className="py-2 px-3 font-mono">{typeof globalInfo?.FAR === 'number' ? globalInfo.FAR.toFixed(3) : globalInfo?.FAR ?? '—'}</td>
+                      <td className="py-2 px-3 font-mono">{typeof globalInfo?.CSI === 'number' ? globalInfo.CSI.toFixed(3) : globalInfo?.CSI ?? '—'}</td>
+                      <td className="py-2 px-3 font-mono">{typeof globalInfo?.ETS === 'number' ? globalInfo.ETS.toFixed(3) : globalInfo?.ETS ?? '—'}</td>
                     </tr>
                     <tr className="border-b border-slate-300 dark:border-slate-700">
                       <td className="py-2 px-3 text-indigo-600 font-medium">Regime-Aware ML</td>
-                      <td className="py-2 px-3 font-mono">{regimeInfo.contingency_table.observed_events} / {regimeInfo.contingency_table.forecast_events}</td>
-                      <td className="py-2 px-3 font-mono">{typeof regimeInfo.POD === 'number' ? regimeInfo.POD.toFixed(3) : regimeInfo.POD}</td>
-                      <td className="py-2 px-3 font-mono">{typeof regimeInfo.FAR === 'number' ? regimeInfo.FAR.toFixed(3) : regimeInfo.FAR}</td>
-                      <td className="py-2 px-3 font-mono">{typeof regimeInfo.CSI === 'number' ? regimeInfo.CSI.toFixed(3) : regimeInfo.CSI}</td>
-                      <td className="py-2 px-3 font-mono">{typeof regimeInfo.ETS === 'number' ? regimeInfo.ETS.toFixed(3) : regimeInfo.ETS}</td>
+                      <td className="py-2 px-3 font-mono">
+                        {regimeInfo?.contingency_table ? `${regimeInfo.contingency_table.observed_events} / ${regimeInfo.contingency_table.forecast_events}` : '—'}
+                      </td>
+                      <td className="py-2 px-3 font-mono">{typeof regimeInfo?.POD === 'number' ? regimeInfo.POD.toFixed(3) : regimeInfo?.POD ?? '—'}</td>
+                      <td className="py-2 px-3 font-mono">{typeof regimeInfo?.FAR === 'number' ? regimeInfo.FAR.toFixed(3) : regimeInfo?.FAR ?? '—'}</td>
+                      <td className="py-2 px-3 font-mono">{typeof regimeInfo?.CSI === 'number' ? regimeInfo.CSI.toFixed(3) : regimeInfo?.CSI ?? '—'}</td>
+                      <td className="py-2 px-3 font-mono">{typeof regimeInfo?.ETS === 'number' ? regimeInfo.ETS.toFixed(3) : regimeInfo?.ETS ?? '—'}</td>
                     </tr>
                   </React.Fragment>
                 );
@@ -478,23 +484,47 @@ export const VerificationDashboard: React.FC<VerificationDashboardProps> = ({
       {/* Tab 3: Regime-wise Performance Breakdown */}
       {activeTab === 'regimes' && regimeMetrics && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {Object.entries(regimeMetrics.regimes).map(([regName, modelsMap]) => (
-            <div key={regName} className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
-              <span className="font-bold text-xs uppercase text-slate-800 dark:text-slate-200 tracking-wider">
-                {regName.replace('_', ' ')}
-              </span>
-              <div className="space-y-1 text-xs">
-                {Object.entries(modelsMap).map(([mName, metrics]) => (
-                  <div key={mName} className="flex justify-between py-0.5 border-b border-slate-200/50 dark:border-slate-700/50 last:border-none">
-                    <span className="text-slate-500 text-[11px]">{mName}:</span>
-                    <span className="font-mono text-[11px]">
-                      RMSE: {metrics.rmse.toFixed(2)} mm (N={metrics.sample_count})
-                    </span>
+          {Object.entries(regimeMetrics.regimes).map(([regName, regimeData]: [string, any]) => {
+            const modelsMap: Record<string, any> =
+              regimeData?.models || (typeof regimeData === 'object' && !('status' in regimeData) ? regimeData : {});
+            const sampleCount = regimeData?.sample_count ?? 0;
+            const status = regimeData?.status ?? (Object.keys(modelsMap).length > 0 ? 'EVALUATED' : 'NO TEST SAMPLES');
+
+            return (
+              <div key={regName} className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <div className="flex items-center justify-between pb-1 border-b border-slate-200/40 dark:border-slate-700/40">
+                  <span className="font-bold text-xs uppercase text-slate-800 dark:text-slate-200 tracking-wider">
+                    {regName.replace(/_/g, ' ')}
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                    N = {sampleCount}
+                  </span>
+                </div>
+
+                {Object.keys(modelsMap).length > 0 ? (
+                  <div className="space-y-1.5 text-xs">
+                    {Object.entries(modelsMap).map(([mName, metrics]: [string, any]) => {
+                      if (!metrics || typeof metrics !== 'object') return null;
+                      const rmseStr = typeof metrics.rmse === 'number' ? `${metrics.rmse.toFixed(2)} mm` : '—';
+                      const maeStr = typeof metrics.mae === 'number' ? `${metrics.mae.toFixed(2)} mm` : null;
+                      return (
+                        <div key={mName} className="flex justify-between items-center py-0.5 border-b border-slate-100 dark:border-slate-800/60 last:border-none">
+                          <span className="text-slate-500 text-[11px] font-medium">{mName}:</span>
+                          <span className="font-mono text-[11px] font-semibold text-slate-800 dark:text-slate-200">
+                            RMSE: {rmseStr} {maeStr ? <span className="text-slate-400 font-normal">({maeStr})</span> : ''}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
+                ) : (
+                  <div className="py-2 text-[11px] text-slate-400 dark:text-slate-500 italic">
+                    {status}
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -514,16 +544,25 @@ export const VerificationDashboard: React.FC<VerificationDashboardProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                {Object.entries(probabilityMetrics.regime_aware_model).map(([thr, m]) => (
-                  <tr key={thr} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                    <td className="py-2.5 px-3 font-bold">≥ {thr} mm</td>
-                    <td className="py-2.5 px-3 font-mono">{m.brier_score.toFixed(4)}</td>
-                    <td className="py-2.5 px-3 font-mono">{typeof m.roc_auc === 'number' ? m.roc_auc.toFixed(3) : m.roc_auc}</td>
-                    <td className="py-2.5 px-3 font-mono">{typeof m.pr_auc === 'number' ? m.pr_auc.toFixed(3) : m.pr_auc}</td>
-                    <td className="py-2.5 px-3 font-mono font-semibold text-indigo-600 dark:text-indigo-400">{m.optimal_tau}</td>
-                    <td className="py-2.5 px-3 font-mono">{(m.observed_positive_rate * 100).toFixed(1)}%</td>
-                  </tr>
-                ))}
+                {Object.entries(probabilityMetrics.regime_aware_model).map(([thr, m]: [string, any]) => {
+                  const brierVal = typeof m?.brier_score === 'number' ? m.brier_score.toFixed(4) : (m?.brier_score ?? '—');
+                  const rocAucVal = typeof m?.roc_auc === 'number' ? m.roc_auc.toFixed(3) : (m?.roc_auc ?? '—');
+                  const prAucVal = typeof m?.pr_auc === 'number' ? m.pr_auc.toFixed(3) : (m?.pr_auc ?? '—');
+                  const optTau = m?.decision_threshold ?? m?.optimal_tau ?? '—';
+                  const baseRate = m?.base_rate ?? m?.observed_positive_rate;
+                  const posRateVal = typeof baseRate === 'number' ? `${(baseRate * 100).toFixed(1)}%` : '—';
+
+                  return (
+                    <tr key={thr} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                      <td className="py-2.5 px-3 font-bold">≥ {thr} mm</td>
+                      <td className="py-2.5 px-3 font-mono">{brierVal}</td>
+                      <td className="py-2.5 px-3 font-mono">{rocAucVal}</td>
+                      <td className="py-2.5 px-3 font-mono">{prAucVal}</td>
+                      <td className="py-2.5 px-3 font-mono font-semibold text-indigo-600 dark:text-indigo-400">{optTau}</td>
+                      <td className="py-2.5 px-3 font-mono">{posRateVal}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
