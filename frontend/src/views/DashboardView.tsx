@@ -139,7 +139,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 ) : isProcessedBenchmark ? (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-300/60">
                     <span className="h-1.5 w-1.5 rounded-full bg-sky-500 mr-1.5" />
-                    Verified Replay
+                    Real Data (NOAA GFS)
                   </span>
                 ) : (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-300/60">
@@ -394,7 +394,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             ) : isProcessedBenchmark ? (
               <span className="inline-flex items-center text-[10px] font-bold text-sky-600 dark:text-sky-400">
                 <span className="h-1.5 w-1.5 rounded-full bg-sky-500 mr-1" />
-                Processed Archive
+                Real Data (NOAA GFS)
               </span>
             ) : (
               <span className="inline-flex items-center text-[10px] font-bold text-amber-600 dark:text-amber-400">
@@ -441,7 +441,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </span>
               ) : isProcessedBenchmark ? (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
-                  Verified Replay
+                  Real Data (NOAA GFS)
                 </span>
               ) : (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">

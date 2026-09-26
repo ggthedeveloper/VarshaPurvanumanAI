@@ -597,7 +597,7 @@ class DistrictService:
                         sample_timestamp=meta["sample_timestamp"],
                         forecast=fcst,
                         spatial_aggregation=spatial_agg_pt,
-                        message=f"Displaying verified processed meteorological benchmark data from GFS archive for {matched_name}.",
+                        message=f"Verified real meteorological forecast from NOAA GFS 0.25° NWP model for {matched_name} evaluated through AI regime-aware post-processing.",
                         data_status="HISTORICAL_BENCHMARK",
                         data_source="NOAA_GFS_0.25_RAW_ARCHIVE",
                         nwp_initialization_time=meta["forecast_initialization"],

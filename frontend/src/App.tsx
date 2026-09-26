@@ -98,7 +98,7 @@ const AppContent: React.FC = () => {
   const [globalError, setGlobalError] = useState<string | null>(null);
 
   // Weather Context
-  const { setDistrictRegime, setStationTelemetry, detectUserLocation, userLocation } = useWeather();
+  const { setDistrictRegime, setStationTelemetry, detectUserLocation, userLocation, fetchLocationWeather, telemetry } = useWeather();
 
   // Geolocation & Nearest District Matcher
   const handleDetectLocation = async () => {
@@ -144,8 +144,8 @@ const AppContent: React.FC = () => {
 
   // Synchronize weather simulation and live telemetry with active forecast
   useEffect(() => {
-    // Only synchronize from active forecast if user location is NOT active
-    if (activeForecast && !userLocation) {
+    // Only synchronize from active forecast if user location is NOT active and real-time OpenWeather telemetry is not actively overriding
+    if (activeForecast && !userLocation && telemetry?.sourceProvenance !== 'OpenWeatherMap Real-Time Telemetry') {
       setDistrictRegime(activeForecast.predicted_regime);
       const isBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
       setStationTelemetry({
@@ -158,7 +158,7 @@ const AppContent: React.FC = () => {
         },
       });
     }
-  }, [activeForecast, districtForecast, selectedDistrictId, setDistrictRegime, setStationTelemetry, userLocation]);
+  }, [activeForecast, districtForecast, selectedDistrictId, setDistrictRegime, setStationTelemetry, userLocation, telemetry?.sourceProvenance]);
 
   const handleToggleTheme = () => {
     setIsDarkMode((prev) => !prev);
@@ -228,6 +228,8 @@ const AppContent: React.FC = () => {
       } else {
         setActiveForecast(null);
       }
+      // Initialize real-time weather telemetry for Pune
+      fetchLocationWeather(18.5204, 73.8567, 'Pune');
 
       // 4. Fetch Verification Engine Outputs
       const [verifSummary, verifProb, verifReg] = await Promise.all([
@@ -252,19 +254,25 @@ const AppContent: React.FC = () => {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, []);
+  }, [fetchLocationWeather]);
 
   useEffect(() => {
     loadInitialData();
   }, [loadInitialData]);
 
-  // District Selection with Anti-Stale State Transition
+  // District Selection with Anti-Stale State Transition & Real Weather Sync
   const handleSelectDistrict = async (districtId: string) => {
     setSelectedDistrictId(districtId);
     setDistrictLoading(true);
     // Flush stale forecast immediately to prevent previous station data leakage
     setActiveForecast(null);
     setDistrictForecast(null);
+
+    // Immediately trigger real-time weather telemetry fetch for the selected district
+    const matched = districts.find((d) => d.district_id === districtId);
+    if (matched && typeof matched.latitude === 'number' && typeof matched.longitude === 'number') {
+      fetchLocationWeather(matched.latitude, matched.longitude, matched.name);
+    }
 
     try {
       const resp = await api.getDistrictForecast(districtId);
@@ -273,6 +281,9 @@ const AppContent: React.FC = () => {
         setActiveForecast(resp.forecast);
       } else {
         setActiveForecast(null);
+      }
+      if (!matched && resp.latitude && resp.longitude) {
+        fetchLocationWeather(resp.latitude, resp.longitude, resp.name);
       }
     } catch (err: any) {
       console.error(`Failed to fetch forecast for district ${districtId}:`, err);

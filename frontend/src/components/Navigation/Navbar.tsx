@@ -51,7 +51,7 @@ interface NavbarProps {
 const ROUTE_TITLES: Record<AppRoute, { title: string; subtitle: string }> = {
   landing: {
     title: 'Overview & Showcase',
-    subtitle: 'Interactive live weather & regime simulation',
+    subtitle: '',
   },
   dashboard: {
     title: '',
@@ -59,31 +59,31 @@ const ROUTE_TITLES: Record<AppRoute, { title: string; subtitle: string }> = {
   },
   forecast: {
     title: 'Rainfall Forecast',
-    subtitle: 'Interactive cartography & station estimates',
+    subtitle: '',
   },
   regime: {
     title: 'Synoptic Regimes',
-    subtitle: 'Circulation classification & routing',
+    subtitle: '',
   },
   probability: {
     title: 'Rainfall Probabilities',
-    subtitle: 'Calibrated multi-threshold exceedance risk',
+    subtitle: '',
   },
   verification: {
     title: 'Model Verification',
-    subtitle: 'Held-out test cohort benchmarks',
+    subtitle: '',
   },
   districts: {
     title: 'District Registry',
-    subtitle: '78 monitored administrative stations',
+    subtitle: '',
   },
   provenance: {
     title: 'Data Provenance',
-    subtitle: 'IMD observation & NOAA GFS specifications',
+    subtitle: '',
   },
   health: {
     title: 'System Health',
-    subtitle: 'Model registry & pipeline telemetry',
+    subtitle: '',
   },
 };
 
@@ -346,7 +346,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Meteorological Dropdown Popover */}
           {isWeatherDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-50 p-4 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="absolute right-0 mt-2 w-[calc(100vw-1.5rem)] max-w-sm sm:w-96 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-50 p-4 space-y-4 animate-in fade-in zoom-in-95 duration-150">
               {/* Header: Station & Live Clocks */}
               <div className="flex items-start justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div className="min-w-0 pr-2">
@@ -601,7 +601,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
 
             {isUserDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-60 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-50 p-3 space-y-3 animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute right-0 mt-2 w-60 max-w-[calc(100vw-2rem)] rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-50 p-3 space-y-3 animate-in fade-in zoom-in-95 duration-150">
                 {/* Header with Avatar & Details */}
                 <div className="flex items-center space-x-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                   <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-500 text-white font-bold flex items-center justify-center text-sm shadow-xs shrink-0">

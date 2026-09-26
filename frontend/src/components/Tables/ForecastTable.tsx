@@ -183,14 +183,14 @@ export const ForecastTable: React.FC<ForecastTableProps> = ({
                       ? `${activeForecast.raw_nwp_rainfall_mm.toFixed(1)} mm`
                       : d.raw_nwp_rainfall_mm !== undefined && d.raw_nwp_rainfall_mm !== null
                       ? `${d.raw_nwp_rainfall_mm.toFixed(1)} mm`
-                      : '5.4 mm'}
+                      : '—'}
                   </td>
                   <td className="py-3 px-4 font-mono font-bold text-emerald-600 dark:text-emerald-400">
                     {isSelected && activeForecast
                       ? `${activeForecast.corrected_rainfall_mm.toFixed(1)} mm`
                       : d.corrected_rainfall_mm !== undefined && d.corrected_rainfall_mm !== null
                       ? `${d.corrected_rainfall_mm.toFixed(1)} mm`
-                      : '3.3 mm'}
+                      : '—'}
                   </td>
                   <td className="py-3 px-4">
                     <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300">
@@ -206,10 +206,14 @@ export const ForecastTable: React.FC<ForecastTableProps> = ({
                         <ShieldCheck className="h-3.5 w-3.5 mr-1 text-emerald-600 dark:text-emerald-400" />
                         Station Benchmark
                       </span>
-                    ) : (
+                    ) : d.coverage_status === 'PROCESSED_BENCHMARK' || d.coverage_status === 'OPERATIONAL_NWP' || d.coverage_status === 'OPERATIONAL_ACTIVE' ? (
                       <span className="inline-flex items-center text-sky-700 dark:text-sky-300 font-medium text-xs">
                         <ShieldCheck className="h-3.5 w-3.5 mr-1 text-sky-500" />
-                        Operational Active
+                        Real GFS NWP
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center text-slate-400 font-medium text-xs">
+                        Data Unavailable
                       </span>
                     )}
                   </td>

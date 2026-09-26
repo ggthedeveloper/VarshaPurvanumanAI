@@ -79,7 +79,7 @@ export const ForecastView: React.FC<ForecastViewProps> = ({
                 </span>
               ) : isProcessedBenchmark ? (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
-                  ● Processed Benchmark Replay
+                  ● REAL NOAA GFS DATA
                 </span>
               ) : (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">

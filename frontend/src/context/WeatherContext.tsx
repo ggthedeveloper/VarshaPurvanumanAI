@@ -50,7 +50,7 @@ interface WeatherContextType {
   setStationTelemetry: (stationData: Partial<WeatherTelemetry>) => void;
   triggerInstantLightning: () => void;
   detectUserLocation: (onFound?: (coords: { lat: number; lon: number }) => void) => Promise<{ lat: number; lon: number } | null>;
-  fetchLocationWeather: (lat: number, lon: number) => Promise<boolean>;
+  fetchLocationWeather: (lat: number, lon: number, customLocationName?: string) => Promise<boolean>;
   clearUserLocation: () => void;
   setUserLocation: (loc: UserLocationState | null) => void;
 }
@@ -245,7 +245,74 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
     setDistrictRegimeState('ACTIVE_MONSOON');
   };
 
-  const fetchLocationWeather = async (lat: number, lon: number): Promise<boolean> => {
+const OPENWEATHER_API_KEY =
+  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_OPENWEATHER_API_KEY) ||
+  'a3faa380c7a1c0e0f601950834096699';
+
+  const fetchLocationWeather = async (
+    lat: number,
+    lon: number,
+    customLocationName?: string
+  ): Promise<boolean> => {
+    // 1. Try OpenWeatherMap Real-Time API First
+    try {
+      const owmUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}&appid=${OPENWEATHER_API_KEY}&units=metric`;
+      const resp = await fetch(owmUrl);
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data && data.main) {
+          const temp = data.main.temp ?? 25;
+          const rh = data.main.humidity ?? 60;
+          const p = data.main.pressure ?? 1012;
+          const wSpeed = data.wind?.speed ?? 4;
+          const windDeg = data.wind?.deg ?? 240;
+          const clouds = data.clouds?.all ?? 30;
+          const rain = data.rain?.['1h'] ?? data.rain?.['3h'] ?? 0;
+          const wId = data.weather?.[0]?.id ?? 800;
+          const wDesc = data.weather?.[0]?.description ?? 'Current conditions';
+          const locName = customLocationName || data.name || `${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`;
+
+          // Determine synoptic regime dynamically based on real-time meteorological observation
+          let dynamicRegime: SynopticRegime = 'OTHER';
+          if (wId >= 200 && wId < 300) {
+            dynamicRegime = 'DEPRESSION';
+          } else if (wId >= 600 && wId < 700) {
+            dynamicRegime = 'WESTERN_DISTURBANCE';
+          } else if ((rain > 12 && wSpeed > 10) || (wId >= 502 && wId <= 504)) {
+            dynamicRegime = 'COASTAL_OROGRAPHIC';
+          } else if ((wId >= 500 && wId < 600) || (wId >= 300 && wId < 400) || rain > 0.8) {
+            dynamicRegime = 'ACTIVE_MONSOON';
+          } else if (wId === 800 || (rain <= 0.1 && clouds < 30)) {
+            dynamicRegime = 'BREAK_MONSOON';
+          } else {
+            dynamicRegime = 'OTHER';
+          }
+
+          setStationOverride({
+            rainRateMmH: parseFloat(rain.toFixed(1)),
+            windSpeedMs: parseFloat(wSpeed.toFixed(1)),
+            windDirectionDeg: windDeg,
+            windDirectionCompass: getCompassDirection(windDeg),
+            temperatureC: parseFloat(temp.toFixed(1)),
+            relativeHumidityPct: Math.round(rh),
+            surfacePressureHpa: parseFloat(p.toFixed(1)),
+            capeJkg: rain > 15 ? 1800 : rain > 5 ? 1200 : 450,
+            cloudCoverPct: Math.round(clouds),
+            stationName: `${locName} (Real Weather)`,
+            stationCoordinates: { lat, lon },
+            conditionLabel: `${wDesc.charAt(0).toUpperCase() + wDesc.slice(1)}`,
+            sourceProvenance: 'OpenWeatherMap Real-Time Telemetry',
+            lastUpdatedIso: new Date().toISOString(),
+          });
+          setDistrictRegimeState(dynamicRegime);
+          return true;
+        }
+      }
+    } catch (owmErr) {
+      console.warn('OpenWeatherMap live fetch attempt fallback:', owmErr);
+    }
+
+    // 2. Open-Meteo GFS API Fallback
     try {
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,cloud_cover&wind_speed_unit=ms`;
       const resp = await fetch(url);
@@ -299,7 +366,7 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
             surfacePressureHpa: parseFloat(p.toFixed(1)),
             capeJkg: rain > 15 ? 1800 : rain > 5 ? 1200 : 400,
             cloudCoverPct: Math.round(clouds),
-            stationName: `My Location (${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E)`,
+            stationName: `${customLocationName || 'Location'} (${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E)`,
             stationCoordinates: { lat, lon },
             conditionLabel: `Live GPS: ${conditionLabel}`,
             sourceProvenance: 'Live Device GPS + Open-Meteo GFS NWP Feed',

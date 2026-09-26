@@ -506,7 +506,7 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
       )}
 
       {/* Map Canvas Container */}
-      <div className="relative h-[520px] w-full rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-inner">
+      <div className="relative h-[360px] sm:h-[460px] lg:h-[540px] w-full rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-inner">
         <MapContainer
           center={mapCenter}
           zoom={mapZoom}
