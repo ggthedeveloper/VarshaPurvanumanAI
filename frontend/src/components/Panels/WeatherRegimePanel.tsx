@@ -61,40 +61,40 @@ export const WeatherRegimePanel: React.FC<WeatherRegimePanelProps> = ({
   const activeMeta = predictedRegime ? REGIME_METADATA[predictedRegime] : null;
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
+    <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs space-y-4">
       {/* Panel Header */}
       <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-        <div className="flex items-center space-x-2">
-          <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">
+        <div className="flex items-center space-x-2 min-w-0">
+          <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 shrink-0">
             <Compass className="h-5 w-5" />
           </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+          <div className="min-w-0">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider truncate">
               Weather Regime Classification
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
               Synoptic circulation state conditioned inference
             </p>
           </div>
         </div>
-        <span className="text-xs font-semibold px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+        <span className="text-xs font-semibold px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 shrink-0 ml-1">
           PREDICTED REGIME
         </span>
       </div>
 
       {/* Active Predicted Regime Highlight */}
-      <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 p-4">
+      <div className="rounded-xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/60 p-4">
         <div className="flex items-baseline justify-between">
           <span className="text-xs font-medium text-slate-500 uppercase">Assigned Category</span>
           <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
             Confidence: {isAvailable && confidence !== null ? `${(confidence * 100).toFixed(1)}%` : 'N/A'}
           </span>
         </div>
-        <div className="mt-1 flex items-center space-x-2">
+        <div className="mt-1 flex items-center space-x-2 min-w-0">
           {isAvailable && activeMeta ? (
             <>
-              <CheckCircle2 className={`h-5 w-5 ${activeMeta.color}`} />
-              <span className={`text-lg font-bold tracking-tight ${activeMeta.color}`}>
+              <CheckCircle2 className={`h-5 w-5 shrink-0 ${activeMeta.color}`} />
+              <span className={`text-lg font-bold tracking-tight truncate ${activeMeta.color}`}>
                 {activeMeta.name}
               </span>
             </>
@@ -104,7 +104,7 @@ export const WeatherRegimePanel: React.FC<WeatherRegimePanelProps> = ({
             </span>
           )}
         </div>
-        <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+        <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 break-words">
           {isAvailable && activeMeta
             ? activeMeta.description
             : 'Regime classification unavailable for unmonitored location.'}
@@ -165,16 +165,16 @@ export const WeatherRegimePanel: React.FC<WeatherRegimePanelProps> = ({
           )}
         </div>
       ) : (
-        <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500">
+        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500">
           Regime classification probabilities: <strong>N/A</strong> (data unavailable)
         </div>
       )}
 
-      {/* Scientific Transparency Notice */}
-      <div className="flex items-start space-x-2 text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded border border-slate-200/60 dark:border-slate-800">
-        <Info className="h-3.5 w-3.5 mt-0.5 text-slate-400 shrink-0" />
-        <span>
-          Regime probabilities are determined from 850 hPa wind fields, cyclonic vorticity, and thermodynamic sounding proxies. Ground truth regime data is reserved strictly for historical verification.
+      {/* Scientific Transparency Notice - streamlined & crisp */}
+      <div className="flex items-center space-x-2 text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50/80 dark:bg-slate-800/40 p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800">
+        <Info className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+        <span className="truncate">
+          Classified using 850 hPa wind fields, cyclonic vorticity, and sounding proxies.
         </span>
       </div>
     </div>

@@ -69,6 +69,18 @@ interface SunMote {
   phase: number;
 }
 
+interface CirrusStreak {
+  x: number;
+  y: number;
+  length: number;
+  thickness: number;
+  speed: number;
+  opacity: number;
+  wavePhase: number;
+  waveSpeed: number;
+  color: string;
+}
+
 interface LightningBolt {
   segments: { x1: number; y1: number; x2: number; y2: number; width: number }[];
   subBranches: { x1: number; y1: number; x2: number; y2: number; width: number }[];
@@ -84,9 +96,22 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
   interactive = true,
   overrideRegime,
 }) => {
-  const { enabled, effectiveRegime: contextRegime, intensity, lightningEnabled, instantLightningSignal, telemetry } = useWeather();
+  const {
+    enabled,
+    effectiveRegime: contextRegime,
+    intensity,
+    lightningEnabled,
+    instantLightningSignal,
+    telemetry,
+    effectiveTimeOfDay,
+  } = useWeather();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animFrameIdRef = useRef<number | null>(null);
+  const effectiveTimeOfDayRef = useRef(effectiveTimeOfDay);
+
+  useEffect(() => {
+    effectiveTimeOfDayRef.current = effectiveTimeOfDay;
+  }, [effectiveTimeOfDay]);
 
   const activeRegime = overrideRegime || contextRegime;
 
@@ -391,6 +416,31 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
       });
     }
 
+    // 5. Initialize Atmospheric Wispy Cirrus Cloud Streaks (Matching reference twilight sunset sky)
+    const cirrusStreaks: CirrusStreak[] = [];
+    const cirrusCount = 7;
+    for (let i = 0; i < cirrusCount; i++) {
+      const yRel = 0.06 + (i / cirrusCount) * 0.44; // Spread across upper 50% of the sky
+      cirrusStreaks.push({
+        x: Math.random() * (width + 500) - 250,
+        y: yRel * height,
+        length: 280 + Math.random() * 420,
+        thickness: 18 + Math.random() * 32,
+        speed: 0.12 + Math.random() * 0.32,
+        opacity: isDarkMode ? 0.22 + Math.random() * 0.24 : 0.28 + Math.random() * 0.25,
+        wavePhase: Math.random() * Math.PI * 2,
+        waveSpeed: 0.3 + Math.random() * 0.5,
+        color:
+          effectiveTimeOfDay === 'evening'
+            ? (i % 2 === 0 ? '195, 145, 210' : '225, 160, 175') // Twilight lavender & sunset rose
+            : effectiveTimeOfDay === 'afternoon'
+            ? '245, 210, 170' // Golden hour amber
+            : effectiveTimeOfDay === 'dawn'
+            ? '235, 180, 205' // Morning rose pastel
+            : '255, 255, 255',
+      });
+    }
+
     // Lightning scheduling for stormy regimes
     let lastLightningTime = performance.now();
     let nextLightningInterval = (activeRegime === 'DEPRESSION' ? 4 + Math.random() * 6 : 9 + Math.random() * 12) * 1000;
@@ -415,9 +465,116 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
 
       ctx.clearRect(0, 0, width, height);
 
+      // -------------------------------------------------------------
+      // 0. Atmospheric Diurnal Sky Backdrop (Dawn, Day, Afternoon, Evening/Sunset, Night)
+      // -------------------------------------------------------------
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, height);
+      const currentTod = effectiveTimeOfDayRef.current;
+      const isRainy =
+        activeRegime === 'ACTIVE_MONSOON' ||
+        activeRegime === 'DEPRESSION' ||
+        activeRegime === 'COASTAL_OROGRAPHIC';
+
+      if (currentTod === 'evening') {
+        // Evening / Sunset: Matches reference image (Mangalagiri 5:02 PM twilight)
+        // Deep twilight violet at zenith through dusky purple, mauve rose, down to glowing peach and radiant golden amber at the horizon
+        if (isDarkMode) {
+          skyGrad.addColorStop(0, 'rgba(34, 28, 67, 0.98)');     // Deep dusk violet (#221c43)
+          skyGrad.addColorStop(0.24, 'rgba(56, 42, 92, 0.98)');   // Dusky royal purple (#382a5c)
+          skyGrad.addColorStop(0.46, 'rgba(86, 59, 113, 0.96)');  // Rich mauve purple (#563b71)
+          skyGrad.addColorStop(0.66, isRainy ? 'rgba(92, 48, 85, 0.95)' : 'rgba(130, 76, 127, 0.95)'); // Dusk rose (#824c7f)
+          skyGrad.addColorStop(0.80, isRainy ? 'rgba(125, 60, 68, 0.95)' : 'rgba(179, 92, 114, 0.95)'); // Twilight coral (#b35c72)
+          skyGrad.addColorStop(0.92, isRainy ? 'rgba(165, 85, 65, 0.96)' : 'rgba(217, 125, 101, 0.96)'); // Glowing sunset peach (#d97d65)
+          skyGrad.addColorStop(1, isRainy ? 'rgba(200, 120, 65, 0.98)' : 'rgba(235, 180, 122, 0.98)'); // Warm golden amber horizon (#ebb47a)
+        } else {
+          skyGrad.addColorStop(0, 'rgba(68, 56, 110, 0.92)');
+          skyGrad.addColorStop(0.30, 'rgba(110, 68, 130, 0.88)');
+          skyGrad.addColorStop(0.55, 'rgba(170, 85, 125, 0.85)');
+          skyGrad.addColorStop(0.78, 'rgba(215, 110, 100, 0.88)');
+          skyGrad.addColorStop(0.92, 'rgba(240, 145, 95, 0.92)');
+          skyGrad.addColorStop(1, 'rgba(250, 195, 125, 0.95)');
+        }
+      } else if (currentTod === 'afternoon') {
+        // Afternoon: Golden Hour radiance & warm atmospheric glow
+        if (isDarkMode) {
+          skyGrad.addColorStop(0, 'rgba(20, 30, 55, 0.98)');
+          skyGrad.addColorStop(0.38, isRainy ? 'rgba(30, 41, 59, 0.92)' : 'rgba(30, 75, 110, 0.90)');
+          skyGrad.addColorStop(0.72, isRainy ? 'rgba(51, 65, 85, 0.88)' : 'rgba(160, 95, 25, 0.88)');
+          skyGrad.addColorStop(1, isRainy ? 'rgba(71, 85, 105, 0.90)' : 'rgba(225, 140, 30, 0.92)');
+        } else {
+          skyGrad.addColorStop(0, 'rgba(186, 230, 253, 0.92)');
+          skyGrad.addColorStop(0.6, 'rgba(254, 215, 170, 0.85)');
+          skyGrad.addColorStop(1, 'rgba(253, 186, 116, 0.90)');
+        }
+      } else if (currentTod === 'dawn') {
+        // Dawn: Soft morning pastel pink, lavender, and pale cyan
+        if (isDarkMode) {
+          skyGrad.addColorStop(0, 'rgba(20, 22, 50, 0.98)');
+          skyGrad.addColorStop(0.38, 'rgba(55, 48, 115, 0.92)');
+          skyGrad.addColorStop(0.70, 'rgba(145, 45, 85, 0.88)');
+          skyGrad.addColorStop(1, 'rgba(245, 155, 80, 0.90)');
+        } else {
+          skyGrad.addColorStop(0, 'rgba(199, 210, 254, 0.90)');
+          skyGrad.addColorStop(0.5, 'rgba(251, 207, 232, 0.85)');
+          skyGrad.addColorStop(1, 'rgba(254, 240, 138, 0.90)');
+        }
+      } else if (currentTod === 'night') {
+        // Night: Deep obsidian midnight navy with starlight
+        skyGrad.addColorStop(0, 'rgba(4, 8, 24, 0.98)');
+        skyGrad.addColorStop(0.5, 'rgba(15, 23, 42, 0.96)');
+        skyGrad.addColorStop(1, isRainy ? 'rgba(30, 41, 59, 0.94)' : 'rgba(20, 32, 70, 0.92)');
+      } else {
+        // Day: Crisp daylight azure
+        if (isDarkMode) {
+          skyGrad.addColorStop(0, 'rgba(15, 28, 55, 0.98)');
+          skyGrad.addColorStop(0.5, isRainy ? 'rgba(30, 41, 59, 0.94)' : 'rgba(25, 60, 115, 0.90)');
+          skyGrad.addColorStop(1, isRainy ? 'rgba(51, 65, 85, 0.90)' : 'rgba(35, 85, 155, 0.88)');
+        } else {
+          skyGrad.addColorStop(0, isRainy ? 'rgba(203, 213, 225, 0.90)' : 'rgba(224, 242, 254, 0.90)');
+          skyGrad.addColorStop(0.6, isRainy ? 'rgba(148, 163, 184, 0.85)' : 'rgba(186, 230, 253, 0.85)');
+          skyGrad.addColorStop(1, isRainy ? 'rgba(100, 116, 139, 0.90)' : 'rgba(147, 197, 253, 0.85)');
+        }
+      }
+
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, width, height);
+
       // Oscillatory dynamic wind gusts (wind surges periodically)
       const windGustOffset = Math.sin(now * 0.001) * 3.4 + Math.cos(now * 0.0024) * 2.0;
       const currentWind = baseWind + windGustOffset;
+
+      // Render wispy stratified cirrus clouds (like in evening sky photo)
+      cirrusStreaks.forEach((cs) => {
+        cs.x += (cs.speed + currentWind * 0.08) * dt * 60;
+        cs.wavePhase += cs.waveSpeed * dt;
+        if (cs.x - cs.length > width + 100) {
+          cs.x = -cs.length - 50;
+          cs.y = (0.06 + Math.random() * 0.44) * height;
+        }
+
+        const waveY = Math.sin(cs.wavePhase) * 5;
+        const grad = ctx.createLinearGradient(cs.x, cs.y + waveY, cs.x + cs.length, cs.y + waveY);
+        grad.addColorStop(0, `rgba(${cs.color}, 0)`);
+        grad.addColorStop(0.2, `rgba(${cs.color}, ${cs.opacity * 0.7})`);
+        grad.addColorStop(0.5, `rgba(${cs.color}, ${cs.opacity})`);
+        grad.addColorStop(0.8, `rgba(${cs.color}, ${cs.opacity * 0.7})`);
+        grad.addColorStop(1, `rgba(${cs.color}, 0)`);
+
+        ctx.save();
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.ellipse(
+          cs.x + cs.length / 2,
+          cs.y + waveY,
+          cs.length / 2,
+          cs.thickness * (0.85 + Math.sin(cs.wavePhase * 0.7) * 0.15),
+          0,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+        ctx.restore();
+      });
 
       // -------------------------------------------------------------
       // 1. Lightning Bolt Engine & Ambient Flash Strobe
@@ -518,7 +675,17 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
 
         const dynamicRadius = puff.radius * (1 + Math.sin(puff.pulsePhase) * 0.08);
         const grad = ctx.createRadialGradient(puff.x, puff.y, 0, puff.x, puff.y, dynamicRadius);
-        const puffColor = isDarkMode ? '148, 163, 184' : '147, 197, 253';
+        let puffColor = isDarkMode ? '148, 163, 184' : '147, 197, 253';
+        if (currentTod === 'evening') {
+          puffColor = isDarkMode ? '185, 130, 175' : '220, 160, 185';
+        } else if (currentTod === 'afternoon') {
+          puffColor = isDarkMode ? '190, 150, 120' : '240, 205, 160';
+        } else if (currentTod === 'dawn') {
+          puffColor = isDarkMode ? '195, 140, 170' : '245, 195, 210';
+        } else if (currentTod === 'night') {
+          puffColor = isDarkMode ? '50, 60, 95' : '100, 120, 160';
+        }
+
         grad.addColorStop(0, `rgba(${puffColor}, ${puff.opacity})`);
         grad.addColorStop(1, `rgba(${puffColor}, 0)`);
 
@@ -560,9 +727,17 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
           }
 
           const moteAlpha = mote.alpha * (0.7 + Math.sin(mote.phase) * 0.3);
-          ctx.fillStyle = isDarkMode
-            ? `rgba(253, 230, 138, ${moteAlpha})`
-            : `rgba(217, 119, 6, ${moteAlpha * 1.4})`;
+          const moteColor =
+            currentTod === 'evening'
+              ? '251, 146, 60'
+              : currentTod === 'afternoon'
+              ? '251, 191, 36'
+              : currentTod === 'dawn'
+              ? '253, 186, 116'
+              : isDarkMode
+              ? '253, 230, 138'
+              : '217, 119, 6';
+          ctx.fillStyle = `rgba(${moteColor}, ${moteAlpha})`;
           ctx.beginPath();
           ctx.arc(mote.x, mote.y, mote.radius, 0, Math.PI * 2);
           ctx.fill();
@@ -726,6 +901,7 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
     lightningEnabled,
     isDarkMode,
     interactive,
+    effectiveTimeOfDay,
     telemetry.rainRateMmH,
     telemetry.windSpeedMs,
     telemetry.cloudCoverPct,
@@ -733,8 +909,28 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
 
   if (!enabled) return null;
 
-  // Background atmosphere tints based on weather regime
+  // Background atmosphere tints based on weather regime & diurnal cycle
   const getAtmosphereGradient = () => {
+    if (effectiveTimeOfDay === 'evening') {
+      return isDarkMode
+        ? 'from-[#221c43] via-[#563b71] to-[#ebb47a]'
+        : 'from-[#44386e] via-[#b95d73] to-[#ebb47a]';
+    }
+    if (effectiveTimeOfDay === 'afternoon') {
+      return isDarkMode
+        ? 'from-[#141e37] via-[#1e4b6e] to-[#e18c1e]'
+        : 'from-sky-200 via-amber-100 to-orange-200';
+    }
+    if (effectiveTimeOfDay === 'dawn') {
+      return isDarkMode
+        ? 'from-[#141632] via-[#373073] to-[#f59b50]'
+        : 'from-indigo-100 via-pink-100 to-amber-100';
+    }
+    if (effectiveTimeOfDay === 'night') {
+      return 'from-slate-950 via-slate-900 to-slate-950';
+    }
+
+    // Day
     switch (activeRegime) {
       case 'ACTIVE_MONSOON':
         return isDarkMode
@@ -764,7 +960,7 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
     }
   };
 
-  const defaultOpacity = fixed ? (isDarkMode ? 0.38 : 0.48) : (isDarkMode ? 0.75 : 0.85);
+  const defaultOpacity = fixed ? (isDarkMode ? 0.95 : 0.90) : (isDarkMode ? 0.85 : 0.90);
   const effectiveOpacity = opacity !== undefined ? opacity : defaultOpacity;
 
   return (

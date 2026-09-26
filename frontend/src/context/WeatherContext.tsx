@@ -3,6 +3,17 @@ import { SynopticRegime } from '../types/api';
 
 export type WeatherMode = 'AUTO' | SynopticRegime | 'CLEAR';
 export type WeatherIntensity = 'subtle' | 'normal' | 'dramatic';
+export type TimeOfDay = 'auto' | 'dawn' | 'day' | 'afternoon' | 'evening' | 'night';
+export type EffectiveTimeOfDay = 'dawn' | 'day' | 'afternoon' | 'evening' | 'night';
+
+export const getDiurnalPeriod = (d: Date = new Date()): EffectiveTimeOfDay => {
+  const hours = d.getHours() + d.getMinutes() / 60;
+  if (hours >= 5 && hours < 8) return 'dawn';
+  if (hours >= 8 && hours < 15) return 'day';
+  if (hours >= 15 && hours < 17.5) return 'afternoon';
+  if (hours >= 17.5 && hours < 20.25) return 'evening';
+  return 'night';
+};
 
 export interface WeatherTelemetry {
   rainRateMmH: number;
@@ -34,6 +45,8 @@ interface WeatherContextType {
   enabled: boolean;
   mode: WeatherMode;
   effectiveRegime: SynopticRegime;
+  timeOfDay: TimeOfDay;
+  effectiveTimeOfDay: EffectiveTimeOfDay;
   intensity: WeatherIntensity;
   lightningEnabled: boolean;
   telemetry: WeatherTelemetry;
@@ -44,6 +57,7 @@ interface WeatherContextType {
   setEnabled: (enabled: boolean) => void;
   toggleEnabled: () => void;
   setMode: (mode: WeatherMode) => void;
+  setTimeOfDay: (tod: TimeOfDay) => void;
   setIntensity: (intensity: WeatherIntensity) => void;
   setLightningEnabled: (enabled: boolean) => void;
   setDistrictRegime: (regime: SynopticRegime | string | null | undefined) => void;
@@ -217,6 +231,26 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [districtRegime, setDistrictRegimeState] = useState<SynopticRegime>('ACTIVE_MONSOON');
   const [stationOverride, setStationOverride] = useState<Partial<WeatherTelemetry>>({});
   const [instantLightningSignal, setInstantLightningSignal] = useState<number>(0);
+
+  // Diurnal Cycle State (Auto synchronized with local clock / station time or manual preview)
+  const [timeOfDay, setTimeOfDayState] = useState<TimeOfDay>(() => {
+    const saved = safeGetItem('weather_fx_tod') as TimeOfDay;
+    return saved || 'auto';
+  });
+
+  const setTimeOfDay = useCallback((tod: TimeOfDay) => {
+    setTimeOfDayState(tod);
+    safeSetItem('weather_fx_tod', tod);
+  }, []);
+
+  const [clockDate, setClockDate] = useState<Date>(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setClockDate(new Date()), 30000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const effectiveTimeOfDay: EffectiveTimeOfDay =
+    timeOfDay === 'auto' ? getDiurnalPeriod(clockDate) : timeOfDay;
 
   // User Current Location State
   const [userLocation, setUserLocationState] = useState<UserLocationState | null>(() => {
@@ -553,6 +587,8 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
     enabled,
     mode,
     effectiveRegime,
+    timeOfDay,
+    effectiveTimeOfDay,
     intensity,
     lightningEnabled,
     telemetry,
@@ -563,6 +599,7 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
     setEnabled,
     toggleEnabled,
     setMode,
+    setTimeOfDay,
     setIntensity,
     setLightningEnabled,
     setDistrictRegime,
@@ -576,6 +613,8 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
     enabled,
     mode,
     effectiveRegime,
+    timeOfDay,
+    effectiveTimeOfDay,
     intensity,
     lightningEnabled,
     telemetry,
@@ -586,6 +625,7 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
     setEnabled,
     toggleEnabled,
     setMode,
+    setTimeOfDay,
     setIntensity,
     setLightningEnabled,
     setDistrictRegime,
@@ -608,6 +648,8 @@ const DEFAULT_WEATHER_CONTEXT: WeatherContextType = {
   enabled: true,
   mode: 'AUTO',
   effectiveRegime: 'ACTIVE_MONSOON',
+  timeOfDay: 'auto',
+  effectiveTimeOfDay: 'evening',
   intensity: 'normal',
   lightningEnabled: true,
   telemetry: REGIME_TELEMETRY.ACTIVE_MONSOON,
@@ -618,6 +660,7 @@ const DEFAULT_WEATHER_CONTEXT: WeatherContextType = {
   setEnabled: () => {},
   toggleEnabled: () => {},
   setMode: () => {},
+  setTimeOfDay: () => {},
   setIntensity: () => {},
   setLightningEnabled: () => {},
   setDistrictRegime: () => {},

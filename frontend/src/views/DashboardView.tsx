@@ -122,33 +122,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5 transition-all">
         {/* Top Meta Bar & Fast Station Switcher */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-xs">
+          <div className="flex items-center space-x-3 min-w-0">
+            <div className="h-10 w-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-xs shrink-0">
               <MapPin className="h-5 w-5" />
             </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight truncate">
                   {districtName}
                 </h1>
                 {isPuneBenchmark ? (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-300/60">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-300/60 shrink-0">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
                     Benchmark Station
                   </span>
                 ) : isProcessedBenchmark ? (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-300/60">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-300/60 shrink-0">
                     <span className="h-1.5 w-1.5 rounded-full bg-sky-500 mr-1.5" />
                     Real Data (NOAA GFS)
                   </span>
                 ) : (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-300/60">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-300/60 shrink-0">
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-500 mr-1.5" />
                     Unmonitored
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                 {currentDistrict?.state || 'India'} • {currentDistrict?.latitude ? `${currentDistrict.latitude.toFixed(2)}°N, ${currentDistrict.longitude.toFixed(2)}°E` : '18.52°N, 73.86°E'}
               </p>
             </div>
@@ -192,26 +192,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Realistic Physical Conditions Strip */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-1">
           {/* 1. Air Temp */}
-          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800 min-w-0">
             <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center justify-between mb-1">
               <span>Temperature</span>
               <Thermometer className="h-3.5 w-3.5 text-amber-500" />
             </span>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white">
+            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white truncate">
               {telemetry.temperatureC.toFixed(1)}°C
             </div>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-slate-400 truncate block">
               Feels like {(telemetry.temperatureC + 1.8).toFixed(1)}°C
             </span>
           </div>
 
           {/* 2. AI Rain Forecast */}
-          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800 min-w-0">
             <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center justify-between mb-1">
               <span>AI Rainfall</span>
               <Droplets className="h-3.5 w-3.5 text-sky-500" />
             </span>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-sky-600 dark:text-sky-400">
+            <div className="text-xl sm:text-2xl font-bold font-mono text-sky-600 dark:text-sky-400 truncate">
               {isAvailable && activeForecast ? `${activeForecast.corrected_rainfall_mm.toFixed(1)} mm` : '—'}
             </div>
             <span className="text-[10px] text-slate-400 truncate block">
@@ -220,12 +220,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* 3. Model Bias Delta */}
-          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800 min-w-0">
             <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center justify-between mb-1">
               <span>Model Bias</span>
               <TrendingDown className="h-3.5 w-3.5 text-indigo-500" />
             </span>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white">
+            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white truncate">
               {isAvailable && activeForecast ? `${delta >= 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1)}` : '—'}{' '}
               <span className="text-xs font-normal text-slate-400">mm</span>
             </div>
@@ -235,45 +235,45 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* 4. Wind Vector */}
-          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800 min-w-0">
             <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center justify-between mb-1">
               <span>Wind</span>
               <Wind className="h-3.5 w-3.5 text-teal-500" />
             </span>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white">
+            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white truncate">
               {telemetry.windSpeedMs.toFixed(1)}{' '}
               <span className="text-xs font-normal text-slate-400">m/s</span>
             </div>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-slate-400 truncate block">
               {telemetry.windDirectionCompass} ({telemetry.windDirectionDeg}°)
             </span>
           </div>
 
           {/* 5. Humidity */}
-          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800 min-w-0">
             <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center justify-between mb-1">
               <span>Humidity</span>
               <Activity className="h-3.5 w-3.5 text-blue-500" />
             </span>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white">
+            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white truncate">
               {telemetry.relativeHumidityPct}%
             </div>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-slate-400 truncate block">
               {telemetry.relativeHumidityPct > 85 ? 'High Moisture' : 'Moderate'}
             </span>
           </div>
 
           {/* 6. Pressure */}
-          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 p-3.5 border border-slate-100 dark:border-slate-800 min-w-0">
             <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center justify-between mb-1">
               <span>Pressure</span>
               <Gauge className="h-3.5 w-3.5 text-emerald-500" />
             </span>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white">
+            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white truncate">
               {telemetry.surfacePressureHpa.toFixed(0)}{' '}
               <span className="text-xs font-normal text-slate-400">hPa</span>
             </div>
-            <span className="text-[10px] text-slate-400">Barometric Normal</span>
+            <span className="text-[10px] text-slate-400 truncate block">Barometric Normal</span>
           </div>
         </div>
       </div>
@@ -290,21 +290,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <CloudRain className="h-4 w-4" />
             </div>
           </div>
-          <div className="flex items-baseline space-x-2">
+          <div className="flex flex-wrap items-baseline gap-1.5 min-w-0">
             <span className="text-3xl font-black font-mono text-slate-900 dark:text-white">
               {isAvailable && activeForecast ? `${activeForecast.corrected_rainfall_mm.toFixed(1)}` : 'N/A'}
             </span>
             <span className="text-sm font-semibold text-slate-500">mm</span>
             {rainCat && (
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto ${rainCat.color}`}>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto ${rainCat.color} whitespace-nowrap`}>
                 {rainCat.label}
               </span>
             )}
           </div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 pt-1 flex items-center justify-between">
-            <span>Raw NWP: {isAvailable && activeForecast ? `${rawRain.toFixed(1)} mm` : 'N/A'}</span>
+          <div className="text-xs text-slate-500 dark:text-slate-400 pt-1 flex items-center justify-between min-w-0">
+            <span className="truncate">Raw NWP: {isAvailable && activeForecast ? `${rawRain.toFixed(1)} mm` : 'N/A'}</span>
             {isAvailable && activeForecast && (
-              <span className={`font-semibold ${delta >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600 dark:text-indigo-400'}`}>
+              <span className={`font-semibold shrink-0 ml-1 ${delta >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600 dark:text-indigo-400'}`}>
                 {delta >= 0 ? `+${delta.toFixed(1)} mm bias` : `${delta.toFixed(1)} mm bias`}
               </span>
             )}
@@ -312,21 +312,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Card 2: Weather Regime */}
-        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition">
+        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition min-w-0">
           <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
               Circulation Regime
             </span>
-            <div className="p-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400">
+            <div className="p-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 shrink-0">
               <Compass className="h-4 w-4" />
             </div>
           </div>
           <div className="text-lg font-bold text-slate-900 dark:text-white truncate">
             {isAvailable && activeForecast ? getFriendlyRegimeName(activeForecast.predicted_regime) : 'N/A'}
           </div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 pt-1 flex items-center justify-between">
-            <span>Model Confidence</span>
-            <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+          <div className="text-xs text-slate-500 dark:text-slate-400 pt-1 flex items-center justify-between min-w-0">
+            <span className="truncate">Model Confidence</span>
+            <span className="font-semibold text-indigo-600 dark:text-indigo-400 shrink-0 ml-1">
               {isAvailable && activeForecast ? `${regimeConfidence}%` : 'N/A'}
             </span>
           </div>
@@ -341,29 +341,29 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Card 3: Heavy Rain Advisory Risk */}
-        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition">
+        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition min-w-0">
           <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
               Heavy Rain Risk
             </span>
-            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
+            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 shrink-0">
               <Activity className="h-4 w-4" />
             </div>
           </div>
-          <div className="flex items-baseline space-x-2">
+          <div className="flex items-baseline space-x-2 min-w-0">
             {elevatedProb ? (
               <span className="text-lg font-extrabold text-amber-600 dark:text-amber-400 truncate">
                 Elevated Risk (≥{elevatedProb.threshold_mm} mm)
               </span>
             ) : (
-              <span className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">
+              <span className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400 truncate">
                 Normal Advisory
               </span>
             )}
           </div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 pt-1 flex items-center justify-between">
-            <span>Risk of &gt;15.6mm</span>
-            <span className="font-mono font-semibold text-slate-800 dark:text-slate-200">
+          <div className="text-xs text-slate-500 dark:text-slate-400 pt-1 flex items-center justify-between min-w-0">
+            <span className="truncate">Risk of &gt;15.6mm</span>
+            <span className="font-mono font-semibold text-slate-800 dark:text-slate-200 shrink-0 ml-1">
               {isAvailable && activeForecast && activeForecast.heavy_rainfall_probabilities?.length
                 ? `${((activeForecast.heavy_rainfall_probabilities.find((p) => p.threshold_mm === 15.6)?.exceedance_probability ?? 0) * 100).toFixed(1)}%`
                 : 'N/A'}
@@ -493,13 +493,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       return (
                         <div
                           key={p.threshold_mm}
-                          className="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 text-xs"
+                          className="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 text-xs min-w-0 gap-2"
                         >
-                          <span className="text-slate-600 dark:text-slate-400 font-medium">
+                          <span className="text-slate-600 dark:text-slate-400 font-medium truncate min-w-0">
                             ≥{p.threshold_mm} mm ({p.threshold_name})
                           </span>
-                          <div className="flex items-center space-x-2">
-                            <div className="w-16 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                          <div className="flex items-center space-x-2 shrink-0">
+                            <div className="w-16 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden shrink-0">
                               <div
                                 className={`h-full rounded-full ${
                                   isHigh ? 'bg-amber-500' : 'bg-indigo-500'

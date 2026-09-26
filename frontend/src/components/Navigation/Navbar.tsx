@@ -46,6 +46,7 @@ interface NavbarProps {
   user: UserProfile | null;
   onLogout?: () => void;
   onDetectLocation?: () => void;
+  onOpenProfileModal?: () => void;
 }
 
 const ROUTE_TITLES: Record<AppRoute, { title: string; subtitle: string }> = {
@@ -104,6 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   user,
   onLogout,
   onDetectLocation,
+  onOpenProfileModal,
 }) => {
   const routeMeta = ROUTE_TITLES[currentRoute] || ROUTE_TITLES.dashboard;
 
@@ -259,11 +261,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               </>
             ) : null}
             {/* Station badge */}
-            <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-100/90 dark:bg-slate-800/90 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-xs">
-              <MapPin className="h-3.5 w-3.5 mr-1.5 text-indigo-500" />
-              {selectedDistrictName}
+            <span className="hidden xs:inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-100/90 dark:bg-slate-800/90 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-xs max-w-[130px] sm:max-w-[200px]">
+              <MapPin className="h-3.5 w-3.5 mr-1.5 text-indigo-500 shrink-0" />
+              <span className="truncate">{selectedDistrictName}</span>
               {isBenchmarkActive && (
-                <span className="ml-1.5 text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                <span className="ml-1.5 text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider shrink-0">
                   Benchmark
                 </span>
               )}
@@ -622,6 +624,19 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                 {/* Actions */}
                 <div className="space-y-1">
+                  {onOpenProfileModal && (
+                    <button
+                      onClick={() => {
+                        setIsUserDropdownOpen(false);
+                        onOpenProfileModal();
+                      }}
+                      className="w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition cursor-pointer"
+                    >
+                      <User className="h-3.5 w-3.5" />
+                      <span>Edit Profile & Credentials</span>
+                    </button>
+                  )}
+
                   {onOpenInfoModal && (
                     <button
                       onClick={() => {

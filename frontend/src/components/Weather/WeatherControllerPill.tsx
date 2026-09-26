@@ -12,8 +12,13 @@ import {
   Waves,
   Snowflake,
   ChevronDown,
+  Sunrise,
+  Sunset,
+  SunDim,
+  Moon,
+  Clock,
 } from 'lucide-react';
-import { useWeather, WeatherMode, WeatherIntensity } from '../../context/WeatherContext';
+import { useWeather, WeatherMode, WeatherIntensity, TimeOfDay } from '../../context/WeatherContext';
 import { SynopticRegime } from '../../types/api';
 
 interface WeatherControllerPillProps {
@@ -27,9 +32,12 @@ export const WeatherControllerPill: React.FC<WeatherControllerPillProps> = ({ is
     effectiveRegime,
     intensity,
     lightningEnabled,
+    timeOfDay,
+    effectiveTimeOfDay,
     telemetry,
     toggleEnabled,
     setMode,
+    setTimeOfDay,
     setIntensity,
     setLightningEnabled,
   } = useWeather();
@@ -210,6 +218,49 @@ export const WeatherControllerPill: React.FC<WeatherControllerPillProps> = ({ is
                           </div>
                         </div>
                         {isSelected && <Check className="h-3.5 w-3.5 text-indigo-500 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Diurnal Sky & Lighting (Dawn, Day, Afternoon, Evening, Night) */}
+              <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block">
+                    Diurnal Sky & Sun Cycle
+                  </span>
+                  <span className="text-[10px] text-amber-500 dark:text-amber-400 font-semibold flex items-center space-x-1">
+                    {effectiveTimeOfDay === 'evening' && <Sunset className="h-3 w-3 inline text-rose-500" />}
+                    {effectiveTimeOfDay === 'afternoon' && <SunDim className="h-3 w-3 inline text-amber-500" />}
+                    {effectiveTimeOfDay === 'dawn' && <Sunrise className="h-3 w-3 inline text-pink-400" />}
+                    {effectiveTimeOfDay === 'night' && <Moon className="h-3 w-3 inline text-indigo-400" />}
+                    {effectiveTimeOfDay === 'day' && <Sun className="h-3 w-3 inline text-sky-400" />}
+                    <span className="capitalize">{effectiveTimeOfDay}</span>
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    { id: 'auto', label: 'Auto (Clock)', icon: <Clock className="h-3 w-3" /> },
+                    { id: 'dawn', label: 'Dawn', icon: <Sunrise className="h-3 w-3" /> },
+                    { id: 'day', label: 'Day', icon: <Sun className="h-3 w-3" /> },
+                    { id: 'afternoon', label: 'Afternoon', icon: <SunDim className="h-3 w-3" /> },
+                    { id: 'evening', label: 'Evening', icon: <Sunset className="h-3 w-3 text-rose-400" /> },
+                    { id: 'night', label: 'Night', icon: <Moon className="h-3 w-3" /> },
+                  ].map((tod) => {
+                    const isSel = timeOfDay === tod.id;
+                    return (
+                      <button
+                        key={tod.id}
+                        onClick={() => setTimeOfDay(tod.id as TimeOfDay)}
+                        className={`py-1.5 px-2 text-[10px] font-medium rounded-lg flex items-center justify-center space-x-1 border transition cursor-pointer ${
+                          isSel
+                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-transparent shadow-xs font-bold'
+                            : 'bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-indigo-300'
+                        }`}
+                      >
+                        {tod.icon}
+                        <span>{tod.label}</span>
                       </button>
                     );
                   })}

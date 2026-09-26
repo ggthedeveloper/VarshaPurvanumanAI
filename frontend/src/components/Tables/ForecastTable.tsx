@@ -70,18 +70,18 @@ export const ForecastTable: React.FC<ForecastTableProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
+    <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs space-y-4">
       {/* Header & Search Toolbar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
-        <div className="flex items-center space-x-2">
-          <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">
+        <div className="flex items-center space-x-2 min-w-0">
+          <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 shrink-0">
             <Table className="h-5 w-5" />
           </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+          <div className="min-w-0">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider truncate">
               District & Station Forecast Registry
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
               Verified administrative locations and telemetry status ({districts.length} total entries)
             </p>
           </div>

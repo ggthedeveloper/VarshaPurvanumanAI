@@ -17,6 +17,9 @@ import {
   VerificationProbabilityResponse,
   VerificationRegimesResponse,
   LoginRequest,
+  RegisterRequest,
+  GoogleLoginRequest,
+  UpdateProfileRequest,
   LoginResponse,
   UserProfile,
 } from '../types/api';
@@ -143,6 +146,41 @@ class ApiClient {
     this.setToken(res.access_token);
     if (typeof window !== 'undefined') {
       localStorage.setItem('auth_user', JSON.stringify(res.user));
+    }
+    return res;
+  }
+
+  async register(req: RegisterRequest): Promise<LoginResponse> {
+    const res = await this.fetchJson<LoginResponse>('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(req),
+    });
+    this.setToken(res.access_token);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('auth_user', JSON.stringify(res.user));
+    }
+    return res;
+  }
+
+  async googleLogin(req: GoogleLoginRequest): Promise<LoginResponse> {
+    const res = await this.fetchJson<LoginResponse>('/api/auth/google', {
+      method: 'POST',
+      body: JSON.stringify(req),
+    });
+    this.setToken(res.access_token);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('auth_user', JSON.stringify(res.user));
+    }
+    return res;
+  }
+
+  async updateProfile(username: string, req: UpdateProfileRequest): Promise<UserProfile> {
+    const res = await this.fetchJson<UserProfile>(`/api/auth/profile?username=${encodeURIComponent(username)}`, {
+      method: 'PUT',
+      body: JSON.stringify(req),
+    });
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('auth_user', JSON.stringify(res));
     }
     return res;
   }

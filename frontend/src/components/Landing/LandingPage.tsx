@@ -224,8 +224,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       <section
         className={`relative overflow-hidden rounded-3xl p-8 md:p-14 shadow-2xl border transition-colors duration-300 ${
           isDarkMode
-            ? 'bg-slate-950 text-white border-indigo-500/30'
-            : 'bg-gradient-to-br from-sky-50/90 via-white/95 to-indigo-50/80 text-slate-900 border-indigo-200 shadow-xl'
+            ? 'bg-slate-900/60 text-white border-white/10 backdrop-blur-xl'
+            : 'bg-gradient-to-br from-sky-50/80 via-white/85 to-indigo-50/70 text-slate-900 border-indigo-200 backdrop-blur-xl shadow-xl'
         }`}
       >
         {/* Interactive Weather Simulation Layer inside the Hero Card */}
@@ -234,7 +234,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           overrideRegime={selectedRegime}
           isDarkMode={isDarkMode}
           interactive={true}
-          opacity={isDarkMode ? 0.7 : 0.85}
+          opacity={isDarkMode ? 0.92 : 0.90}
         />
 
         {/* Ambient Gradient Glows */}
@@ -287,11 +287,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </span>
             </h1>
             <p
-              className={`text-base sm:text-lg max-w-3xl leading-relaxed ${
-                isDarkMode ? 'text-slate-300' : 'text-slate-600'
+              className={`text-sm sm:text-base max-w-2xl leading-relaxed ${
+                isDarkMode ? 'text-slate-200' : 'text-slate-700'
               }`}
             >
-              Numerical Weather Prediction (NWP) models systematically over-predict heavy rainfall across the Western Ghats and Indian coastline. VarshaPurvanuman AI objectively classifies synoptic weather circulation regimes and downscales precipitation using specialized machine learning to eliminate orographic bias.
+              Raw NWP forecasts routinely suffer from orographic and peak-intensity biases. VarshaPurvanuman AI classifies synoptic circulation regimes and downscales rainfall predictions to eliminate false alarms and deliver calibrated probabilities.
             </p>
           </div>
 
@@ -436,30 +436,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               onClick={() => onNavigateToForecast()}
               className="inline-flex items-center px-6 py-3.5 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-xl shadow-indigo-600/30 transition transform hover:-translate-y-0.5 cursor-pointer"
             >
-              <span>Launch Operational Cockpit</span>
+              <span>Explore Operational Forecast</span>
               <ArrowRight className="h-4 w-4 ml-2" />
             </button>
-
-            {!isLoggedIn && onQuickDemo && (
-              <button
-                onClick={onQuickDemo}
-                className="inline-flex items-center px-5 py-3.5 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30 transition cursor-pointer"
-              >
-                <Sparkles className="h-4 w-4 mr-2" />
-                <span>1-Click Demo Access</span>
-              </button>
-            )}
 
             {!isLoggedIn && onLoginClick && (
               <button
                 onClick={onLoginClick}
                 className={`inline-flex items-center px-5 py-3.5 rounded-xl text-sm font-semibold transition cursor-pointer border ${
                   isDarkMode
-                    ? 'bg-slate-800/90 hover:bg-slate-700 text-slate-200 border-slate-700'
+                    ? 'bg-slate-800/80 hover:bg-slate-700 text-slate-200 border-white/10 backdrop-blur-md'
                     : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-300 shadow-sm'
                 }`}
               >
-                <span>Sign In with Credentials</span>
+                <span>Sign In / Register</span>
               </button>
             )}
 
@@ -467,7 +457,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               onClick={() => onNavigateToVerification()}
               className={`inline-flex items-center px-5 py-3.5 rounded-xl text-sm font-semibold transition cursor-pointer border ${
                 isDarkMode
-                  ? 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-700/80'
+                  ? 'bg-slate-900/60 hover:bg-slate-800 text-slate-300 border-white/10 backdrop-blur-md'
                   : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-sm'
               }`}
             >

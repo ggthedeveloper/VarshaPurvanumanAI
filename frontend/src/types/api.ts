@@ -43,12 +43,36 @@ export interface UserProfile {
   username: string;
   name: string;
   role: string;
+  email?: string;
+  avatar_url?: string;
   is_demo: boolean;
 }
 
 export interface LoginRequest {
   username: string;
   password: string;
+}
+
+export interface RegisterRequest {
+  username: string;
+  name: string;
+  password: string;
+  email?: string;
+  role?: string;
+}
+
+export interface GoogleLoginRequest {
+  token?: string;
+  email: string;
+  name: string;
+  avatar_url?: string;
+}
+
+export interface UpdateProfileRequest {
+  name?: string;
+  email?: string;
+  role?: string;
+  password?: string;
 }
 
 export interface LoginResponse {

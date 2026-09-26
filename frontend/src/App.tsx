@@ -24,6 +24,7 @@ import { DistrictsView } from './views/DistrictsView';
 import { ProvenanceView } from './views/ProvenanceView';
 import { SystemHealthView } from './views/SystemHealthView';
 import { DemoModeModal } from './components/Panels/DemoModeModal';
+import { UserProfileModal } from './components/Modals/UserProfileModal';
 import { ErrorBoundary } from './components/Common/ErrorBoundary';
 import { WeatherProvider, useWeather } from './context/WeatherContext';
 import { LiveWeatherBackground } from './components/Weather/LiveWeatherBackground';
@@ -72,6 +73,7 @@ const AppContent: React.FC = () => {
   });
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
 
   // Connection & Data Status
   const [apiConnected, setApiConnected] = useState<boolean>(false);
@@ -354,22 +356,18 @@ const AppContent: React.FC = () => {
     }
 
     return (
-      <div
-        className={`min-h-screen relative overflow-x-hidden transition-colors ${
-          isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
-        }`}
-      >
+      <div className="min-h-screen relative overflow-x-hidden transition-colors text-slate-100">
         {/* Fixed Ambient Live Weather Canvas Background */}
         <LiveWeatherBackground
           fixed={true}
           isDarkMode={isDarkMode}
-          opacity={isDarkMode ? 0.35 : 0.65}
+          interactive={true}
         />
 
         {/* Guest Header */}
         <header
           className={`sticky top-0 z-40 backdrop-blur-md border-b px-4 sm:px-8 py-3.5 flex items-center justify-between transition-colors ${
-            isDarkMode ? 'bg-slate-950/80 border-slate-800' : 'bg-white/80 border-slate-200 shadow-xs'
+            isDarkMode ? 'bg-slate-950/70 border-white/10' : 'bg-white/80 border-slate-200/80 shadow-xs'
           }`}
         >
           <div className="flex items-center space-x-3">
@@ -382,7 +380,7 @@ const AppContent: React.FC = () => {
                   VarshaPurvanuman AI
                 </span>
               </div>
-              <span className={`text-[11px] hidden sm:block ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+              <span className={`text-[11px] hidden sm:block ${isDarkMode ? 'text-slate-300' : 'text-slate-500'}`}>
                 Ministry of Earth Sciences (MoES) / IMD Monsoon Intelligence
               </span>
             </div>
@@ -395,27 +393,16 @@ const AppContent: React.FC = () => {
             <button
               onClick={handleToggleTheme}
               title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
             >
               {isDarkMode ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4" />}
             </button>
 
             <button
-              onClick={handleQuickDemo}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20 transition cursor-pointer flex items-center space-x-1.5"
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>Demo Access</span>
-            </button>
-            <button
               onClick={() => setAuthView('login')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer border ${
-                isDarkMode
-                  ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
-                  : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-300 shadow-xs'
-              }`}
+              className="px-4 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/30 transition cursor-pointer flex items-center space-x-1.5"
             >
-              Sign In
+              <span>Sign In / Register</span>
             </button>
           </div>
         </header>
@@ -454,12 +441,11 @@ const AppContent: React.FC = () => {
   const isDataUnavailable = districtForecast?.coverage_status === 'DATA_UNAVAILABLE';
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex transition-colors relative overflow-x-hidden">
+    <div className="min-h-screen text-slate-900 dark:text-slate-100 flex transition-colors relative overflow-x-hidden">
       {/* Fixed Ambient Live Weather Canvas Background across Interface */}
       <LiveWeatherBackground
         fixed={true}
         isDarkMode={isDarkMode}
-        opacity={isDarkMode ? 0.38 : 0.65}
         interactive={true}
       />
 
@@ -501,6 +487,7 @@ const AppContent: React.FC = () => {
           user={user}
           onLogout={handleLogout}
           onDetectLocation={handleDetectLocation}
+          onOpenProfileModal={() => setIsProfileModalOpen(true)}
         />
 
         {/* Global Network or API Error Banner */}
@@ -693,6 +680,15 @@ const AppContent: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* User Profile & Credentials Modal */}
+      <UserProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        user={user}
+        onUpdateUser={(updated) => setUser(updated)}
+        isDarkMode={isDarkMode}
+      />
 
       {/* Demo Mode Simulator Modal */}
       <DemoModeModal

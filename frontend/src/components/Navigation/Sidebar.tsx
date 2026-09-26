@@ -86,12 +86,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <CloudRain className="h-5 w-5" />
             </div>
             {!isCollapsed && (
-              <div className="overflow-hidden">
-                <span className="font-extrabold text-sm tracking-tight text-slate-900 dark:text-white block truncate">
-                  VarshaPurvanuman AI
+              <div className="flex-1 min-w-0">
+                <span className="font-black text-sm tracking-tight text-slate-900 dark:text-white block whitespace-nowrap">
+                  VarshaPurvanumanAI
                 </span>
-                <span className="text-[10px] text-slate-400 font-semibold block truncate">
-                  MoES • IMD Operational
+                <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-semibold block">
+                  Meteorological Intelligence
                 </span>
               </div>
             )}
