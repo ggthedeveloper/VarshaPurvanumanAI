@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+gunicorn
+pydantic
+scikit-learn
+numpy
+pandas
+geopandas
+shapely
+requests

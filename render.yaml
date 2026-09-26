@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: varsha-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn backend.app.main:app --worker-class uvicorn.workers.UvicornWorker --workers 1 --bind 0.0.0.0:$PORT --timeout 120
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: BACKEND_HOST
+        value: 0.0.0.0
+      - key: DATA_STATUS
+        value: HISTORICAL_BENCHMARK
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: DEMO_USERNAME
+        sync: false
+      - key: DEMO_PASSWORD
+        sync: false
