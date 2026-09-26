@@ -24,6 +24,7 @@ from backend.app.routes import (
     auth_router,
     grid_router,
     data_router,
+    weather_router,
 )
 
 
@@ -114,6 +115,7 @@ app.include_router(verification_router)
 app.include_router(auth_router)
 app.include_router(grid_router)
 app.include_router(data_router)
+app.include_router(weather_router)
 
 
 @app.get("/", summary="Root Status")

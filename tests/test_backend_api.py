@@ -408,5 +408,36 @@ def test_21_datasets_status_and_connectivity(client):
     assert geo["district_polygon_count"] > 500
 
 
+def test_18_live_weather_and_surface_telemetry(client):
+    """18. Verify /api/weather/live returns real meteorological fields with valid diurnal cycle."""
+    # Test Pune live weather
+    res_pune = client.get("/api/weather/live?latitude=18.5204&longitude=73.8567&name=Pune")
+    assert res_pune.status_code == 200
+    pune_data = res_pune.json()
+    assert "temperature_c" in pune_data
+    assert isinstance(pune_data["temperature_c"], (int, float))
+    assert -20.0 <= pune_data["temperature_c"] <= 55.0
+    assert "relative_humidity_pct" in pune_data
+    assert "surface_pressure_hpa" in pune_data
+    assert "wind_speed_ms" in pune_data
+    assert "diurnal_period" in pune_data
+    assert pune_data["diurnal_period"] in ["dawn", "day", "afternoon", "evening", "night"]
+
+    # Test Mumbai vs Delhi live weather - must have valid numbers
+    res_delhi = client.get("/api/weather/live?latitude=28.6139&longitude=77.2090&name=New%20Delhi")
+    assert res_delhi.status_code == 200
+    delhi_data = res_delhi.json()
+    assert "temperature_c" in delhi_data
+
+    # Test district forecast includes surface_telemetry
+    res_dist = client.get("/api/district/pune/forecast?use_processed=false")
+    assert res_dist.status_code == 200
+    dist_data = res_dist.json()
+    assert "surface_telemetry" in dist_data
+    assert dist_data["surface_telemetry"] is not None
+    assert "temperature_c" in dist_data["surface_telemetry"]
+    assert dist_data["surface_telemetry"]["temperature_c"] == 28.3
+
+
 
 

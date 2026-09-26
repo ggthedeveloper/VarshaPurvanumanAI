@@ -172,14 +172,22 @@ const AppContent: React.FC = () => {
     if (activeForecast && !userLocation && !isLiveWeather) {
       setDistrictRegime(activeForecast.predicted_regime);
       const isBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
+      const surf = (districtForecast as any)?.surface_telemetry;
       setStationTelemetry({
         rainRateMmH: activeForecast.corrected_rainfall_mm,
-        conditionLabel: activeForecast.predicted_regime.replace(/_/g, ' '),
+        conditionLabel: surf?.condition_label || activeForecast.predicted_regime.replace(/_/g, ' '),
         stationName: `${districtForecast?.name || selectedDistrictId.toUpperCase()} (${isBenchmark ? 'AWS 43063' : 'Operational NWP'})`,
         stationCoordinates: {
           lat: districtForecast?.latitude ?? 18.5204,
           lon: districtForecast?.longitude ?? 73.8567,
         },
+        ...(surf?.temperature_c !== undefined ? { temperatureC: surf.temperature_c } : {}),
+        ...(surf?.relative_humidity_pct !== undefined ? { relativeHumidityPct: surf.relative_humidity_pct } : {}),
+        ...(surf?.surface_pressure_hpa !== undefined ? { surfacePressureHpa: surf.surface_pressure_hpa } : {}),
+        ...(surf?.wind_speed_ms !== undefined ? { windSpeedMs: surf.wind_speed_ms } : {}),
+        ...(surf?.wind_direction_deg !== undefined ? { windDirectionDeg: surf.wind_direction_deg } : {}),
+        ...(surf?.wind_direction_compass !== undefined ? { windDirectionCompass: surf.wind_direction_compass } : {}),
+        ...(surf?.source_provenance ? { sourceProvenance: surf.source_provenance } : {}),
       });
     }
   }, [activeForecast, districtForecast, selectedDistrictId, setDistrictRegime, setStationTelemetry, userLocation, telemetry?.sourceProvenance]);
@@ -395,13 +403,33 @@ const AppContent: React.FC = () => {
       if (resp && resp.forecast) {
         setDistrictForecast(resp);
         setActiveForecast(resp.forecast);
+        if (liveWeather) {
+          setStationTelemetry(liveWeather);
+        } else if ((resp as any).surface_telemetry) {
+          const st = (resp as any).surface_telemetry;
+          setStationTelemetry({
+            temperatureC: st.temperature_c,
+            relativeHumidityPct: st.relative_humidity_pct,
+            surfacePressureHpa: st.surface_pressure_hpa,
+            windSpeedMs: st.wind_speed_ms,
+            windDirectionDeg: st.wind_direction_deg,
+            windDirectionCompass: st.wind_direction_compass,
+            rainRateMmH: st.rain_rate_mm_h,
+            conditionLabel: st.condition_label,
+            sourceProvenance: st.source_provenance,
+          });
+        }
       } else {
+        const fallbackTemp = Math.round((31.5 - Math.abs(targetLat - 13.0) * 0.42 - (Math.abs(targetLon - 73.0) < 1.5 ? 1.8 : 0)) * 10) / 10;
         const effectiveTelem: Partial<WeatherTelemetry> = liveWeather || {
           rainRateMmH: matched?.corrected_rainfall_mm ?? 0.0,
-          temperatureC: 28.0,
+          temperatureC: fallbackTemp,
           cloudCoverPct: 40,
           windSpeedMs: 4.5,
         };
+        if (liveWeather) {
+          setStationTelemetry(liveWeather);
+        }
         const dynamicRegime: SynopticRegime =
           (matched?.predicted_regime as SynopticRegime) ||
           (effectiveTelem.rainRateMmH && effectiveTelem.rainRateMmH > 10

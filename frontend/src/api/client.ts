@@ -122,6 +122,15 @@ class ApiClient {
     return this.fetchJson<any>('/api/districts/geojson');
   }
 
+  async getLiveWeather(lat: number, lon: number, name?: string): Promise<any> {
+    const params = new URLSearchParams({
+      latitude: lat.toFixed(4),
+      longitude: lon.toFixed(4),
+    });
+    if (name) params.append('name', name);
+    return this.fetchJson<any>(`/api/weather/live?${params.toString()}`);
+  }
+
   async getVerificationSummary(): Promise<VerificationSummaryResponse> {
     return this.fetchJson<VerificationSummaryResponse>('/api/verification/summary');
   }

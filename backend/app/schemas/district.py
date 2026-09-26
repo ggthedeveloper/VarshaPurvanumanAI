@@ -57,3 +57,4 @@ class DistrictForecastResponse(BaseModel):
     source_longitude: Optional[float] = Field(default=None, description="Source grid cell or aggregation centroid longitude.")
     predictor_source: Optional[str] = Field(default=None, description="Atmospheric predictor provenance.")
     observation_source: Optional[str] = Field(default=None, description="Ground observation source when verification is involved.")
+    surface_telemetry: Optional[Dict[str, Any]] = Field(default=None, description="Physical surface meteorological telemetry (temperature, wind, humidity, pressure, regime).")

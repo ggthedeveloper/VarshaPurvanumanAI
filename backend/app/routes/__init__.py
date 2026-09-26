@@ -11,6 +11,7 @@ from .verification import router as verification_router
 from .auth import router as auth_router
 from .grid import router as grid_router
 from .data import router as data_router
+from .weather import router as weather_router
 
 __all__ = [
     "health_router",
@@ -23,5 +24,6 @@ __all__ = [
     "auth_router",
     "grid_router",
     "data_router",
+    "weather_router",
 ]
 
