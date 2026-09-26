@@ -26,6 +26,7 @@ import { DistrictItem, CombinedForecastResponse, SynopticRegime } from '../../ty
 import { RainfallMap } from '../Map/RainfallMap';
 import { ErrorBoundary } from '../Common/ErrorBoundary';
 import { LiveWeatherBackground } from '../Weather/LiveWeatherBackground';
+import { InteractiveWeatherShowcase } from './InteractiveWeatherShowcase';
 import { useWeather } from '../../context/WeatherContext';
 
 interface LandingPageProps {
@@ -210,8 +211,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     .map((id) => districts.find((d) => d.district_id === id))
     .filter(Boolean) as DistrictItem[];
 
-  const activeMeta = REGIME_METAS.find((r) => r.id === selectedRegime) || REGIME_METAS[0];
-
   const handleSelectInteractiveRegime = (regimeId: SynopticRegime) => {
     setSelectedRegime(regimeId);
     setSimRegime(regimeId);
@@ -295,140 +294,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </p>
           </div>
 
-          {/* Interactive Live Weather Switcher Bar */}
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center justify-between text-xs">
-              <span
-                className={`font-bold uppercase tracking-wider flex items-center space-x-1.5 ${
-                  isDarkMode ? 'text-indigo-300' : 'text-indigo-800'
-                }`}
-              >
-                <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
-                <span>Interactive Weather Simulation • Click to Test Regimes</span>
-              </span>
-              <span className={`hidden sm:inline-block text-[11px] font-medium ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-                Move cursor over canvas to interact with rain & wind
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-              {REGIME_METAS.map((r) => {
-                const isSelected = selectedRegime === r.id;
-                return (
-                  <button
-                    key={r.id}
-                    onClick={() => handleSelectInteractiveRegime(r.id)}
-                    className={`flex items-center space-x-2 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border ${
-                      isSelected
-                        ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/30 scale-102 font-bold'
-                        : isDarkMode
-                        ? 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-700/80 hover:border-slate-600'
-                        : 'bg-white/90 hover:bg-slate-100 text-slate-700 border-slate-200/90 hover:border-indigo-300 shadow-xs'
-                    }`}
-                  >
-                    <span className={isSelected ? 'text-white' : 'text-indigo-500 dark:text-indigo-400'}>{r.icon}</span>
-                    <span className="truncate">{r.shortName}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Selected Regime Dynamic Details Card */}
-            <div
-              className={`rounded-2xl border p-5 backdrop-blur-md space-y-3 ${
-                isDarkMode
-                  ? 'bg-slate-900/90 border-slate-800 text-white'
-                  : 'bg-white/95 border-slate-200 text-slate-900 shadow-md'
-              }`}
-            >
-              <div
-                className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-2.5 ${
-                  isDarkMode ? 'border-slate-800' : 'border-slate-100'
-                }`}
-              >
-                <div className="flex items-center space-x-2.5">
-                  <span className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400">
-                    {activeMeta.icon}
-                  </span>
-                  <div>
-                    <h3
-                      className={`text-sm font-bold flex items-center space-x-2 ${
-                        isDarkMode ? 'text-white' : 'text-slate-900'
-                      }`}
-                    >
-                      <span>{activeMeta.name}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-mono font-bold">
-                        Active Simulation
-                      </span>
-                    </h3>
-                    <p className={`text-[11px] ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                      {activeMeta.signature}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="text-[11px] text-indigo-600 dark:text-indigo-300 font-mono font-semibold">
-                  Trigger: {selectedRegime}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                <div
-                  className={`rounded-xl p-3.5 border transition ${
-                    isDarkMode
-                      ? 'bg-slate-950/60 border-slate-800 text-slate-300'
-                      : 'bg-slate-50/90 border-slate-200 text-slate-700'
-                  }`}
-                >
-                  <div className="flex items-center space-x-1.5 mb-1 text-indigo-600 dark:text-indigo-400">
-                    <Layers className="h-3.5 w-3.5" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider">
-                      Synoptic Trigger
-                    </span>
-                  </div>
-                  <p className="leading-relaxed text-[11px] text-slate-600 dark:text-slate-300">
-                    {activeMeta.synopticMechanism}
-                  </p>
-                </div>
-
-                <div
-                  className={`rounded-xl p-3.5 border transition ${
-                    isDarkMode
-                      ? 'bg-amber-950/20 border-amber-800/40 text-amber-200'
-                      : 'bg-amber-50/90 border-amber-200 text-amber-900'
-                  }`}
-                >
-                  <div className="flex items-center space-x-1.5 mb-1 text-amber-600 dark:text-amber-400">
-                    <TrendingDown className="h-3.5 w-3.5" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider">
-                      Raw NWP Error Pattern
-                    </span>
-                  </div>
-                  <p className="leading-relaxed text-[11px]">
-                    {activeMeta.biasTendency}
-                  </p>
-                </div>
-
-                <div
-                  className={`rounded-xl p-3.5 border transition ${
-                    isDarkMode
-                      ? 'bg-emerald-950/20 border-emerald-800/40 text-emerald-200'
-                      : 'bg-emerald-50/90 border-emerald-200 text-emerald-900'
-                  }`}
-                >
-                  <div className="flex items-center space-x-1.5 mb-1 text-emerald-600 dark:text-emerald-400">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider">
-                      AI Calibration Solution
-                    </span>
-                  </div>
-                  <p className="leading-relaxed text-[11px]">
-                    {activeMeta.aiRemedy}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Interactive Live Weather Simulation Picture & Showcase */}
+          <InteractiveWeatherShowcase
+            selectedRegime={selectedRegime}
+            onSelectRegime={handleSelectInteractiveRegime}
+            isDarkMode={isDarkMode}
+          />
 
           {/* Primary Action Buttons */}
           <div className="flex flex-wrap items-center gap-4 pt-2">
