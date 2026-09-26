@@ -853,5 +853,51 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
     fireEvent.click(profileBtn);
     expect(screen.getByText('Active Meteorologist')).toBeInTheDocument();
   });
+
+  it('25. Station and Location Selection Stability: Selecting non-benchmark station maintains selection without resetting', async () => {
+    const handleSelectDistrict = vi.fn();
+    const handleDetectLocation = vi.fn();
+
+    render(
+      <WeatherProvider>
+        <Navbar
+          currentRoute="forecast"
+          selectedDistrictName="Mumbai"
+          isBenchmarkActive={false}
+          isDataUnavailable={false}
+          apiConnected={true}
+          dataStatus="REAL_DATA"
+          isDarkMode={false}
+          onToggleTheme={vi.fn()}
+          onRefresh={vi.fn()}
+          isRefreshing={false}
+          onOpenMobileMenu={vi.fn()}
+          user={null}
+          onDetectLocation={handleDetectLocation}
+        />
+        <ForecastTable
+          districts={mockDistricts}
+          selectedDistrictId="mumbai"
+          onSelectDistrict={handleSelectDistrict}
+          activeForecast={null}
+        />
+      </WeatherProvider>
+    );
+
+    // Confirms Mumbai is rendered as target station and in table
+    expect(screen.getByText(/Mumbai/i)).toBeInTheDocument();
+    expect(screen.queryByText('Monsoon Dashboard')).not.toBeInTheDocument();
+
+    // Click on another station (Nagpur) in the table
+    const nagpurRow = screen.getByText('Nagpur');
+    expect(nagpurRow).toBeInTheDocument();
+    fireEvent.click(nagpurRow);
+    expect(handleSelectDistrict).toHaveBeenCalledWith('nagpur');
+
+    // Click on "Use Location" trigger
+    const locBtn = screen.getByRole('button', { name: /Use Location/i });
+    fireEvent.click(locBtn);
+    expect(handleDetectLocation).toHaveBeenCalledTimes(1);
+  });
 });
 

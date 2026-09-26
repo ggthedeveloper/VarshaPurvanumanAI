@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { SynopticRegime } from '../types/api';
 
 export type WeatherMode = 'AUTO' | SynopticRegime | 'CLEAR';
@@ -189,6 +189,10 @@ const safeSetItem = (key: string, val: string): void => {
   }
 };
 
+const OPENWEATHER_API_KEY =
+  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_OPENWEATHER_API_KEY) ||
+  'a3faa380c7a1c0e0f601950834096699';
+
 export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [enabled, setEnabledState] = useState<boolean>(() => {
     const saved = safeGetItem('weather_fx_enabled');
@@ -229,27 +233,23 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [isLocating, setIsLocating] = useState<boolean>(false);
   const [locationError, setLocationError] = useState<string | null>(null);
 
-  const setUserLocation = (loc: UserLocationState | null) => {
+  const setUserLocation = useCallback((loc: UserLocationState | null) => {
     setUserLocationState(loc);
     if (loc) {
       safeSetItem('user_geo_location', JSON.stringify(loc));
     } else {
       safeSetItem('user_geo_location', '');
     }
-  };
+  }, []);
 
-  const clearUserLocation = () => {
+  const clearUserLocation = useCallback(() => {
     setUserLocation(null);
     setLocationError(null);
     setStationOverride({});
     setDistrictRegimeState('ACTIVE_MONSOON');
-  };
+  }, [setUserLocation]);
 
-const OPENWEATHER_API_KEY =
-  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_OPENWEATHER_API_KEY) ||
-  'a3faa380c7a1c0e0f601950834096699';
-
-  const fetchLocationWeather = async (
+  const fetchLocationWeather = useCallback(async (
     lat: number,
     lon: number,
     customLocationName?: string
@@ -380,9 +380,9 @@ const OPENWEATHER_API_KEY =
       console.warn('Real-time coordinates weather fetch fallback:', fetchErr);
     }
     return false;
-  };
+  }, []);
 
-  const detectUserLocation = async (
+  const detectUserLocation = useCallback(async (
     onFound?: (coords: { lat: number; lon: number }) => void
   ): Promise<{ lat: number; lon: number } | null> => {
     setIsLocating(true);
@@ -440,7 +440,7 @@ const OPENWEATHER_API_KEY =
         }
       );
     });
-  };
+  }, [fetchLocationWeather, setUserLocation]);
 
   // Load real-time weather on mount for saved location or check for granted permission
   useEffect(() => {
@@ -469,33 +469,37 @@ const OPENWEATHER_API_KEY =
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [detectUserLocation, fetchLocationWeather, userLocation]);
 
-  const setEnabled = (val: boolean) => {
+  const setEnabled = useCallback((val: boolean) => {
     setEnabledState(val);
     safeSetItem('weather_fx_enabled', String(val));
-  };
+  }, []);
 
-  const toggleEnabled = () => {
-    setEnabled(!enabled);
-  };
+  const toggleEnabled = useCallback(() => {
+    setEnabledState((prev) => {
+      const next = !prev;
+      safeSetItem('weather_fx_enabled', String(next));
+      return next;
+    });
+  }, []);
 
-  const setMode = (newMode: WeatherMode) => {
+  const setMode = useCallback((newMode: WeatherMode) => {
     setModeState(newMode);
     safeSetItem('weather_fx_mode', newMode);
-  };
+  }, []);
 
-  const setIntensity = (newIntensity: WeatherIntensity) => {
+  const setIntensity = useCallback((newIntensity: WeatherIntensity) => {
     setIntensityState(newIntensity);
     safeSetItem('weather_fx_intensity', newIntensity);
-  };
+  }, []);
 
-  const setLightningEnabled = (val: boolean) => {
+  const setLightningEnabled = useCallback((val: boolean) => {
     setLightningEnabledState(val);
     safeSetItem('weather_fx_lightning', String(val));
-  };
+  }, []);
 
-  const setDistrictRegime = (regime: SynopticRegime | string | null | undefined) => {
+  const setDistrictRegime = useCallback((regime: SynopticRegime | string | null | undefined) => {
     if (!regime) return;
     const validRegimes: SynopticRegime[] = [
       'ACTIVE_MONSOON',
@@ -508,15 +512,15 @@ const OPENWEATHER_API_KEY =
     if (validRegimes.includes(regime as SynopticRegime)) {
       setDistrictRegimeState(regime as SynopticRegime);
     }
-  };
+  }, []);
 
-  const setStationTelemetry = (stationData: Partial<WeatherTelemetry>) => {
+  const setStationTelemetry = useCallback((stationData: Partial<WeatherTelemetry>) => {
     setStationOverride(stationData);
-  };
+  }, []);
 
-  const triggerInstantLightning = () => {
+  const triggerInstantLightning = useCallback(() => {
     setInstantLightningSignal(Date.now());
-  };
+  }, []);
 
   // Determine effective regime currently rendered
   const effectiveRegime: SynopticRegime =
@@ -527,7 +531,7 @@ const OPENWEATHER_API_KEY =
   const baseTelemetry = REGIME_TELEMETRY[effectiveRegime] || REGIME_TELEMETRY.ACTIVE_MONSOON;
   const intensityMultiplier = intensity === 'subtle' ? 0.5 : intensity === 'dramatic' ? 1.6 : 1.0;
 
-  const telemetry: WeatherTelemetry = {
+  const telemetry: WeatherTelemetry = useMemo(() => ({
     rainRateMmH: stationOverride.rainRateMmH ?? parseFloat((baseTelemetry.rainRateMmH * intensityMultiplier).toFixed(1)),
     windSpeedMs: stationOverride.windSpeedMs ?? parseFloat((baseTelemetry.windSpeedMs * (0.8 + 0.3 * intensityMultiplier)).toFixed(1)),
     windDirectionDeg: stationOverride.windDirectionDeg ?? baseTelemetry.windDirectionDeg,
@@ -543,35 +547,58 @@ const OPENWEATHER_API_KEY =
     conditionLabel: stationOverride.conditionLabel ?? baseTelemetry.conditionLabel,
     sourceProvenance: stationOverride.sourceProvenance ?? baseTelemetry.sourceProvenance,
     lastUpdatedIso: stationOverride.lastUpdatedIso ?? baseTelemetry.lastUpdatedIso,
-  };
+  }), [stationOverride, baseTelemetry, intensityMultiplier, lightningEnabled]);
+
+  const contextValue = useMemo(() => ({
+    enabled,
+    mode,
+    effectiveRegime,
+    intensity,
+    lightningEnabled,
+    telemetry,
+    instantLightningSignal,
+    userLocation,
+    isLocating,
+    locationError,
+    setEnabled,
+    toggleEnabled,
+    setMode,
+    setIntensity,
+    setLightningEnabled,
+    setDistrictRegime,
+    setStationTelemetry,
+    triggerInstantLightning,
+    detectUserLocation,
+    fetchLocationWeather,
+    clearUserLocation,
+    setUserLocation,
+  }), [
+    enabled,
+    mode,
+    effectiveRegime,
+    intensity,
+    lightningEnabled,
+    telemetry,
+    instantLightningSignal,
+    userLocation,
+    isLocating,
+    locationError,
+    setEnabled,
+    toggleEnabled,
+    setMode,
+    setIntensity,
+    setLightningEnabled,
+    setDistrictRegime,
+    setStationTelemetry,
+    triggerInstantLightning,
+    detectUserLocation,
+    fetchLocationWeather,
+    clearUserLocation,
+    setUserLocation,
+  ]);
 
   return (
-    <WeatherContext.Provider
-      value={{
-        enabled,
-        mode,
-        effectiveRegime,
-        intensity,
-        lightningEnabled,
-        telemetry,
-        instantLightningSignal,
-        userLocation,
-        isLocating,
-        locationError,
-        setEnabled,
-        toggleEnabled,
-        setMode,
-        setIntensity,
-        setLightningEnabled,
-        setDistrictRegime,
-        setStationTelemetry,
-        triggerInstantLightning,
-        detectUserLocation,
-        fetchLocationWeather,
-        clearUserLocation,
-        setUserLocation,
-      }}
-    >
+    <WeatherContext.Provider value={contextValue}>
       {children}
     </WeatherContext.Provider>
   );

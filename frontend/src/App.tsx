@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from './api/client';
 import {
   DistrictItem,
@@ -98,7 +98,21 @@ const AppContent: React.FC = () => {
   const [globalError, setGlobalError] = useState<string | null>(null);
 
   // Weather Context
-  const { setDistrictRegime, setStationTelemetry, detectUserLocation, userLocation, fetchLocationWeather, telemetry } = useWeather();
+  const {
+    setDistrictRegime,
+    setStationTelemetry,
+    detectUserLocation,
+    userLocation,
+    fetchLocationWeather,
+    clearUserLocation,
+    telemetry,
+  } = useWeather();
+
+  // Stable reference for selected district across async renders and refreshes
+  const selectedDistrictIdRef = useRef<string>(selectedDistrictId);
+  useEffect(() => {
+    selectedDistrictIdRef.current = selectedDistrictId;
+  }, [selectedDistrictId]);
 
   // Geolocation & Nearest District Matcher
   const handleDetectLocation = async () => {
@@ -125,7 +139,8 @@ const AppContent: React.FC = () => {
           }
         }
         if (closest) {
-          handleSelectDistrict(closest.district_id);
+          // Pass syncWeather = false so the real-time GPS telemetry is preserved
+          handleSelectDistrict(closest.district_id, false);
         }
       }
     });
@@ -144,8 +159,13 @@ const AppContent: React.FC = () => {
 
   // Synchronize weather simulation and live telemetry with active forecast
   useEffect(() => {
-    // Only synchronize from active forecast if user location is NOT active and real-time OpenWeather telemetry is not actively overriding
-    if (activeForecast && !userLocation && telemetry?.sourceProvenance !== 'OpenWeatherMap Real-Time Telemetry') {
+    // Only synchronize from active forecast if user location is NOT active and real-time telemetry is not actively overriding
+    const isLiveWeather =
+      telemetry?.sourceProvenance?.includes('Real-Time') ||
+      telemetry?.sourceProvenance?.includes('OpenWeather') ||
+      telemetry?.sourceProvenance?.includes('Open-Meteo');
+
+    if (activeForecast && !userLocation && !isLiveWeather) {
       setDistrictRegime(activeForecast.predicted_regime);
       const isBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
       setStationTelemetry({
@@ -220,16 +240,25 @@ const AppContent: React.FC = () => {
       const distData = await api.getDistricts();
       setDistricts(distData.districts || []);
 
-      // 3. Fetch Pune Benchmark Station Forecast
-      const puneForecast = await api.getDistrictForecast('pune');
-      setDistrictForecast(puneForecast);
-      if (puneForecast.forecast) {
-        setActiveForecast(puneForecast.forecast);
+      // 3. Fetch Forecast for current target district (pune on initial load, or active selection on refresh)
+      const currentTargetId = selectedDistrictIdRef.current || 'pune';
+      const targetForecast = await api.getDistrictForecast(currentTargetId);
+      setDistrictForecast(targetForecast);
+      if (targetForecast.forecast) {
+        setActiveForecast(targetForecast.forecast);
       } else {
         setActiveForecast(null);
       }
-      // Initialize real-time weather telemetry for Pune
-      fetchLocationWeather(18.5204, 73.8567, 'Pune');
+
+      // Initialize real-time weather telemetry for target district if userLocation is not active
+      if (!userLocation) {
+        const matched = distData.districts?.find((d: any) => d.district_id === currentTargetId);
+        if (matched && typeof matched.latitude === 'number' && typeof matched.longitude === 'number') {
+          fetchLocationWeather(matched.latitude, matched.longitude, matched.name);
+        } else {
+          fetchLocationWeather(18.5204, 73.8567, 'Pune');
+        }
+      }
 
       // 4. Fetch Verification Engine Outputs
       const [verifSummary, verifProb, verifReg] = await Promise.all([
@@ -254,24 +283,30 @@ const AppContent: React.FC = () => {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [fetchLocationWeather]);
+  }, [fetchLocationWeather, userLocation]);
 
+  // Initial data loading on mount ONLY
   useEffect(() => {
     loadInitialData();
-  }, [loadInitialData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // District Selection with Anti-Stale State Transition & Real Weather Sync
-  const handleSelectDistrict = async (districtId: string) => {
+  const handleSelectDistrict = async (districtId: string, syncWeather: boolean = true) => {
     setSelectedDistrictId(districtId);
+    selectedDistrictIdRef.current = districtId;
     setDistrictLoading(true);
     // Flush stale forecast immediately to prevent previous station data leakage
     setActiveForecast(null);
     setDistrictForecast(null);
 
-    // Immediately trigger real-time weather telemetry fetch for the selected district
-    const matched = districts.find((d) => d.district_id === districtId);
-    if (matched && typeof matched.latitude === 'number' && typeof matched.longitude === 'number') {
-      fetchLocationWeather(matched.latitude, matched.longitude, matched.name);
+    // If explicit district selection (not location-triggered sync), clear userLocation override
+    if (syncWeather) {
+      clearUserLocation();
+      const matched = districts.find((d) => d.district_id === districtId);
+      if (matched && typeof matched.latitude === 'number' && typeof matched.longitude === 'number') {
+        fetchLocationWeather(matched.latitude, matched.longitude, matched.name);
+      }
     }
 
     try {
@@ -282,8 +317,11 @@ const AppContent: React.FC = () => {
       } else {
         setActiveForecast(null);
       }
-      if (!matched && resp.latitude && resp.longitude) {
-        fetchLocationWeather(resp.latitude, resp.longitude, resp.name);
+      if (syncWeather) {
+        const matched = districts.find((d) => d.district_id === districtId);
+        if (!matched && resp.latitude && resp.longitude) {
+          fetchLocationWeather(resp.latitude, resp.longitude, resp.name);
+        }
       }
     } catch (err: any) {
       console.error(`Failed to fetch forecast for district ${districtId}:`, err);
