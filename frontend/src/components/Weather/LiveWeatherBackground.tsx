@@ -472,47 +472,46 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
       const skyAlphaMultiplier = fixed ? 1.0 : (isDarkMode ? 0.70 : 0.28);
 
       if (currentTod === 'evening') {
-        // Evening / Sunset: Matches reference image (Mangalagiri 5:02 PM twilight)
-        // Deep twilight violet at zenith through dusky purple, mauve rose, down to glowing peach and radiant golden amber at the horizon
+        // Evening / Sunset: Cool crisp monsoon twilight with deep slate, indigo, and twilight blue
         if (isDarkMode) {
-          skyGrad.addColorStop(0, `rgba(34, 28, 67, ${0.98 * skyAlphaMultiplier})`);     // Deep dusk violet (#221c43)
-          skyGrad.addColorStop(0.24, `rgba(56, 42, 92, ${0.98 * skyAlphaMultiplier})`);   // Dusky royal purple (#382a5c)
-          skyGrad.addColorStop(0.46, `rgba(86, 59, 113, ${0.96 * skyAlphaMultiplier})`);  // Rich mauve purple (#563b71)
-          skyGrad.addColorStop(0.66, isRainy ? `rgba(92, 48, 85, ${0.95 * skyAlphaMultiplier})` : `rgba(130, 76, 127, ${0.95 * skyAlphaMultiplier})`); // Dusk rose (#824c7f)
-          skyGrad.addColorStop(0.80, isRainy ? `rgba(125, 60, 68, ${0.95 * skyAlphaMultiplier})` : `rgba(179, 92, 114, ${0.95 * skyAlphaMultiplier})`); // Twilight coral (#b35c72)
-          skyGrad.addColorStop(0.92, isRainy ? `rgba(165, 85, 65, ${0.96 * skyAlphaMultiplier})` : `rgba(217, 125, 101, ${0.96 * skyAlphaMultiplier})`); // Glowing sunset peach (#d97d65)
-          skyGrad.addColorStop(1, isRainy ? `rgba(200, 120, 65, ${0.98 * skyAlphaMultiplier})` : `rgba(235, 180, 122, ${0.98 * skyAlphaMultiplier})`); // Warm golden amber horizon (#ebb47a)
+          skyGrad.addColorStop(0, `rgba(15, 23, 42, ${0.98 * skyAlphaMultiplier})`);     // Deep slate (#0f172a)
+          skyGrad.addColorStop(0.24, `rgba(30, 41, 59, ${0.98 * skyAlphaMultiplier})`);   // Dark slate blue
+          skyGrad.addColorStop(0.46, `rgba(30, 58, 138, ${0.96 * skyAlphaMultiplier})`);  // Deep monsoon indigo
+          skyGrad.addColorStop(0.66, `rgba(30, 64, 175, ${0.95 * skyAlphaMultiplier})`);  // Royal monsoon blue
+          skyGrad.addColorStop(0.80, `rgba(37, 99, 235, ${0.95 * skyAlphaMultiplier})`);  // Vivid blue
+          skyGrad.addColorStop(0.92, `rgba(59, 130, 246, ${0.96 * skyAlphaMultiplier})`); // Sky twilight
+          skyGrad.addColorStop(1, `rgba(29, 78, 216, ${0.98 * skyAlphaMultiplier})`);    // Deep ocean blue
         } else {
-          // Light Mode Evening: Soft high-luminance pastel sunset sky
-          skyGrad.addColorStop(0, `rgba(220, 214, 242, ${0.92 * skyAlphaMultiplier})`);   // Soft lavender twilight
-          skyGrad.addColorStop(0.28, `rgba(240, 214, 228, ${0.88 * skyAlphaMultiplier})`); // Pastel dusk rose
-          skyGrad.addColorStop(0.55, `rgba(254, 220, 206, ${0.86 * skyAlphaMultiplier})`); // Glowing peach
-          skyGrad.addColorStop(0.78, `rgba(254, 230, 200, ${0.88 * skyAlphaMultiplier})`); // Warm apricot
-          skyGrad.addColorStop(1, `rgba(254, 243, 212, ${0.94 * skyAlphaMultiplier})`);    // Golden amber cream horizon
+          // Light Mode Evening: Crisp cool overcast sky
+          skyGrad.addColorStop(0, `rgba(224, 242, 254, ${0.92 * skyAlphaMultiplier})`);   // Soft light sky
+          skyGrad.addColorStop(0.28, `rgba(219, 234, 254, ${0.88 * skyAlphaMultiplier})`); // Pale blue
+          skyGrad.addColorStop(0.55, `rgba(191, 219, 254, ${0.86 * skyAlphaMultiplier})`); // Cool blue
+          skyGrad.addColorStop(0.78, `rgba(186, 230, 253, ${0.88 * skyAlphaMultiplier})`); // Sky cyan
+          skyGrad.addColorStop(1, `rgba(147, 197, 253, ${0.94 * skyAlphaMultiplier})`);    // Crisp azure
         }
       } else if (currentTod === 'afternoon') {
-        // Afternoon: Golden Hour radiance & warm atmospheric glow
+        // Afternoon: Cool overcast daylight, crisp monsoon sky
         if (isDarkMode) {
-          skyGrad.addColorStop(0, `rgba(20, 30, 55, ${0.98 * skyAlphaMultiplier})`);
-          skyGrad.addColorStop(0.38, isRainy ? `rgba(30, 41, 59, ${0.92 * skyAlphaMultiplier})` : `rgba(30, 75, 110, ${0.90 * skyAlphaMultiplier})`);
-          skyGrad.addColorStop(0.72, isRainy ? `rgba(51, 65, 85, ${0.88 * skyAlphaMultiplier})` : `rgba(160, 95, 25, ${0.88 * skyAlphaMultiplier})`);
-          skyGrad.addColorStop(1, isRainy ? `rgba(71, 85, 105, ${0.90 * skyAlphaMultiplier})` : `rgba(225, 140, 30, ${0.92 * skyAlphaMultiplier})`);
+          skyGrad.addColorStop(0, `rgba(15, 23, 42, ${0.98 * skyAlphaMultiplier})`);
+          skyGrad.addColorStop(0.38, isRainy ? `rgba(30, 41, 59, ${0.92 * skyAlphaMultiplier})` : `rgba(23, 37, 84, ${0.90 * skyAlphaMultiplier})`);
+          skyGrad.addColorStop(0.72, isRainy ? `rgba(51, 65, 85, ${0.88 * skyAlphaMultiplier})` : `rgba(30, 58, 138, ${0.88 * skyAlphaMultiplier})`);
+          skyGrad.addColorStop(1, isRainy ? `rgba(71, 85, 105, ${0.90 * skyAlphaMultiplier})` : `rgba(30, 64, 175, ${0.92 * skyAlphaMultiplier})`);
         } else {
-          skyGrad.addColorStop(0, `rgba(186, 230, 253, ${0.92 * skyAlphaMultiplier})`);
-          skyGrad.addColorStop(0.6, `rgba(254, 215, 170, ${0.85 * skyAlphaMultiplier})`);
-          skyGrad.addColorStop(1, `rgba(253, 186, 116, ${0.90 * skyAlphaMultiplier})`);
+          skyGrad.addColorStop(0, `rgba(224, 242, 254, ${0.92 * skyAlphaMultiplier})`);
+          skyGrad.addColorStop(0.6, `rgba(186, 230, 253, ${0.85 * skyAlphaMultiplier})`);
+          skyGrad.addColorStop(1, `rgba(147, 197, 253, ${0.90 * skyAlphaMultiplier})`);
         }
       } else if (currentTod === 'dawn') {
-        // Dawn: Soft morning pastel pink, lavender, and pale cyan
+        // Dawn: Cool early morning monsoon twilight
         if (isDarkMode) {
-          skyGrad.addColorStop(0, `rgba(20, 22, 50, ${0.98 * skyAlphaMultiplier})`);
-          skyGrad.addColorStop(0.38, `rgba(55, 48, 115, ${0.92 * skyAlphaMultiplier})`);
-          skyGrad.addColorStop(0.70, `rgba(145, 45, 85, ${0.88 * skyAlphaMultiplier})`);
-          skyGrad.addColorStop(1, `rgba(245, 155, 80, ${0.90 * skyAlphaMultiplier})`);
+          skyGrad.addColorStop(0, `rgba(15, 23, 42, ${0.98 * skyAlphaMultiplier})`);
+          skyGrad.addColorStop(0.38, `rgba(30, 41, 59, ${0.92 * skyAlphaMultiplier})`);
+          skyGrad.addColorStop(0.70, `rgba(30, 58, 138, ${0.88 * skyAlphaMultiplier})`);
+          skyGrad.addColorStop(1, `rgba(14, 116, 144, ${0.90 * skyAlphaMultiplier})`);
         } else {
-          skyGrad.addColorStop(0, `rgba(199, 210, 254, ${0.90 * skyAlphaMultiplier})`);
-          skyGrad.addColorStop(0.5, `rgba(251, 207, 232, ${0.85 * skyAlphaMultiplier})`);
-          skyGrad.addColorStop(1, `rgba(254, 240, 138, ${0.90 * skyAlphaMultiplier})`);
+          skyGrad.addColorStop(0, `rgba(224, 242, 254, ${0.90 * skyAlphaMultiplier})`);
+          skyGrad.addColorStop(0.5, `rgba(191, 219, 254, ${0.85 * skyAlphaMultiplier})`);
+          skyGrad.addColorStop(1, `rgba(186, 230, 253, ${0.90 * skyAlphaMultiplier})`);
         }
       } else if (currentTod === 'night') {
         // Night: Deep obsidian midnight navy in dark mode, luminous moonlit silvery blue in light mode

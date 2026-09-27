@@ -125,6 +125,20 @@ const REGIME_METAS: RegimeCardMeta[] = [
   },
 ];
 
+interface TeamMember {
+  initials: string;
+  name: string;
+}
+
+const TEAM_MEMBERS: TeamMember[] = [
+  { initials: 'GG', name: 'Gaurav Gautam' },
+  { initials: 'DM', name: 'Debosmita Mukhopadhyay' },
+  { initials: 'SS', name: 'Shashwat Sahu' },
+  { initials: 'PR', name: 'Parinita Ramsagar' },
+  { initials: 'LM', name: 'Likhitha Mylavarapu' },
+  { initials: 'SS', name: 'Shubham Sagar' },
+];
+
 export const LandingPage: React.FC<LandingPageProps> = ({
   onNavigateToForecast,
   onNavigateToVerification,
@@ -208,32 +222,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
   return (
     <div className="space-y-16 pb-16">
-      {/* 1. Full-Bleed Hero Section with Green Mountains, Cloudy Weather & Sunshine Background */}
+      {/* 1. Full-Bleed Hero Section with Clear Green Mountain Background */}
       <section
         id="hero"
         className="relative overflow-hidden w-full min-h-[560px] sm:min-h-[640px] lg:min-h-[680px] flex items-center border-b border-slate-800/80 transition-all duration-300"
       >
-        {/* Background Image: Lush Green Mountains with Cloudy Weather & Sunshine */}
+        {/* Background Image: Lush Green Mountains under Cool Monsoon Overcast */}
         <img
-          src="/images/green_mountain_sunshine.jpg"
-          alt="Lush green mountains with cloudy weather and sunshine"
+          src="/images/green_mountain_clear.jpg"
+          alt="Lush green mountains under monsoon rain clouds"
           className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
         />
 
-        {/* Cinematic Atmospheric Overlay matching reference */}
+        {/* Subtle cool atmospheric vignette on the left for maximum text contrast, keeping the mountains 100% visible and vivid */}
         <div
-          className="absolute inset-0 pointer-events-none bg-gradient-to-r from-slate-950/95 via-slate-950/75 to-slate-950/20"
+          className="absolute inset-0 pointer-events-none bg-gradient-to-r from-slate-950/85 via-slate-950/40 to-transparent"
         />
         <div
-          className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#0b1324] via-transparent to-slate-950/30"
-        />
-
-        {/* Live Weather Rain & Mist Subtle Particle Layer */}
-        <LiveWeatherBackground
-          fixed={false}
-          isDarkMode={true}
-          interactive={false}
-          opacity={0.35}
+          className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#070e1d] via-transparent to-transparent"
         />
 
         {/* Hero Content Container */}
@@ -288,7 +294,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             {/* Bottom-left attribution with vertical border matching reference */}
             <div className="border-l-2 border-slate-500/80 pl-3 pt-1 mt-6">
               <div className="text-xs sm:text-sm text-slate-300 font-medium">
-                Developed by <span className="text-blue-400 font-semibold">The Code Clones</span>
+                Developed by <span className="text-blue-400 font-semibold">The Steel Bytes 800</span>
               </div>
               <div className="text-[11px] text-slate-400 font-mono mt-0.5">
                 Smart India Hackathon 2026 • SIH26080
@@ -552,56 +558,39 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* 5. Team Accreditation Section matching reference */}
-      <section id="team" className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 shadow-sm space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
-          <div>
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 mb-2">
-              <Users className="h-3.5 w-3.5 text-blue-500" />
-              <span>Smart India Hackathon 2026</span>
-            </div>
-            <h2 className="text-xl font-black text-slate-900 dark:text-white">
-              Developed by The Code Clones
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
-              Dedicated meteorological AI engineering for Ministry of Earth Sciences (MoES) and India Meteorological Department (IMD).
-            </p>
+      {/* 5. Team Accreditation Section matching reference image */}
+      <section id="team" className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 sm:p-12 shadow-sm space-y-8">
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 tracking-wider">
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>HACKATHON PROJECT TEAM</span>
           </div>
-          <div className="text-right">
-            <span className="inline-block px-3 py-1 rounded-lg text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-              Problem Statement ID: SIH26080
-            </span>
-          </div>
+          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+            The Steel Bytes 800
+          </h2>
+          <div className="h-1 w-12 bg-blue-600 rounded mx-auto" />
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium">
+            Smart India Hackathon 2026 • Problem Statement: SIH26080 • Ministry of Earth Sciences
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-5 border border-slate-200 dark:border-slate-700 space-y-2">
-            <div className="flex items-center space-x-2 text-blue-600 dark:text-blue-400">
-              <Code2 className="h-4 w-4" />
-              <h4 className="text-sm font-bold">Team: The Code Clones</h4>
+        {/* 6 Teammate Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+          {TEAM_MEMBERS.map((member, idx) => (
+            <div
+              key={idx}
+              className="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 sm:p-5 flex items-center space-x-4 shadow-xs hover:shadow-md hover:border-blue-400/50 transition group"
+            >
+              <div className="w-12 h-12 rounded-full bg-blue-600 text-white font-bold text-base flex items-center justify-center shrink-0 shadow-md shadow-blue-600/30 group-hover:scale-105 transition-transform">
+                {member.initials}
+              </div>
+              <div className="min-w-0">
+                <h4 className="text-base font-bold text-slate-900 dark:text-white leading-snug">
+                  {member.name}
+                </h4>
+              </div>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Full-stack meteorological machine learning, geospatial high-resolution downscaling, and operational web telemetry.
-            </p>
-          </div>
-          <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-5 border border-slate-200 dark:border-slate-700 space-y-2">
-            <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400">
-              <ShieldCheck className="h-4 w-4" />
-              <h4 className="text-sm font-bold">Nodal Ministry</h4>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Ministry of Earth Sciences (MoES) / India Meteorological Department (IMD). Strict adherence to WMO/IMD operational guidelines.
-            </p>
-          </div>
-          <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-5 border border-slate-200 dark:border-slate-700 space-y-2">
-            <div className="flex items-center space-x-2 text-blue-600 dark:text-blue-400">
-              <Award className="h-4 w-4" />
-              <h4 className="text-sm font-bold">Core Innovation</h4>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Regime-conditioned bias elimination reducing RMSE by 22.3% and Platt-calibrated rainfall exceedance probabilities.
-            </p>
-          </div>
+          ))}
         </div>
       </section>
 
@@ -636,6 +625,59 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
       </div>
+
+      {/* 7. Bottom Dark Footer matching reference image */}
+      <footer className="w-full bg-[#060c18] border-t border-slate-800 text-white py-8 px-4 sm:px-8 mt-16">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          {/* Left App Branding */}
+          <div className="flex items-center space-x-3">
+            <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-600/30 shrink-0">
+              <CloudRain className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="font-extrabold text-base text-white tracking-tight">
+                VarshaPurvanumanAI
+              </div>
+              <div className="text-[11px] text-slate-400">
+                AI-Powered Regime-Aware Post-Processing of Monsoon Rainfall Forecasts
+              </div>
+            </div>
+          </div>
+
+          {/* Center Team Attribution */}
+          <div className="text-center text-xs text-slate-300">
+            <div>
+              Developed by <span className="text-blue-400 font-semibold">The Steel Bytes 800</span>
+            </div>
+            <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+              Smart India Hackathon 2026 • <span className="text-blue-400">SIH26080</span>
+            </div>
+          </div>
+
+          {/* Right Navigation Links & Login */}
+          <div className="flex items-center space-x-6 text-xs sm:text-sm text-slate-300">
+            <a href="#about" className="hover:text-white transition-colors cursor-pointer">
+              About
+            </a>
+            <a href="#stations" className="hover:text-white transition-colors cursor-pointer">
+              Stations
+            </a>
+            <a href="#how-it-works" className="hover:text-white transition-colors cursor-pointer">
+              How It Works
+            </a>
+            <a href="#team" className="hover:text-white transition-colors cursor-pointer">
+              Team
+            </a>
+            <button
+              onClick={() => (onLoginClick ? onLoginClick() : onNavigateToForecast())}
+              className="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 rounded-lg text-xs flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+            >
+              <span>Login</span>
+              <span className="text-blue-200">→</span>
+            </button>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

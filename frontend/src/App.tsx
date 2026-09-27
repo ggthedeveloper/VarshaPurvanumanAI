@@ -486,16 +486,9 @@ const AppContent: React.FC = () => {
     }
 
     return (
-      <div className="min-h-screen relative overflow-x-hidden transition-colors bg-[#0b1324] text-slate-100">
-        {/* Fixed Ambient Live Weather Canvas Background */}
-        <LiveWeatherBackground
-          fixed={true}
-          isDarkMode={isDarkMode}
-          interactive={true}
-        />
-
+      <div className="min-h-screen relative overflow-x-hidden transition-colors bg-[#070e1d] text-slate-100">
         {/* Guest Header matching reference website */}
-        <header className="sticky top-0 z-40 backdrop-blur-md bg-[#0b1324]/90 border-b border-slate-800/80 px-4 sm:px-8 py-3.5 flex items-center justify-between transition-colors">
+        <header className="sticky top-0 z-40 backdrop-blur-md bg-[#070e1d]/90 border-b border-slate-800/80 px-4 sm:px-8 py-3.5 flex items-center justify-between transition-colors">
           {/* Left Brand Badge */}
           <div className="flex items-center space-x-3">
             <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-600/30">
@@ -759,10 +752,10 @@ const AppContent: React.FC = () => {
               <span className="font-semibold text-slate-700 dark:text-slate-300">
                 VarshaPurvanuman AI
               </span>
-              <span>• Ministry of Earth Sciences (MoES) / IMD Monsoon Intelligence</span>
+              <span>• Ministry of Earth Sciences (MoES) / IMD • Developed by The Steel Bytes 800</span>
             </div>
             <div className="text-[11px] text-slate-400">
-              Verified IMD 0.25° Gridded Rainfall Observations & NOAA GFS 0.25° NWP Forcing.
+              Verified IMD 0.25° Gridded Rainfall Observations & NOAA GFS 0.25° NWP Forcing • SIH26080
             </div>
           </div>
         </footer>
