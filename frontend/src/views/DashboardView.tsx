@@ -81,9 +81,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const { telemetry } = useWeather();
 
   const isPuneBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
-  const isProcessedBenchmark =
-    districtForecast?.coverage_status === 'PROCESSED_BENCHMARK' ||
-    districtForecast?.forecast_mode === 'PROCESSED_DATA_REPLAY';
+  const isOperational =
+    !isPuneBenchmark &&
+    (districtForecast?.coverage_status === 'OPERATIONAL_NWP' ||
+      districtForecast?.coverage_status === 'OPERATIONAL_ACTIVE' ||
+      districtForecast?.coverage_status === 'PROCESSED_BENCHMARK' ||
+      districtForecast?.forecast_mode === 'OPERATIONAL_LIVE_WEATHER' ||
+      districtForecast?.forecast_mode === 'PROCESSED_DATA_REPLAY' ||
+      districtForecast?.forecast_mode === 'OPERATIONAL_NWP' ||
+      Boolean(activeForecast));
+  const isProcessedBenchmark = isOperational;
   const isAvailable = Boolean(activeForecast);
 
   // Selected district metadata
@@ -136,19 +143,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
                     Benchmark Station
                   </span>
-                ) : isProcessedBenchmark ? (
+                ) : isOperational ? (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-300/60 shrink-0">
                     <span className="h-1.5 w-1.5 rounded-full bg-sky-500 mr-1.5" />
-                    Real Data (NOAA GFS)
+                    Operational Active (NOAA GFS)
                   </span>
                 ) : (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-300/60 shrink-0">
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-500 mr-1.5" />
-                    Unmonitored
+                    Data Unavailable
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 whitespace-normal sm:whitespace-nowrap">
                 {currentDistrict?.state || 'India'} • {currentDistrict?.latitude ? `${currentDistrict.latitude.toFixed(2)}°N, ${currentDistrict.longitude.toFixed(2)}°E` : '18.52°N, 73.86°E'}
               </p>
             </div>
@@ -352,11 +359,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div className="flex items-baseline space-x-2 min-w-0">
             {elevatedProb ? (
-              <span className="text-lg font-extrabold text-amber-600 dark:text-amber-400 truncate">
+              <span className="text-base sm:text-lg font-bold text-amber-600 dark:text-amber-400 leading-tight">
                 Elevated Risk (≥{elevatedProb.threshold_mm} mm)
               </span>
             ) : (
-              <span className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400 truncate">
+              <span className="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 leading-tight">
                 Normal Advisory
               </span>
             )}
@@ -365,7 +372,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="truncate">Risk of &gt;15.6mm</span>
             <span className="font-mono font-semibold text-slate-800 dark:text-slate-200 shrink-0 ml-1">
               {isAvailable && activeForecast && activeForecast.heavy_rainfall_probabilities?.length
-                ? `${((activeForecast.heavy_rainfall_probabilities.find((p) => p.threshold_mm === 15.6)?.exceedance_probability ?? 0) * 100).toFixed(1)}%`
+                ? `${((activeForecast.heavy_rainfall_probabilities.find((p) => Math.abs(p.threshold_mm - 15.6) < 0.1 || Math.abs(p.threshold_mm - 15.0) < 0.1)?.exceedance_probability ?? 0) * 100).toFixed(1)}%`
                 : 'N/A'}
             </span>
           </div>
@@ -391,15 +398,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse" />
                 Benchmark Active
               </span>
-            ) : isProcessedBenchmark ? (
+            ) : isOperational ? (
               <span className="inline-flex items-center text-[10px] font-bold text-sky-600 dark:text-sky-400">
                 <span className="h-1.5 w-1.5 rounded-full bg-sky-500 mr-1" />
-                Real Data (NOAA GFS)
+                Operational Active
               </span>
             ) : (
               <span className="inline-flex items-center text-[10px] font-bold text-amber-600 dark:text-amber-400">
                 <span className="h-1.5 w-1.5 rounded-full bg-amber-500 mr-1" />
-                Unmonitored
+                Data Unavailable
               </span>
             )}
           </div>
@@ -439,13 +446,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                   Ground Truth Active
                 </span>
-              ) : isProcessedBenchmark ? (
+              ) : isOperational ? (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
-                  Real Data (NOAA GFS)
+                  Operational Active
                 </span>
               ) : (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                  Unmonitored
+                  Data Unavailable
                 </span>
               )}
             </div>

@@ -71,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Sidebar Container */}
       <aside
         className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col bg-white/85 dark:bg-[#070e1d]/85 backdrop-blur-xl border-r border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 ${
-          isCollapsed ? 'w-20' : 'w-64'
+          isCollapsed ? 'w-20' : 'w-72'
         } ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
@@ -80,7 +80,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
           <div
             onClick={() => onNavigate('dashboard')}
-            className="flex items-center space-x-3 cursor-pointer overflow-hidden"
+            className="flex items-center space-x-3 cursor-pointer min-w-0"
           >
             <div className="h-9 w-9 shrink-0 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
               <CloudRain className="h-5 w-5" />
@@ -90,7 +90,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <span className="font-black text-sm tracking-tight text-slate-900 dark:text-white block whitespace-nowrap">
                   VarshaPurvanumanAI
                 </span>
-                <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-semibold block">
+                <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-semibold block truncate">
                   Meteorological Intelligence
                 </span>
               </div>

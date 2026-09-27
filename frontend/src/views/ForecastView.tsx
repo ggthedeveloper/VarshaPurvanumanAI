@@ -47,7 +47,16 @@ export const ForecastView: React.FC<ForecastViewProps> = ({
   isDarkMode,
 }) => {
   const isPuneBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
-  const isProcessedBenchmark = districtForecast?.coverage_status === 'PROCESSED_BENCHMARK' || districtForecast?.forecast_mode === 'PROCESSED_DATA_REPLAY';
+  const isOperational =
+    !isPuneBenchmark &&
+    (districtForecast?.coverage_status === 'OPERATIONAL_NWP' ||
+      districtForecast?.coverage_status === 'OPERATIONAL_ACTIVE' ||
+      districtForecast?.coverage_status === 'PROCESSED_BENCHMARK' ||
+      districtForecast?.forecast_mode === 'OPERATIONAL_LIVE_WEATHER' ||
+      districtForecast?.forecast_mode === 'PROCESSED_DATA_REPLAY' ||
+      districtForecast?.forecast_mode === 'OPERATIONAL_NWP' ||
+      Boolean(districtForecast?.forecast));
+  const isProcessedBenchmark = isOperational;
   const currentDistrict = districts.find((d) => d.district_id === selectedDistrictId);
   const districtName = districtForecast?.name || currentDistrict?.name || 'Selected Station';
 

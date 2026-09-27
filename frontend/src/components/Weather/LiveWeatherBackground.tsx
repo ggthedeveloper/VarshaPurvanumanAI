@@ -275,46 +275,51 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
 
     // Determine particle counts and physics parameters from live telemetry
     const intensityMultiplier = intensity === 'subtle' ? 0.65 : intensity === 'dramatic' ? 1.7 : 1.0;
-    const rainRate = typeof telemetry?.rainRateMmH === 'number' ? telemetry.rainRateMmH : 10;
-    const windSpeed = typeof telemetry?.windSpeedMs === 'number' ? telemetry.windSpeedMs : 5;
-    const cloudCover = typeof telemetry?.cloudCoverPct === 'number' ? telemetry.cloudCoverPct : 50;
+    const rainRate = typeof telemetry?.rainRateMmH === 'number' ? telemetry.rainRateMmH : 0;
+    const windSpeed = typeof telemetry?.windSpeedMs === 'number' ? telemetry.windSpeedMs : 4.5;
+    const cloudCover = typeof telemetry?.cloudCoverPct === 'number' ? telemetry.cloudCoverPct : 40;
+    const condition = (telemetry?.conditionLabel || '').toLowerCase();
 
     // -------------------------------------------------------------------------
     // Realistic Live Meteorological Parameter Binding
-    // For fixed dashboard background, ensure continuous animated cloud rain
+    // Sync animation strictly to current station/region/location weather conditions
     // -------------------------------------------------------------------------
-    const effectiveRainRate = fixed ? Math.max(15, rainRate) : rainRate;
-    const isDry = !fixed && effectiveRainRate <= 0.1;
+    const isStationRaining =
+      rainRate > 0.15 ||
+      condition.includes('rain') ||
+      condition.includes('drizzle') ||
+      condition.includes('shower') ||
+      condition.includes('thunderstorm') ||
+      ((activeRegime === 'ACTIVE_MONSOON' || activeRegime === 'COASTAL_OROGRAPHIC' || activeRegime === 'DEPRESSION') && rainRate > 0.1);
+
     let dropCount = 0;
-    let baseDropSpeed = 18;
+    let baseDropSpeed = 16;
     let moteCount = 0;
 
-    if (isDry) {
-      // Dry weather at station (non-fixed widgets only): zero rain, clear or calm motes
+    if (!isStationRaining) {
+      // Station is dry, sunny, clear, or partly cloudy: ZERO raindrops!
       dropCount = 0;
-      moteCount = activeRegime === 'BREAK_MONSOON' ? Math.round(40 * intensityMultiplier) : 15;
+      moteCount = activeRegime === 'BREAK_MONSOON'
+        ? Math.round(45 * intensityMultiplier)
+        : Math.round(25 * intensityMultiplier);
     } else {
-      // Actively raining at station or fixed dashboard background:
+      // Station is actively experiencing rain:
       const multiplier =
-        activeRegime === 'DEPRESSION' ? 22 :
+        activeRegime === 'DEPRESSION' ? 20 :
         activeRegime === 'COASTAL_OROGRAPHIC' ? 18 :
         activeRegime === 'ACTIVE_MONSOON' ? 16 : 14;
-      dropCount = Math.round(Math.min(380, Math.max(160, effectiveRainRate * multiplier)) * intensityMultiplier);
-      baseDropSpeed = Math.min(28, 16 + effectiveRainRate * 0.4);
+      dropCount = Math.round(Math.min(360, Math.max(70, rainRate * multiplier)) * intensityMultiplier);
+      baseDropSpeed = Math.min(26, 14 + rainRate * 0.4);
       moteCount = 0;
     }
 
     // Wind speed, cloud puffs, and drifting mist banks
     let baseWind = Math.max(0.8, Math.min(14, windSpeed * 0.35));
-    let cloudCount = fixed
-      ? Math.max(6, cloudCover < 40 ? 4 : cloudCover < 70 ? 7 : 10)
-      : cloudCover < 15 ? 0 : cloudCover < 40 ? 2 : cloudCover < 70 ? 4 : cloudCover < 85 ? 7 : 10;
+    let cloudCount = cloudCover < 15 ? (fixed ? 3 : 0) : cloudCover < 40 ? 5 : cloudCover < 70 ? 7 : 10;
 
-    let mistCount = fixed
-      ? Math.max(4, Math.round((telemetry?.relativeHumidityPct || 85) * 0.05))
-      : telemetry?.relativeHumidityPct > 88 && (rainRate > 2 || activeRegime === 'COASTAL_OROGRAPHIC')
-        ? Math.min(5, Math.round((telemetry.relativeHumidityPct - 85) * 0.4))
-        : 0;
+    let mistCount = isStationRaining && (telemetry?.relativeHumidityPct || 70) > 80
+      ? Math.max(3, Math.round(((telemetry?.relativeHumidityPct || 80) - 70) * 0.2))
+      : 0;
 
     // 1. Initialize 3-Tier Raindrops
     const rainDrops: RainDrop[] = [];
@@ -467,7 +472,7 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
       // -------------------------------------------------------------
       const skyGrad = ctx.createLinearGradient(0, 0, 0, height);
       const currentTod = effectiveTimeOfDayRef.current;
-      const isRainy = rainRate > 0.3;
+      const isRainy = isStationRaining;
 
       // For embedded cards (fixed === false), adjust alpha so underlying card styling/contrast is maintained
       const skyAlphaMultiplier = fixed ? 1.0 : (isDarkMode ? 0.70 : 0.28);
@@ -929,15 +934,19 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
     };
   }, [
     enabled,
+    fixed,
     activeRegime,
     intensity,
     lightningEnabled,
     isDarkMode,
     interactive,
     effectiveTimeOfDay,
-    telemetry.rainRateMmH,
-    telemetry.windSpeedMs,
-    telemetry.cloudCoverPct,
+    telemetry?.rainRateMmH,
+    telemetry?.windSpeedMs,
+    telemetry?.cloudCoverPct,
+    telemetry?.relativeHumidityPct,
+    telemetry?.conditionLabel,
+    telemetry?.stationName,
   ]);
 
   if (!enabled && !fixed) return null;

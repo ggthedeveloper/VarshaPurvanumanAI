@@ -172,9 +172,10 @@ const AppContent: React.FC = () => {
       setDistrictRegime(activeForecast.predicted_regime);
       const isBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
       const surf = (districtForecast as any)?.surface_telemetry;
+      const hourlyRain = surf?.rain_rate_mm_h ?? (activeForecast.corrected_rainfall_mm > 15 ? 4.5 : activeForecast.corrected_rainfall_mm > 2.5 ? 1.2 : 0.0);
       setStationTelemetry({
-        rainRateMmH: activeForecast.corrected_rainfall_mm,
-        conditionLabel: surf?.condition_label || activeForecast.predicted_regime.replace(/_/g, ' '),
+        rainRateMmH: hourlyRain,
+        conditionLabel: surf?.condition_label || (hourlyRain > 0.5 ? 'Light Rain' : 'Partly Cloudy'),
         stationName: `${districtForecast?.name || selectedDistrictId.toUpperCase()} (${isBenchmark ? 'AWS 43063' : 'Operational NWP'})`,
         stationCoordinates: {
           lat: districtForecast?.latitude ?? 18.5204,
@@ -619,8 +620,11 @@ const AppContent: React.FC = () => {
   const currentDistrict = districts.find((d) => d.district_id === selectedDistrictId);
   const districtName = districtForecast?.name || currentDistrict?.name || 'Selected Station';
   const isPuneBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
-  const isProcessedBenchmark = districtForecast?.coverage_status === 'PROCESSED_BENCHMARK';
-  const isDataUnavailable = districtForecast?.coverage_status === 'DATA_UNAVAILABLE';
+  const isProcessedBenchmark =
+    districtForecast?.coverage_status === 'PROCESSED_BENCHMARK' ||
+    districtForecast?.coverage_status === 'OPERATIONAL_NWP' ||
+    districtForecast?.coverage_status === 'OPERATIONAL_ACTIVE';
+  const isDataUnavailable = !activeForecast && districtForecast?.coverage_status === 'DATA_UNAVAILABLE';
 
   return (
     <div className="min-h-screen text-slate-900 dark:text-slate-100 flex transition-colors relative overflow-x-hidden">
@@ -666,7 +670,7 @@ const AppContent: React.FC = () => {
       {/* Main App Layout */}
       <div
         className={`flex-1 flex flex-col min-w-0 transition-all duration-300 relative z-10 ${
-          isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'
+          isSidebarCollapsed ? 'md:ml-20' : 'md:ml-72'
         }`}
       >
         {/* Top Navbar */}
