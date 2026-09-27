@@ -31,8 +31,12 @@ interface RainfallMapProps {
   isDarkMode: boolean;
 }
 
-// Google Maps API Key from environment configuration (never hardcoded in source)
-const GOOGLE_MAPS_KEY = ((import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string) || '').trim();
+// Google Maps API Key provided for production cartography (with env override support)
+const DEFAULT_GOOGLE_MAPS_KEY = 'AIzaSyCubQwLYG5L59LJawYmwhbSnYqCf70fT2s';
+const GOOGLE_MAPS_KEY = (
+  (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string) ||
+  DEFAULT_GOOGLE_MAPS_KEY
+).trim();
 const HAS_GOOGLE_MAPS_KEY = Boolean(GOOGLE_MAPS_KEY);
 
 // Custom DivIcon for Pune Benchmark Station
@@ -203,22 +207,25 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
       switch (baseMap) {
         case 'terrain':
           return {
-            url: `https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_KEY}`,
+            url: `https://mt{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_KEY}`,
             attribution: '&copy; Google Maps (Physical Terrain)',
             maxZoom: 20,
+            subdomains: ['0', '1', '2', '3'],
           };
         case 'satellite':
           return {
-            url: `https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_KEY}`,
+            url: `https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_KEY}`,
             attribution: '&copy; Google Maps (Satellite Hybrid)',
             maxZoom: 20,
+            subdomains: ['0', '1', '2', '3'],
           };
         case 'streets':
         default:
           return {
-            url: `https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_KEY}`,
+            url: `https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_KEY}`,
             attribution: '&copy; Google Maps (Roadmap)',
             maxZoom: 20,
+            subdomains: ['0', '1', '2', '3'],
           };
       }
     }
@@ -230,12 +237,14 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
           url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
           maxZoom: 19,
+          subdomains: ['a', 'b', 'c', 'd'],
         };
       case 'satellite':
         return {
           url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
           attribution: '&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
           maxZoom: 18,
+          subdomains: ['a', 'b', 'c', 'd'],
         };
       case 'streets':
       default:
@@ -243,6 +252,7 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
           url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
           maxZoom: 19,
+          subdomains: ['a', 'b', 'c', 'd'],
         };
     }
   };
@@ -521,10 +531,11 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
             baseMap={baseMap}
           />
           <TileLayer
-            key={baseMap}
+            key={`${baseMap}-${GOOGLE_MAPS_KEY}`}
             attribution={tileConfig.attribution}
             url={tileConfig.url}
             maxZoom={tileConfig.maxZoom}
+            subdomains={tileConfig.subdomains}
           />
 
           {/* Verified Official GeoJSON Boundaries with Canvas acceleration */}
