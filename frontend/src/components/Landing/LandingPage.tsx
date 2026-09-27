@@ -5,6 +5,7 @@ import {
   TrendingDown,
   ShieldCheck,
   ArrowRight,
+  ArrowDown,
   Activity,
   MapPin,
   Sparkles,
@@ -20,6 +21,8 @@ import {
   Play,
   RotateCcw,
   ExternalLink,
+  Users,
+  Code2,
 } from 'lucide-react';
 import { DistrictItem, CombinedForecastResponse, SynopticRegime } from '../../types/api';
 import { NationalCitiesWeatherGrid } from './NationalCitiesWeatherGrid';
@@ -205,76 +208,108 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
   return (
     <div className="space-y-16 pb-16">
-      {/* 1. Hero Stage with Western Ghats Monsoon Hills Background */}
+      {/* 1. Full-Bleed Hero Section with Green Mountains, Cloudy Weather & Sunshine Background */}
       <section
-        className="relative overflow-hidden rounded-3xl p-8 md:p-14 shadow-2xl border border-slate-700/60 transition-all duration-300 min-h-[500px] flex flex-col justify-center"
+        id="hero"
+        className="relative overflow-hidden w-full min-h-[560px] sm:min-h-[640px] lg:min-h-[680px] flex items-center border-b border-slate-800/80 transition-all duration-300"
       >
-        {/* Background Image: Monsoon Hills */}
+        {/* Background Image: Lush Green Mountains with Cloudy Weather & Sunshine */}
         <img
-          src="/images/monsoon_hills_rain.jpg"
-          alt="Monsoon rain over Western Ghats hills"
+          src="/images/green_mountain_sunshine.jpg"
+          alt="Lush green mountains with cloudy weather and sunshine"
           className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
         />
 
-        {/* Cinematic Atmospheric Overlay for Impeccable Text Contrast */}
+        {/* Cinematic Atmospheric Overlay matching reference */}
         <div
-          className={`absolute inset-0 pointer-events-none ${
-            isDarkMode
-              ? 'bg-gradient-to-r from-slate-950/90 via-slate-950/75 to-slate-950/50'
-              : 'bg-gradient-to-r from-slate-950/85 via-slate-950/70 to-slate-900/40'
-          }`}
+          className="absolute inset-0 pointer-events-none bg-gradient-to-r from-slate-950/95 via-slate-950/75 to-slate-950/20"
+        />
+        <div
+          className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#0b1324] via-transparent to-slate-950/30"
         />
 
-        {/* Live Weather Rain & Mist Particle Background Layer */}
+        {/* Live Weather Rain & Mist Subtle Particle Layer */}
         <LiveWeatherBackground
           fixed={false}
           isDarkMode={true}
           interactive={false}
-          opacity={0.65}
+          opacity={0.35}
         />
 
-        <div className="relative z-10 max-w-4xl space-y-7">
-          {/* MoES Accreditation Badges */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold border border-emerald-400/40 bg-emerald-950/80 text-emerald-300 backdrop-blur-md shadow-lg">
-              <ShieldCheck className="h-4 w-4 mr-1.5 text-emerald-400" />
-              Ministry of Earth Sciences (MoES) / IMD
-            </span>
-            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border border-white/20 bg-slate-900/80 text-slate-200 backdrop-blur-md shadow-lg">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 mr-2 animate-ping" />
-              Live Meteorological AI Engine
-            </span>
-          </div>
-
-          {/* Headline & Mission */}
-          <div className="space-y-4">
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-white drop-shadow-md">
-              Regime-Aware AI Post-Processing of{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-emerald-300">
-                Monsoon Rainfall Forecasts
-              </span>
-            </h1>
-            <p className="text-sm sm:text-base max-w-2xl leading-relaxed text-slate-200 drop-shadow-sm font-medium">
-              Raw NWP forecasts routinely suffer from orographic and peak-intensity biases. VarshaPurvanuman AI classifies synoptic circulation regimes and downscales rainfall predictions to eliminate false alarms and deliver calibrated probabilities.
-            </p>
-          </div>
-
-          {/* Sign In / Register (if not logged in) */}
-          {!isLoggedIn && onLoginClick && (
-            <div className="pt-2">
-              <button
-                onClick={onLoginClick}
-                className="inline-flex items-center px-6 py-3.5 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-xl shadow-indigo-600/40 transition transform hover:-translate-y-0.5 cursor-pointer"
-              >
-                <span>Sign In / Register</span>
-              </button>
+        {/* Hero Content Container */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-16 sm:py-24">
+          <div className="max-w-2xl space-y-4">
+            {/* Eyebrow: MINISTRY OF EARTH SCIENCES with Indian Tricolor Bar */}
+            <div>
+              <div className="text-xs sm:text-sm font-bold uppercase tracking-widest text-slate-200">
+                MINISTRY OF EARTH SCIENCES (MoES) / IMD
+              </div>
+              <div className="flex h-1.5 w-14 rounded overflow-hidden shadow-sm mt-1.5">
+                <div className="w-1/3 bg-[#FF9933]" />
+                <div className="w-1/3 bg-white" />
+                <div className="w-1/3 bg-[#138808]" />
+              </div>
             </div>
-          )}
+
+            {/* Giant Title */}
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-none drop-shadow-lg pt-1">
+              VarshaPurvanumanAI
+            </h1>
+
+            {/* Tagline / Subtitle */}
+            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight drop-shadow">
+              Regime-Aware AI Post-Processing of Monsoon Rainfall Forecasts
+            </h2>
+
+            {/* Paragraph */}
+            <p className="text-sm sm:text-base text-slate-300 max-w-xl leading-relaxed drop-shadow-sm font-normal">
+              Smarter meteorological post-processing for safer and more accurate monsoon rainfall prediction.
+            </p>
+
+            {/* CTA Buttons side by side matching reference */}
+            <div className="flex flex-wrap items-center gap-3 pt-3">
+              <button
+                onClick={() => onNavigateToForecast()}
+                className="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2.5 rounded-lg text-sm shadow-md shadow-blue-600/30 flex items-center gap-2 transition hover:scale-[1.02] cursor-pointer"
+              >
+                <span>Enter Platform</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+
+              <a
+                href="#how-it-works"
+                className="bg-slate-900/70 hover:bg-slate-900/90 text-white border border-slate-700/80 font-medium px-5 py-2.5 rounded-lg text-sm shadow backdrop-blur-sm flex items-center gap-2 transition cursor-pointer"
+              >
+                <span>Explore How It Works</span>
+                <ArrowDown className="h-4 w-4" />
+              </a>
+            </div>
+
+            {/* Bottom-left attribution with vertical border matching reference */}
+            <div className="border-l-2 border-slate-500/80 pl-3 pt-1 mt-6">
+              <div className="text-xs sm:text-sm text-slate-300 font-medium">
+                Developed by <span className="text-blue-400 font-semibold">The Code Clones</span>
+              </div>
+              <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                Smart India Hackathon 2026 • SIH26080
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* 2. Interactive NWP Bias Correction Sandbox */}
-      <section className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 shadow-sm space-y-6">
+      {/* Main Content Sections wrapped in max-w-7xl */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+        {/* 2. National Monsoon Station Hubs • 10 Priority Indian Cities */}
+        <section id="stations">
+          <NationalCitiesWeatherGrid
+            onSelectCity={(districtId) => onNavigateToForecast(districtId)}
+            isDarkMode={isDarkMode}
+          />
+        </section>
+
+        {/* 3. Interactive NWP Bias Correction Sandbox */}
+        <section id="sandbox" className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 shadow-sm space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-5">
           <div>
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 mb-2">
@@ -452,16 +487,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* 3. National Monsoon Station Hubs • 10 Priority Indian Cities (in place of map) */}
-      <NationalCitiesWeatherGrid
-        onSelectCity={(districtId) => onNavigateToForecast(districtId)}
-        isDarkMode={isDarkMode}
-      />
-
-      {/* 5. End-to-End Scientific Architecture Workflow */}
-      <section className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 shadow-sm space-y-6">
+      {/* 4. End-to-End Scientific Architecture Workflow */}
+      <section id="how-it-works" className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 shadow-sm space-y-6">
         <div className="max-w-2xl">
-          <span className="text-xs font-bold uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">
+          <span className="text-xs font-bold uppercase text-blue-600 dark:text-blue-400 tracking-wider">
             Operational Architecture
           </span>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
@@ -474,7 +503,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-5 border border-slate-200 dark:border-slate-700 space-y-2">
-            <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider block">
+            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
               Phase 01 • Ingestion
             </span>
             <h4 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -486,7 +515,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
 
           <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-5 border border-slate-200 dark:border-slate-700 space-y-2">
-            <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider block">
+            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
               Phase 02 • Synoptic AI
             </span>
             <h4 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -498,7 +527,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
 
           <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-5 border border-slate-200 dark:border-slate-700 space-y-2">
-            <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider block">
+            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
               Phase 03 • Post-Processing
             </span>
             <h4 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -510,7 +539,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
 
           <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-5 border border-slate-200 dark:border-slate-700 space-y-2">
-            <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider block">
+            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
               Phase 04 • Verification
             </span>
             <h4 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -523,8 +552,61 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
+      {/* 5. Team Accreditation Section matching reference */}
+      <section id="team" className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 shadow-sm space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
+          <div>
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 mb-2">
+              <Users className="h-3.5 w-3.5 text-blue-500" />
+              <span>Smart India Hackathon 2026</span>
+            </div>
+            <h2 className="text-xl font-black text-slate-900 dark:text-white">
+              Developed by The Code Clones
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
+              Dedicated meteorological AI engineering for Ministry of Earth Sciences (MoES) and India Meteorological Department (IMD).
+            </p>
+          </div>
+          <div className="text-right">
+            <span className="inline-block px-3 py-1 rounded-lg text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+              Problem Statement ID: SIH26080
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-5 border border-slate-200 dark:border-slate-700 space-y-2">
+            <div className="flex items-center space-x-2 text-blue-600 dark:text-blue-400">
+              <Code2 className="h-4 w-4" />
+              <h4 className="text-sm font-bold">Team: The Code Clones</h4>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              Full-stack meteorological machine learning, geospatial high-resolution downscaling, and operational web telemetry.
+            </p>
+          </div>
+          <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-5 border border-slate-200 dark:border-slate-700 space-y-2">
+            <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400">
+              <ShieldCheck className="h-4 w-4" />
+              <h4 className="text-sm font-bold">Nodal Ministry</h4>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              Ministry of Earth Sciences (MoES) / India Meteorological Department (IMD). Strict adherence to WMO/IMD operational guidelines.
+            </p>
+          </div>
+          <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-5 border border-slate-200 dark:border-slate-700 space-y-2">
+            <div className="flex items-center space-x-2 text-blue-600 dark:text-blue-400">
+              <Award className="h-4 w-4" />
+              <h4 className="text-sm font-bold">Core Innovation</h4>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              Regime-conditioned bias elimination reducing RMSE by 22.3% and Platt-calibrated rainfall exceedance probabilities.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* 6. Scientific Rigor & Operational Trust Footer */}
-      <section className="rounded-3xl bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-8 border border-indigo-500/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+      <section id="about" className="rounded-3xl bg-gradient-to-r from-slate-900 to-blue-950 text-white p-8 border border-blue-500/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
         <div className="space-y-2 max-w-2xl">
           <div className="flex items-center space-x-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
             <ShieldCheck className="h-4 w-4" />
@@ -547,12 +629,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </button>
           <button
             onClick={() => onNavigateToForecast()}
-            className="px-5 py-3 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition cursor-pointer shadow-md"
+            className="px-5 py-3 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white transition cursor-pointer shadow-md"
           >
             Enter Cockpit
           </button>
         </div>
       </section>
+      </div>
     </div>
   );
 };

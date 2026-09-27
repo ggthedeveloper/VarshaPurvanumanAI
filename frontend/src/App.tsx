@@ -486,7 +486,7 @@ const AppContent: React.FC = () => {
     }
 
     return (
-      <div className="min-h-screen relative overflow-x-hidden transition-colors text-slate-100">
+      <div className="min-h-screen relative overflow-x-hidden transition-colors bg-[#0b1324] text-slate-100">
         {/* Fixed Ambient Live Weather Canvas Background */}
         <LiveWeatherBackground
           fixed={true}
@@ -494,29 +494,36 @@ const AppContent: React.FC = () => {
           interactive={true}
         />
 
-        {/* Guest Header */}
-        <header
-          className={`sticky top-0 z-40 backdrop-blur-md border-b px-4 sm:px-8 py-3.5 flex items-center justify-between transition-colors ${
-            isDarkMode ? 'bg-slate-950/70 border-white/10' : 'bg-white/95 border-slate-200/90 shadow-xs'
-          }`}
-        >
+        {/* Guest Header matching reference website */}
+        <header className="sticky top-0 z-40 backdrop-blur-md bg-[#0b1324]/90 border-b border-slate-800/80 px-4 sm:px-8 py-3.5 flex items-center justify-between transition-colors">
+          {/* Left Brand Badge */}
           <div className="flex items-center space-x-3">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-sky-400 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+            <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-600/30">
               <CloudRain className="h-5 w-5" />
             </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className={`font-extrabold text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                  VarshaPurvanuman AI
-                </span>
-              </div>
-              <span className={`text-[11px] hidden sm:block ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-                Ministry of Earth Sciences (MoES) / IMD Monsoon Intelligence
-              </span>
-            </div>
+            <span className="font-extrabold text-base sm:text-lg text-white tracking-tight">
+              VarshaPurvanumanAI
+            </span>
           </div>
 
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          {/* Center Navigation Links */}
+          <nav className="hidden md:flex items-center space-x-7 text-sm font-medium text-slate-300">
+            <a href="#about" className="hover:text-white transition-colors cursor-pointer">
+              About
+            </a>
+            <a href="#stations" className="hover:text-white transition-colors cursor-pointer">
+              Stations
+            </a>
+            <a href="#how-it-works" className="hover:text-white transition-colors cursor-pointer">
+              How It Works
+            </a>
+            <a href="#team" className="hover:text-white transition-colors cursor-pointer">
+              Team
+            </a>
+          </nav>
+
+          {/* Right Actions */}
+          <div className="flex items-center space-x-3">
             {/* Theme Switcher in Guest Header */}
             <button
               onClick={handleToggleTheme}
@@ -528,15 +535,16 @@ const AppContent: React.FC = () => {
 
             <button
               onClick={() => setAuthView('login')}
-              className="px-4 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/30 transition cursor-pointer flex items-center space-x-1.5"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white shadow-sm transition cursor-pointer flex items-center space-x-1.5"
             >
-              <span>Sign In / Register</span>
+              <span>Login</span>
+              <span className="text-blue-200">→</span>
             </button>
           </div>
         </header>
 
         {/* Interactive Landing Page Body */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+        <main className="w-full relative z-10">
           <LandingPage
             onNavigateToForecast={(districtId) => {
               handleQuickDemo();
