@@ -119,7 +119,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="space-y-6">
       {/* 1. Realistic Hero Station Weather Overview Card */}
-      <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5 transition-all">
+      <div className="bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5 transition-all">
         {/* Top Meta Bar & Fast Station Switcher */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center space-x-3 min-w-0">
@@ -281,7 +281,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* 2. Four Clean, Impactful Key Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: AI Rainfall Forecast */}
-        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition">
+        <div className="bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition">
           <div className="flex items-center justify-between text-slate-400">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               AI Rainfall Forecast
@@ -312,7 +312,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Card 2: Weather Regime */}
-        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition min-w-0">
+        <div className="bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition min-w-0">
           <div className="flex items-center justify-between text-slate-400">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
               Circulation Regime
@@ -341,7 +341,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Card 3: Heavy Rain Advisory Risk */}
-        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition min-w-0">
+        <div className="bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition min-w-0">
           <div className="flex items-center justify-between text-slate-400">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
               Heavy Rain Risk
@@ -372,7 +372,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Card 4: Location & Benchmark Status */}
-        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition">
+        <div className="bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition">
           <div className="flex items-center justify-between text-slate-400">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Monitoring Station
@@ -425,7 +425,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Right Column (4 cols): Detailed Forecast Intelligence & Risk Ladder */}
         <div className="lg:col-span-4 space-y-4">
           {/* Station Forecast Details Card */}
-          <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-4">
+          <div className="bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -551,7 +551,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => onNavigate('forecast')}
-              className="p-3.5 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-600 transition text-left cursor-pointer group shadow-xs"
+              className="p-3.5 rounded-2xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-600 transition text-left cursor-pointer group shadow-xs"
             >
               <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center justify-between">
                 <span>Forecast Explorer</span>
@@ -564,7 +564,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
             <button
               onClick={() => onNavigate('verification')}
-              className="p-3.5 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-600 transition text-left cursor-pointer group shadow-xs"
+              className="p-3.5 rounded-2xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-600 transition text-left cursor-pointer group shadow-xs"
             >
               <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center justify-between">
                 <span>Model Verification</span>

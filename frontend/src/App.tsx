@@ -624,19 +624,20 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen text-slate-900 dark:text-slate-100 flex transition-colors relative overflow-x-hidden">
-      {/* Mountain Panoramic Background across the Main Page */}
+      {/* Mountain Panoramic Background across Dashboard & Cockpit:
+          Uses the dramatic monsoon hills mountain image with cloud rain (monsoon_hills_rain.jpg) */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <img
-          src="/images/green_mountain_clear.jpg"
-          alt="Monsoon Mountains Background"
-          className="w-full h-full object-cover object-center scale-105"
+          src="/images/monsoon_hills_rain.jpg"
+          alt="Dramatic Western Ghats Monsoon Mountain with Cloud Rain"
+          className="w-full h-full object-cover object-center scale-105 transition-transform duration-1000"
         />
-        {/* Subtle atmospheric veil ensuring mountain landscape visibility + 100% chart/table readability in both light & dark mode */}
+        {/* Subtle atmospheric veil ensuring mountain visibility + 100% chart/table readability in both light & dark mode */}
         <div
           className={`absolute inset-0 transition-colors duration-300 ${
             isDarkMode
-              ? 'bg-slate-950/45 backdrop-blur-[1px]'
-              : 'bg-slate-100/40 backdrop-blur-[1px]'
+              ? 'bg-slate-950/35 backdrop-blur-[0.5px]'
+              : 'bg-slate-900/25 backdrop-blur-[0.5px]'
           }`}
         />
       </div>

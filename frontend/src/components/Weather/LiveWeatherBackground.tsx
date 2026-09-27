@@ -211,7 +211,7 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
   }, [instantLightningSignal, enabled]);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled && !fixed) return;
 
     const canvas = canvasRef.current;
     if (!canvas || typeof canvas.getContext !== 'function') return;
@@ -274,44 +274,45 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
     }
 
     // Determine particle counts and physics parameters from live telemetry
-    const intensityMultiplier = intensity === 'subtle' ? 0.5 : intensity === 'dramatic' ? 1.7 : 1.0;
+    const intensityMultiplier = intensity === 'subtle' ? 0.65 : intensity === 'dramatic' ? 1.7 : 1.0;
     const rainRate = typeof telemetry?.rainRateMmH === 'number' ? telemetry.rainRateMmH : 10;
     const windSpeed = typeof telemetry?.windSpeedMs === 'number' ? telemetry.windSpeedMs : 5;
     const cloudCover = typeof telemetry?.cloudCoverPct === 'number' ? telemetry.cloudCoverPct : 50;
 
     // -------------------------------------------------------------------------
     // Realistic Live Meteorological Parameter Binding
+    // For fixed dashboard background, ensure continuous animated cloud rain
     // -------------------------------------------------------------------------
-    const isDry = rainRate <= 0.1;
+    const effectiveRainRate = fixed ? Math.max(15, rainRate) : rainRate;
+    const isDry = !fixed && effectiveRainRate <= 0.1;
     let dropCount = 0;
-    let baseDropSpeed = 16;
+    let baseDropSpeed = 18;
     let moteCount = 0;
 
     if (isDry) {
-      // Dry weather at station: zero rain, clear or calm motes
+      // Dry weather at station (non-fixed widgets only): zero rain, clear or calm motes
       dropCount = 0;
       moteCount = activeRegime === 'BREAK_MONSOON' ? Math.round(40 * intensityMultiplier) : 15;
     } else {
-      // Actively raining at station: scale dropCount with actual rainRate (mm/h)
+      // Actively raining at station or fixed dashboard background:
       const multiplier =
-        activeRegime === 'DEPRESSION' ? 20 :
-        activeRegime === 'COASTAL_OROGRAPHIC' ? 16 :
-        activeRegime === 'ACTIVE_MONSOON' ? 14 : 10;
-      dropCount = Math.round(Math.min(360, Math.max(25, rainRate * multiplier)) * intensityMultiplier);
-      baseDropSpeed = Math.min(26, 14 + rainRate * 0.4);
+        activeRegime === 'DEPRESSION' ? 22 :
+        activeRegime === 'COASTAL_OROGRAPHIC' ? 18 :
+        activeRegime === 'ACTIVE_MONSOON' ? 16 : 14;
+      dropCount = Math.round(Math.min(380, Math.max(160, effectiveRainRate * multiplier)) * intensityMultiplier);
+      baseDropSpeed = Math.min(28, 16 + effectiveRainRate * 0.4);
       moteCount = 0;
     }
 
-    // Realistic wind speed & cloud puffs bound to live telemetry
-    let baseWind = Math.max(0.6, Math.min(14, windSpeed * 0.35));
-    let cloudCount =
-      cloudCover < 15 ? 0 :
-      cloudCover < 40 ? 2 :
-      cloudCover < 70 ? 4 :
-      cloudCover < 85 ? 7 : 10;
+    // Wind speed, cloud puffs, and drifting mist banks
+    let baseWind = Math.max(0.8, Math.min(14, windSpeed * 0.35));
+    let cloudCount = fixed
+      ? Math.max(6, cloudCover < 40 ? 4 : cloudCover < 70 ? 7 : 10)
+      : cloudCover < 15 ? 0 : cloudCover < 40 ? 2 : cloudCover < 70 ? 4 : cloudCover < 85 ? 7 : 10;
 
-    let mistCount =
-      telemetry.relativeHumidityPct > 88 && (rainRate > 2 || activeRegime === 'COASTAL_OROGRAPHIC')
+    let mistCount = fixed
+      ? Math.max(4, Math.round((telemetry?.relativeHumidityPct || 85) * 0.05))
+      : telemetry?.relativeHumidityPct > 88 && (rainRate > 2 || activeRegime === 'COASTAL_OROGRAPHIC')
         ? Math.min(5, Math.round((telemetry.relativeHumidityPct - 85) * 0.4))
         : 0;
 
@@ -939,9 +940,9 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
     telemetry.cloudCoverPct,
   ]);
 
-  if (!enabled) return null;
+  if (!enabled && !fixed) return null;
 
-  // Background atmosphere tints based on weather regime & diurnal cycle
+  // Background atmosphere tints based on weather regime & diurnal cycle (used only for non-fixed embedded cards)
   const getAtmosphereGradient = () => {
     if (effectiveTimeOfDay === 'evening') {
       return isDarkMode
@@ -994,14 +995,16 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
     }
   };
 
-  const defaultOpacity = fixed ? (isDarkMode ? 0.95 : 0.88) : (isDarkMode ? 0.85 : 0.40);
+  const defaultOpacity = fixed ? 1.0 : (isDarkMode ? 0.85 : 0.40);
   const effectiveOpacity = opacity !== undefined ? opacity : defaultOpacity;
 
   return (
     <div
       className={`${
-        fixed ? 'fixed inset-0 pointer-events-none z-0' : 'absolute inset-0'
-      } overflow-hidden transition-colors duration-1000 bg-gradient-to-b ${getAtmosphereGradient()}`}
+        fixed
+          ? 'fixed inset-0 pointer-events-none z-0'
+          : `absolute inset-0 bg-gradient-to-b ${getAtmosphereGradient()}`
+      } overflow-hidden`}
       style={{ opacity: effectiveOpacity }}
       aria-hidden="true"
     >
