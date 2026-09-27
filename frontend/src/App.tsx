@@ -486,44 +486,86 @@ const AppContent: React.FC = () => {
     }
 
     return (
-      <div className="min-h-screen relative overflow-x-hidden transition-colors bg-[#070e1d] text-slate-100">
-        {/* Guest Header matching reference website */}
-        <header className="sticky top-0 z-40 backdrop-blur-md bg-[#070e1d]/90 border-b border-slate-800/80 px-4 sm:px-8 py-3.5 flex items-center justify-between transition-colors">
+      <div
+        className={`min-h-screen relative overflow-x-hidden transition-colors ${
+          isDarkMode ? 'bg-[#070e1d] text-slate-100' : 'bg-slate-50 text-slate-900'
+        }`}
+      >
+        {/* Guest Header with visible light and dark mode effects */}
+        <header
+          className={`sticky top-0 z-40 backdrop-blur-md border-b px-4 sm:px-8 py-3.5 flex items-center justify-between transition-colors duration-200 ${
+            isDarkMode
+              ? 'bg-[#070e1d]/90 border-slate-800/80 text-white'
+              : 'bg-white/95 border-slate-200/90 text-slate-900 shadow-xs'
+          }`}
+        >
           {/* Left Brand Badge */}
           <div className="flex items-center space-x-3">
             <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-600/30">
               <CloudRain className="h-5 w-5" />
             </div>
-            <span className="font-extrabold text-base sm:text-lg text-white tracking-tight">
+            <span
+              className={`font-extrabold text-base sm:text-lg tracking-tight transition-colors ${
+                isDarkMode ? 'text-white' : 'text-slate-900'
+              }`}
+            >
               VarshaPurvanumanAI
             </span>
           </div>
 
           {/* Center Navigation Links */}
-          <nav className="hidden md:flex items-center space-x-7 text-sm font-medium text-slate-300">
-            <a href="#about" className="hover:text-white transition-colors cursor-pointer">
+          <nav
+            className={`hidden md:flex items-center space-x-7 text-sm font-medium transition-colors ${
+              isDarkMode ? 'text-slate-300' : 'text-slate-600'
+            }`}
+          >
+            <a
+              href="#about"
+              className={`transition-colors cursor-pointer ${
+                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
+              }`}
+            >
               About
             </a>
-            <a href="#stations" className="hover:text-white transition-colors cursor-pointer">
+            <a
+              href="#stations"
+              className={`transition-colors cursor-pointer ${
+                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
+              }`}
+            >
               Stations
             </a>
-            <a href="#how-it-works" className="hover:text-white transition-colors cursor-pointer">
+            <a
+              href="#how-it-works"
+              className={`transition-colors cursor-pointer ${
+                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
+              }`}
+            >
               How It Works
             </a>
-            <a href="#team" className="hover:text-white transition-colors cursor-pointer">
+            <a
+              href="#team"
+              className={`transition-colors cursor-pointer ${
+                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
+              }`}
+            >
               Team
             </a>
           </nav>
 
           {/* Right Actions */}
           <div className="flex items-center space-x-3">
-            {/* Theme Switcher in Guest Header */}
+            {/* Theme Switcher in Guest Header with prominent light/dark indicator */}
             <button
               onClick={handleToggleTheme}
               title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+              className={`p-2 rounded-xl transition cursor-pointer flex items-center justify-center ${
+                isDarkMode
+                  ? 'text-amber-400 hover:text-amber-300 hover:bg-white/10'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 shadow-xs'
+              }`}
             >
-              {isDarkMode ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4" />}
+              {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
 
             <button
@@ -540,12 +582,11 @@ const AppContent: React.FC = () => {
         <main className="w-full relative z-10">
           <LandingPage
             onNavigateToForecast={(districtId) => {
-              handleQuickDemo();
+              setAuthView('login');
               if (districtId) setSelectedDistrictId(districtId);
             }}
             onNavigateToVerification={() => {
-              handleQuickDemo();
-              setCurrentRoute('verification');
+              setAuthView('login');
             }}
             districts={districts}
             selectedDistrictId={selectedDistrictId}
@@ -571,6 +612,23 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen text-slate-900 dark:text-slate-100 flex transition-colors relative overflow-x-hidden">
+      {/* Mountain Panoramic Background across the Main Page */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <img
+          src="/images/green_mountain_clear.jpg"
+          alt="Monsoon Mountains Background"
+          className="w-full h-full object-cover object-center scale-105"
+        />
+        {/* Subtle atmospheric veil ensuring 100% chart/table readability in both light & dark mode */}
+        <div
+          className={`absolute inset-0 transition-colors duration-300 ${
+            isDarkMode
+              ? 'bg-slate-950/85 backdrop-blur-[2px]'
+              : 'bg-slate-50/85 backdrop-blur-[2px]'
+          }`}
+        />
+      </div>
+
       {/* Fixed Ambient Live Weather Canvas Background across Interface */}
       <LiveWeatherBackground
         fixed={true}

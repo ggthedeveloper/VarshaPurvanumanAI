@@ -554,7 +554,7 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
 
     expect(screen.getByText(/MoES \/ IMD Meteorological Intelligence/i)).toBeInTheDocument();
     expect(screen.getByText(/Platform Access/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Quick Demo Access/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Sign In to Dashboard/i })).toBeInTheDocument();
     expect(screen.getByText(/Pre-configured Access/i)).toBeInTheDocument();
     expect(screen.getByDisplayValue('Gaurav')).toBeInTheDocument();
   });

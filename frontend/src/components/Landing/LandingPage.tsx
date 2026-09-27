@@ -221,11 +221,27 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const simResult = calculateSimulatedCorrection(simRawNwp, simRegime);
 
   return (
-    <div className="space-y-16 pb-16">
+    <div className="space-y-16 pb-16 relative">
+      {/* Mountain Panoramic Background across the Entire Landing Page */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <img
+          src="/images/green_mountain_clear.jpg"
+          alt="Monsoon Mountains Background"
+          className="w-full h-full object-cover object-center scale-105"
+        />
+        <div
+          className={`absolute inset-0 transition-colors duration-300 ${
+            isDarkMode
+              ? 'bg-[#070e1d]/90 backdrop-blur-[1px]'
+              : 'bg-slate-50/90 backdrop-blur-[1px]'
+          }`}
+        />
+      </div>
+
       {/* 1. Full-Bleed Hero Section with Clear Green Mountain Background */}
       <section
         id="hero"
-        className="relative overflow-hidden w-full min-h-[560px] sm:min-h-[640px] lg:min-h-[680px] flex items-center border-b border-slate-800/80 transition-all duration-300"
+        className="relative overflow-hidden w-full min-h-[560px] sm:min-h-[640px] lg:min-h-[680px] flex items-center border-b border-slate-800/80 transition-all duration-300 z-10"
       >
         {/* Background Image: Lush Green Mountains under Cool Monsoon Overcast */}
         <img
@@ -275,7 +291,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             {/* CTA Buttons side by side matching reference */}
             <div className="flex flex-wrap items-center gap-3 pt-3">
               <button
-                onClick={() => onNavigateToForecast()}
+                onClick={() => {
+                  if (!isLoggedIn && onLoginClick) {
+                    onLoginClick();
+                  } else {
+                    onNavigateToForecast();
+                  }
+                }}
                 className="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2.5 rounded-lg text-sm shadow-md shadow-blue-600/30 flex items-center gap-2 transition hover:scale-[1.02] cursor-pointer"
               >
                 <span>Enter Platform</span>
@@ -305,11 +327,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* Main Content Sections wrapped in max-w-7xl */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 relative z-10">
         {/* 2. National Monsoon Station Hubs • 10 Priority Indian Cities */}
         <section id="stations">
           <NationalCitiesWeatherGrid
-            onSelectCity={(districtId) => onNavigateToForecast(districtId)}
+            onSelectCity={(districtId) => {
+              if (!isLoggedIn && onLoginClick) {
+                onLoginClick();
+              } else {
+                onNavigateToForecast(districtId);
+              }
+            }}
             isDarkMode={isDarkMode}
           />
         </section>
@@ -617,7 +645,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             Review Verification Suite
           </button>
           <button
-            onClick={() => onNavigateToForecast()}
+            onClick={() => {
+              if (!isLoggedIn && onLoginClick) {
+                onLoginClick();
+              } else {
+                onNavigateToForecast();
+              }
+            }}
             className="px-5 py-3 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white transition cursor-pointer shadow-md"
           >
             Enter Cockpit
@@ -626,8 +660,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
       </div>
 
-      {/* 7. Bottom Dark Footer matching reference image */}
-      <footer className="w-full bg-[#060c18] border-t border-slate-800 text-white py-8 px-4 sm:px-8 mt-16">
+      {/* 7. Bottom Footer matching reference image with full light/dark responsiveness */}
+      <footer
+        className={`w-full border-t py-8 px-4 sm:px-8 mt-16 transition-colors duration-200 relative z-10 ${
+          isDarkMode
+            ? 'bg-[#060c18] border-slate-800 text-white'
+            : 'bg-white border-slate-200 text-slate-800 shadow-sm'
+        }`}
+      >
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Left App Branding */}
           <div className="flex items-center space-x-3">
@@ -635,37 +675,77 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <CloudRain className="h-5 w-5" />
             </div>
             <div>
-              <div className="font-extrabold text-base text-white tracking-tight">
+              <div
+                className={`font-extrabold text-base tracking-tight ${
+                  isDarkMode ? 'text-white' : 'text-slate-900'
+                }`}
+              >
                 VarshaPurvanumanAI
               </div>
-              <div className="text-[11px] text-slate-400">
+              <div
+                className={`text-[11px] ${
+                  isDarkMode ? 'text-slate-400' : 'text-slate-500'
+                }`}
+              >
                 AI-Powered Regime-Aware Post-Processing of Monsoon Rainfall Forecasts
               </div>
             </div>
           </div>
 
           {/* Center Team Attribution */}
-          <div className="text-center text-xs text-slate-300">
+          <div
+            className={`text-center text-xs ${
+              isDarkMode ? 'text-slate-300' : 'text-slate-600'
+            }`}
+          >
             <div>
-              Developed by <span className="text-blue-400 font-semibold">The Steel Bytes 800</span>
+              Developed by <span className="text-blue-500 font-semibold">The Steel Bytes 800</span>
             </div>
-            <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-              Smart India Hackathon 2026 • <span className="text-blue-400">SIH26080</span>
+            <div
+              className={`text-[11px] font-mono mt-0.5 ${
+                isDarkMode ? 'text-slate-400' : 'text-slate-500'
+              }`}
+            >
+              Smart India Hackathon 2026 • <span className="text-blue-500 font-semibold">SIH26080</span>
             </div>
           </div>
 
           {/* Right Navigation Links & Login */}
-          <div className="flex items-center space-x-6 text-xs sm:text-sm text-slate-300">
-            <a href="#about" className="hover:text-white transition-colors cursor-pointer">
+          <div
+            className={`flex items-center space-x-6 text-xs sm:text-sm ${
+              isDarkMode ? 'text-slate-300' : 'text-slate-600'
+            }`}
+          >
+            <a
+              href="#about"
+              className={`transition-colors cursor-pointer ${
+                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
+              }`}
+            >
               About
             </a>
-            <a href="#stations" className="hover:text-white transition-colors cursor-pointer">
+            <a
+              href="#stations"
+              className={`transition-colors cursor-pointer ${
+                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
+              }`}
+            >
               Stations
             </a>
-            <a href="#how-it-works" className="hover:text-white transition-colors cursor-pointer">
+            <a
+              href="#how-it-works"
+              className={`transition-colors cursor-pointer ${
+                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
+              }`}
+            >
               How It Works
             </a>
-            <a href="#team" className="hover:text-white transition-colors cursor-pointer">
+            <a
+              href="#team"
+              className={`transition-colors cursor-pointer ${
+                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
+              }`}
+            >
               Team
             </a>
             <button

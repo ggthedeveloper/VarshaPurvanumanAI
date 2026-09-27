@@ -85,7 +85,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         return;
       }
       setError(
-        err.message || 'Invalid username or password. Default evaluation password: "gaurav123", or click Quick Demo Access.'
+        err.message || 'Invalid username or password. Default evaluation password: "gaurav123".'
       );
     } finally {
       setIsLoading(false);
@@ -181,12 +181,25 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center text-slate-100 relative overflow-y-auto px-4 py-8">
-      {/* Live Atmospheric Weather Canvas Background */}
-      <LiveWeatherBackground fixed={true} isDarkMode={true} opacity={0.92} />
+      {/* Mountain Panoramic Background across the Login Page */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <img
+          src="/images/green_mountain_clear.jpg"
+          alt="Monsoon Mountains Background"
+          className="w-full h-full object-cover object-center scale-105"
+        />
+        <div
+          className={`absolute inset-0 transition-colors duration-300 ${
+            isDarkMode
+              ? 'bg-slate-950/80 backdrop-blur-xs'
+              : 'bg-slate-900/75 backdrop-blur-xs'
+          }`}
+        />
+      </div>
 
       {/* Atmospheric Ambient Glows */}
       <div className="absolute top-1/4 -left-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-amber-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
 
       {onBackToLanding && (
         <button
@@ -507,19 +520,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             </button>
           </form>
         )}
-
-        {/* Quick Demo Access Button */}
-        <div className="pt-2 border-t border-slate-700/60">
-          <button
-            type="button"
-            onClick={handleQuickDemo}
-            disabled={isLoading}
-            className="w-full py-2.5 px-4 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-bold text-xs sm:text-sm rounded-xl transition cursor-pointer flex items-center justify-center space-x-2 disabled:opacity-50"
-          >
-            <Sparkles className="h-4 w-4 text-emerald-400" />
-            <span>Quick Demo Access</span>
-          </button>
-        </div>
       </div>
 
         {/* Footer Info */}
