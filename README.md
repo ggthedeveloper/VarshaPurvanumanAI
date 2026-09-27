@@ -12,6 +12,9 @@
 > **Theme:** Smart Automation / Disaster Management  
 > **Target Organization:** Ministry of Earth Sciences (MoES) / India Meteorological Department (IMD)
 
+
+**Live Demo:**
+https://varsha-purvanuman-ai.vercel.app/
 ---
 
 ### 1. Problem Statement & Objective
