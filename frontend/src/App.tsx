@@ -603,7 +603,7 @@ const AppContent: React.FC = () => {
     }
 
     return (
-      <div className="min-h-screen text-slate-900 dark:text-slate-100 flex flex-col transition-colors relative overflow-x-hidden">
+      <div className="min-h-screen text-slate-900 dark:text-slate-100 flex flex-col transition-colors relative overflow-x-hidden bg-[#070e1d]">
         {/* Mountain Panoramic Background across the Entire Page */}
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
           <img

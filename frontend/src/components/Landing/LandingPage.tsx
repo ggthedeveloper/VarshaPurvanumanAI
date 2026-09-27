@@ -329,7 +329,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const simResult = calculateSimulatedCorrection(simRawNwp, simRegime);
 
   return (
-    <div className="space-y-16 pb-16 relative">
+    <div className="space-y-16 relative">
       {/* Mountain Panoramic Background across the Entire Landing Page */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <img
@@ -912,105 +912,82 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
       </div>
 
-      {/* 7. Bottom Footer matching reference image with full light/dark responsiveness */}
-      <footer
-        className={`w-full border-t py-8 px-4 sm:px-8 mt-16 transition-colors duration-200 relative z-10 ${
-          isDarkMode
-            ? 'bg-[#060c18] border-slate-800 text-white'
-            : 'bg-white border-slate-200 text-slate-800 shadow-sm'
-        }`}
-      >
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Left App Branding */}
-          <div className="flex items-center space-x-3">
-            <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-600/30 shrink-0">
-              <CloudRain className="h-5 w-5" />
+      {/* 7. Bottom Footer matching reference image (RailSamanvayAI style) with solid fill */}
+      <footer className="w-full border-t border-slate-800 bg-[#070e1d] text-white mt-16 relative z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-7 space-y-5">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            {/* Left App Branding */}
+            <div className="flex items-center space-x-3">
+              <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-600/30 shrink-0">
+                <CloudRain className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="font-extrabold text-base tracking-tight text-white">
+                  VarshaPurvanumanAI
+                </div>
+                <div className="text-[11px] text-slate-400">
+                  AI-Powered Regime-Aware Post-Processing of Monsoon Rainfall Forecasts
+                </div>
+              </div>
             </div>
-            <div>
-              <div
-                className={`font-extrabold text-base tracking-tight ${
-                  isDarkMode ? 'text-white' : 'text-slate-900'
-                }`}
-              >
-                VarshaPurvanumanAI
+
+            {/* Center Team Attribution */}
+            <div className="text-center text-xs text-slate-300">
+              <div>
+                Developed by <span className="text-[#38bdf8] font-semibold">The Steel Bytes 800</span>
               </div>
-              <div
-                className={`text-[11px] ${
-                  isDarkMode ? 'text-slate-400' : 'text-slate-500'
-                }`}
-              >
-                AI-Powered Regime-Aware Post-Processing of Monsoon Rainfall Forecasts
+              <div className="text-[11px] font-mono mt-0.5 text-slate-400">
+                Smart India Hackathon 2026 • <span className="text-[#38bdf8] font-semibold">SIH26080</span>
               </div>
+            </div>
+
+            {/* Right Navigation Links & Login */}
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:space-x-6 text-xs sm:text-sm text-slate-300">
+              <a
+                href="#about"
+                onClick={(e) => handleScrollTo(e, 'about')}
+                className="hover:text-white transition-colors cursor-pointer"
+              >
+                About
+              </a>
+              <a
+                href="#stations"
+                onClick={(e) => handleScrollTo(e, 'stations')}
+                className="hover:text-white transition-colors cursor-pointer"
+              >
+                Stations
+              </a>
+              <a
+                href="#how-it-works"
+                onClick={(e) => handleScrollTo(e, 'how-it-works')}
+                className="hover:text-white transition-colors cursor-pointer"
+              >
+                How It Works
+              </a>
+              <a
+                href="#team"
+                onClick={(e) => handleScrollTo(e, 'team')}
+                className="hover:text-white transition-colors cursor-pointer"
+              >
+                Team
+              </a>
+              <button
+                onClick={() => (onLoginClick ? onLoginClick() : onNavigateToForecast())}
+                className="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 rounded-lg text-xs flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+              >
+                <span>Login</span>
+                <span className="text-blue-200">→</span>
+              </button>
             </div>
           </div>
 
-          {/* Center Team Attribution */}
-          <div
-            className={`text-center text-xs ${
-              isDarkMode ? 'text-slate-300' : 'text-slate-600'
-            }`}
-          >
-            <div>
-              Developed by <span className="text-blue-500 font-semibold">The Steel Bytes 800</span>
-            </div>
-            <div
-              className={`text-[11px] font-mono mt-0.5 ${
-                isDarkMode ? 'text-slate-400' : 'text-slate-500'
-              }`}
-            >
-              Smart India Hackathon 2026 • <span className="text-blue-500 font-semibold">SIH26080</span>
-            </div>
-          </div>
+          {/* Horizontal Divider Line matching RailSamanvayAI reference */}
+          <div className="border-t border-slate-800/80" />
 
-          {/* Right Navigation Links & Login */}
-          <div
-            className={`flex items-center space-x-6 text-xs sm:text-sm ${
-              isDarkMode ? 'text-slate-300' : 'text-slate-600'
-            }`}
-          >
-            <a
-              href="#about"
-              onClick={(e) => handleScrollTo(e, 'about')}
-              className={`transition-colors cursor-pointer ${
-                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
-              }`}
-            >
-              About
-            </a>
-            <a
-              href="#stations"
-              onClick={(e) => handleScrollTo(e, 'stations')}
-              className={`transition-colors cursor-pointer ${
-                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
-              }`}
-            >
-              Stations
-            </a>
-            <a
-              href="#how-it-works"
-              onClick={(e) => handleScrollTo(e, 'how-it-works')}
-              className={`transition-colors cursor-pointer ${
-                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
-              }`}
-            >
-              How It Works
-            </a>
-            <a
-              href="#team"
-              onClick={(e) => handleScrollTo(e, 'team')}
-              className={`transition-colors cursor-pointer ${
-                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
-              }`}
-            >
-              Team
-            </a>
-            <button
-              onClick={() => (onLoginClick ? onLoginClick() : onNavigateToForecast())}
-              className="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 rounded-lg text-xs flex items-center gap-1.5 shadow-sm transition cursor-pointer"
-            >
-              <span>Login</span>
-              <span className="text-blue-200">→</span>
-            </button>
+          {/* Bottom Copyright & Hackathon Innovation Platform Row */}
+          <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
+            <div>© 2026 VarshaPurvanumanAI • Ministry of Earth Sciences, Government of India.</div>
+            <div>Smart India Hackathon 2026 Innovation Platform</div>
           </div>
         </div>
       </footer>
