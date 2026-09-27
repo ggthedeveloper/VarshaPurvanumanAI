@@ -545,8 +545,11 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
         }
       }
 
-      ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, width, height);
+      // When not fixed (e.g. preview cards), fill sky gradient. When fixed, canvas is transparent so mountain background shines through!
+      if (!fixed) {
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, width, height);
+      }
 
       // Render night stars (active during nocturnal clear/partly cloudy skies)
       if (currentTod === 'night' && !isRainy && cloudCover < 85) {

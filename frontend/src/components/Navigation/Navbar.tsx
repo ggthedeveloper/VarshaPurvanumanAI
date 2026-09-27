@@ -198,7 +198,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   });
 
   return (
-    <header className="h-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30 transition-colors">
+    <header className="h-16 bg-white/85 dark:bg-[#070e1d]/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30 transition-colors">
       {/* Left: Mobile Menu Toggle & Route Context */}
       <div className="flex items-center space-x-3 min-w-0">
         <button

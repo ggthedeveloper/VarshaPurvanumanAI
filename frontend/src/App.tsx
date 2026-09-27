@@ -486,11 +486,23 @@ const AppContent: React.FC = () => {
     }
 
     return (
-      <div
-        className={`min-h-screen relative overflow-x-hidden transition-colors ${
-          isDarkMode ? 'bg-[#070e1d] text-slate-100' : 'bg-slate-50 text-slate-900'
-        }`}
-      >
+      <div className="min-h-screen text-slate-900 dark:text-slate-100 flex flex-col transition-colors relative overflow-x-hidden">
+        {/* Mountain Panoramic Background across the Entire Page */}
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+          <img
+            src="/images/green_mountain_clear.jpg"
+            alt="Monsoon Mountains Background"
+            className="w-full h-full object-cover object-center scale-105"
+          />
+          <div
+            className={`absolute inset-0 transition-colors duration-300 ${
+              isDarkMode
+                ? 'bg-slate-950/45 backdrop-blur-[1px]'
+                : 'bg-slate-100/40 backdrop-blur-[1px]'
+            }`}
+          />
+        </div>
+
         {/* Guest Header with visible light and dark mode effects */}
         <header
           className={`sticky top-0 z-40 backdrop-blur-md border-b px-4 sm:px-8 py-3.5 flex items-center justify-between transition-colors duration-200 ${
@@ -619,12 +631,12 @@ const AppContent: React.FC = () => {
           alt="Monsoon Mountains Background"
           className="w-full h-full object-cover object-center scale-105"
         />
-        {/* Subtle atmospheric veil ensuring 100% chart/table readability in both light & dark mode */}
+        {/* Subtle atmospheric veil ensuring mountain landscape visibility + 100% chart/table readability in both light & dark mode */}
         <div
           className={`absolute inset-0 transition-colors duration-300 ${
             isDarkMode
-              ? 'bg-slate-950/85 backdrop-blur-[2px]'
-              : 'bg-slate-50/85 backdrop-blur-[2px]'
+              ? 'bg-slate-950/45 backdrop-blur-[1px]'
+              : 'bg-slate-100/40 backdrop-blur-[1px]'
           }`}
         />
       </div>

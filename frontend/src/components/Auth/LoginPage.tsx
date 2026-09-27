@@ -191,8 +191,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         <div
           className={`absolute inset-0 transition-colors duration-300 ${
             isDarkMode
-              ? 'bg-slate-950/80 backdrop-blur-xs'
-              : 'bg-slate-900/75 backdrop-blur-xs'
+              ? 'bg-slate-950/45 backdrop-blur-xs'
+              : 'bg-slate-900/40 backdrop-blur-xs'
           }`}
         />
       </div>

@@ -353,8 +353,8 @@ export const NationalCitiesWeatherGrid: React.FC<NationalCitiesWeatherGridProps>
                 isSelected
                   ? 'border-indigo-500 ring-2 ring-indigo-500/50 shadow-indigo-500/30'
                   : isDarkMode
-                  ? 'border-slate-800 hover:border-indigo-400/80 bg-slate-900'
-                  : 'border-slate-200 hover:border-indigo-400 bg-white'
+                  ? 'border-slate-800/80 hover:border-indigo-400/80 bg-slate-900/85 backdrop-blur-md'
+                  : 'border-slate-200/80 hover:border-indigo-400 bg-white/85 backdrop-blur-md'
               }`}
               style={{ minHeight: '230px' }}
             >

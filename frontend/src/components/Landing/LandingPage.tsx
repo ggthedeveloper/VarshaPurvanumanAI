@@ -232,8 +232,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div
           className={`absolute inset-0 transition-colors duration-300 ${
             isDarkMode
-              ? 'bg-[#070e1d]/90 backdrop-blur-[1px]'
-              : 'bg-slate-50/90 backdrop-blur-[1px]'
+              ? 'bg-slate-950/45 backdrop-blur-[1px]'
+              : 'bg-slate-100/40 backdrop-blur-[1px]'
           }`}
         />
       </div>
@@ -343,7 +343,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </section>
 
         {/* 3. Interactive NWP Bias Correction Sandbox */}
-        <section id="sandbox" className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 shadow-sm space-y-6">
+        <section id="sandbox" className="rounded-3xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 p-8 shadow-sm space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-5">
           <div>
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 mb-2">
@@ -522,7 +522,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* 4. End-to-End Scientific Architecture Workflow */}
-      <section id="how-it-works" className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 shadow-sm space-y-6">
+      <section id="how-it-works" className="rounded-3xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 p-8 shadow-sm space-y-6">
         <div className="max-w-2xl">
           <span className="text-xs font-bold uppercase text-blue-600 dark:text-blue-400 tracking-wider">
             Operational Architecture
@@ -587,7 +587,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* 5. Team Accreditation Section matching reference image */}
-      <section id="team" className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 sm:p-12 shadow-sm space-y-8">
+      <section id="team" className="rounded-3xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 p-8 sm:p-12 shadow-sm space-y-8">
         <div className="text-center space-y-3">
           <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 tracking-wider">
             <Sparkles className="h-3.5 w-3.5" />
@@ -607,7 +607,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           {TEAM_MEMBERS.map((member, idx) => (
             <div
               key={idx}
-              className="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 sm:p-5 flex items-center space-x-4 shadow-xs hover:shadow-md hover:border-blue-400/50 transition group"
+              className="bg-white/85 dark:bg-slate-800/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-4 sm:p-5 flex items-center space-x-4 shadow-xs hover:shadow-md hover:border-blue-400/50 transition group"
             >
               <div className="w-12 h-12 rounded-full bg-blue-600 text-white font-bold text-base flex items-center justify-center shrink-0 shadow-md shadow-blue-600/30 group-hover:scale-105 transition-transform">
                 {member.initials}
