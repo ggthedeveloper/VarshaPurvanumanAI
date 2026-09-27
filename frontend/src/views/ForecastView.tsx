@@ -18,6 +18,7 @@ import {
   CombinedForecastResponse,
   DistrictForecastResponse,
 } from '../types/api';
+import { useWeather } from '../context/WeatherContext';
 import { RainfallMap } from '../components/Map/RainfallMap';
 import { ForecastSummaryCards } from '../components/Cards/ForecastSummaryCards';
 import { DistrictDetailPanel } from '../components/Panels/DistrictDetailPanel';
@@ -46,6 +47,7 @@ export const ForecastView: React.FC<ForecastViewProps> = ({
   geoJsonData,
   isDarkMode,
 }) => {
+  const { userLocation } = useWeather();
   const isPuneBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
   const isOperational =
     !isPuneBenchmark &&
@@ -61,6 +63,15 @@ export const ForecastView: React.FC<ForecastViewProps> = ({
   const districtName = districtForecast?.name || currentDistrict?.name || 'Selected Station';
 
   const quickStations = [
+    ...(userLocation
+      ? [
+          {
+            id: 'gps_user_location',
+            label: '📍 My Location',
+            isBenchmark: false,
+          },
+        ]
+      : []),
     { id: 'pune', label: 'Pune (Benchmark)', isBenchmark: true },
     { id: 'mumbai', label: 'Mumbai', isBenchmark: false },
     { id: 'nagpur', label: 'Nagpur', isBenchmark: false },
@@ -86,6 +97,10 @@ export const ForecastView: React.FC<ForecastViewProps> = ({
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                   ● Pune Benchmark
                 </span>
+              ) : selectedDistrictId === 'gps_user_location' ? (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                  ● Operational Active (GPS Live)
+                </span>
               ) : isProcessedBenchmark ? (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
                   ● REAL NOAA GFS DATA
@@ -97,7 +112,7 @@ export const ForecastView: React.FC<ForecastViewProps> = ({
               )}
             </div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              {districtName} ({currentDistrict?.state || 'India'})
+              {districtName} ({currentDistrict?.state || (selectedDistrictId === 'gps_user_location' ? 'Live GPS' : 'India')})
             </h2>
           </div>
         </div>

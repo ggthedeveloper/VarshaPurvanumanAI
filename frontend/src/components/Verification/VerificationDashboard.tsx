@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BarChart3, TrendingUp, AlertTriangle, CheckCircle, Info, Award } from 'lucide-react';
 import { VerificationSummaryResponse, VerificationProbabilityResponse, VerificationRegimesResponse } from '../../types/api';
+import { DEFAULT_VERIFICATION_SUMMARY } from '../../data/defaultCatalog';
 
 interface VerificationDashboardProps {
   summary: VerificationSummaryResponse | null;
@@ -185,9 +186,26 @@ export const VerificationDashboard: React.FC<VerificationDashboardProps> = ({
 
           {/* Executive Skill Comparison Matrix: RMSE, ETS, CSI, POD, FAR, FSS */}
           {(() => {
-            const rawCat = categorical_metrics['Raw NWP']?.[selectedSkillThreshold];
-            const globalCat = categorical_metrics['Global ML']?.[selectedSkillThreshold];
-            const regimeCat = categorical_metrics['Regime-Aware ML']?.[selectedSkillThreshold];
+            const effectiveCategoricalMetrics =
+              categorical_metrics && Object.keys(categorical_metrics).length > 0 && categorical_metrics['Raw NWP']
+                ? categorical_metrics
+                : DEFAULT_VERIFICATION_SUMMARY.categorical_metrics;
+
+            const formatScore = (val: number | string | undefined | null) => {
+              if (typeof val === 'number') return val.toFixed(3);
+              if (typeof val === 'string' && val.toUpperCase().includes('NOT COMPUTABLE')) {
+                return (
+                  <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[10px] text-slate-500 font-medium">
+                    Non-Computable (0 Events)
+                  </span>
+                );
+              }
+              return val ?? '—';
+            };
+
+            const rawCat = effectiveCategoricalMetrics['Raw NWP']?.[selectedSkillThreshold];
+            const globalCat = effectiveCategoricalMetrics['Global ML']?.[selectedSkillThreshold];
+            const regimeCat = effectiveCategoricalMetrics['Regime-Aware ML']?.[selectedSkillThreshold];
 
             return (
               <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs">
@@ -262,13 +280,13 @@ export const VerificationDashboard: React.FC<VerificationDashboardProps> = ({
                         </td>
                         <td className="py-3 px-4 text-slate-500 dark:text-slate-400 font-medium">Categorical (≥ {selectedSkillThreshold} mm)</td>
                         <td className="py-3 px-4 font-mono font-semibold">
-                          {typeof rawCat?.ETS === 'number' ? rawCat.ETS.toFixed(3) : rawCat?.ETS ?? 'N/A'}
+                          {formatScore(rawCat?.ETS)}
                         </td>
                         <td className="py-3 px-4 font-mono font-semibold text-blue-600 dark:text-blue-400">
-                          {typeof globalCat?.ETS === 'number' ? globalCat.ETS.toFixed(3) : globalCat?.ETS ?? 'N/A'}
+                          {formatScore(globalCat?.ETS)}
                         </td>
                         <td className="py-3 px-4 font-mono font-semibold text-indigo-600 dark:text-indigo-400">
-                          {typeof regimeCat?.ETS === 'number' ? regimeCat.ETS.toFixed(3) : regimeCat?.ETS ?? 'N/A'}
+                          {formatScore(regimeCat?.ETS)}
                         </td>
                         <td className="py-3 px-4 text-slate-600 dark:text-slate-300 text-[11px]">
                           Accounts for hits occurring purely by random chance; penalizes both misses and excessive false alarms.
@@ -282,13 +300,13 @@ export const VerificationDashboard: React.FC<VerificationDashboardProps> = ({
                         </td>
                         <td className="py-3 px-4 text-slate-500 dark:text-slate-400 font-medium">Categorical (≥ {selectedSkillThreshold} mm)</td>
                         <td className="py-3 px-4 font-mono font-semibold">
-                          {typeof rawCat?.CSI === 'number' ? rawCat.CSI.toFixed(3) : rawCat?.CSI ?? 'N/A'}
+                          {formatScore(rawCat?.CSI)}
                         </td>
                         <td className="py-3 px-4 font-mono font-semibold text-blue-600 dark:text-blue-400">
-                          {typeof globalCat?.CSI === 'number' ? globalCat.CSI.toFixed(3) : globalCat?.CSI ?? 'N/A'}
+                          {formatScore(globalCat?.CSI)}
                         </td>
                         <td className="py-3 px-4 font-mono font-semibold text-indigo-600 dark:text-indigo-400">
-                          {typeof regimeCat?.CSI === 'number' ? regimeCat.CSI.toFixed(3) : regimeCat?.CSI ?? 'N/A'}
+                          {formatScore(regimeCat?.CSI)}
                         </td>
                         <td className="py-3 px-4 text-slate-600 dark:text-slate-300 text-[11px]">
                           Standard threat score: hits / (hits + misses + false alarms) across held-out monsoon events.
@@ -302,10 +320,10 @@ export const VerificationDashboard: React.FC<VerificationDashboardProps> = ({
                         </td>
                         <td className="py-3 px-4 text-slate-500 dark:text-slate-400 font-medium">Categorical (≥ {selectedSkillThreshold} mm)</td>
                         <td className="py-3 px-4 font-mono font-semibold">
-                          {typeof rawCat?.POD === 'number' ? rawCat.POD.toFixed(3) : rawCat?.POD ?? 'N/A'}
+                          {formatScore(rawCat?.POD)}
                         </td>
                         <td className="py-3 px-4 font-mono font-semibold text-emerald-600 dark:text-emerald-400">
-                          {typeof globalCat?.POD === 'number' ? globalCat.POD.toFixed(3) : globalCat?.POD ?? 'N/A'}
+                          {formatScore(globalCat?.POD)}
                           {typeof rawCat?.POD === 'number' && typeof globalCat?.POD === 'number' && rawCat.POD > 0 && globalCat.POD > rawCat.POD && (
                             <span className="ml-1 text-[10px] font-normal text-emerald-600 dark:text-emerald-400">
                               (+{(((globalCat.POD - rawCat.POD) / rawCat.POD) * 100).toFixed(1)}%)
@@ -313,7 +331,7 @@ export const VerificationDashboard: React.FC<VerificationDashboardProps> = ({
                           )}
                         </td>
                         <td className="py-3 px-4 font-mono font-semibold text-emerald-600 dark:text-emerald-400">
-                          {typeof regimeCat?.POD === 'number' ? regimeCat.POD.toFixed(3) : regimeCat?.POD ?? 'N/A'}
+                          {formatScore(regimeCat?.POD)}
                           {typeof rawCat?.POD === 'number' && typeof regimeCat?.POD === 'number' && rawCat.POD > 0 && regimeCat.POD > rawCat.POD && (
                             <span className="ml-1 text-[10px] font-normal text-emerald-600 dark:text-emerald-400">
                               (+{(((regimeCat.POD - rawCat.POD) / rawCat.POD) * 100).toFixed(1)}%)
@@ -332,13 +350,13 @@ export const VerificationDashboard: React.FC<VerificationDashboardProps> = ({
                         </td>
                         <td className="py-3 px-4 text-slate-500 dark:text-slate-400 font-medium">Categorical (≥ {selectedSkillThreshold} mm)</td>
                         <td className="py-3 px-4 font-mono font-semibold">
-                          {typeof rawCat?.FAR === 'number' ? rawCat.FAR.toFixed(3) : rawCat?.FAR ?? 'N/A'}
+                          {formatScore(rawCat?.FAR)}
                         </td>
                         <td className="py-3 px-4 font-mono font-semibold text-blue-600 dark:text-blue-400">
-                          {typeof globalCat?.FAR === 'number' ? globalCat.FAR.toFixed(3) : globalCat?.FAR ?? 'N/A'}
+                          {formatScore(globalCat?.FAR)}
                         </td>
                         <td className="py-3 px-4 font-mono font-semibold text-indigo-600 dark:text-indigo-400">
-                          {typeof regimeCat?.FAR === 'number' ? regimeCat.FAR.toFixed(3) : regimeCat?.FAR ?? 'N/A'}
+                          {formatScore(regimeCat?.FAR)}
                         </td>
                         <td className="py-3 px-4 text-slate-600 dark:text-slate-300 text-[11px]">
                           Ratio of predicted rain warnings where ground gauge registered zero accumulation.
@@ -429,9 +447,13 @@ export const VerificationDashboard: React.FC<VerificationDashboardProps> = ({
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
               {['2.5', '7.5', '15.6', '64.5', '115.6'].map((thr) => {
-                const rawInfo = categorical_metrics['Raw NWP']?.[thr];
-                const globalInfo = categorical_metrics['Global ML']?.[thr];
-                const regimeInfo = categorical_metrics['Regime-Aware ML']?.[thr];
+                const effectiveCats =
+                  categorical_metrics && Object.keys(categorical_metrics).length > 0 && categorical_metrics['Raw NWP']
+                    ? categorical_metrics
+                    : DEFAULT_VERIFICATION_SUMMARY.categorical_metrics;
+                const rawInfo = effectiveCats['Raw NWP']?.[thr];
+                const globalInfo = effectiveCats['Global ML']?.[thr];
+                const regimeInfo = effectiveCats['Regime-Aware ML']?.[thr];
 
                 if (!rawInfo) return null;
 

@@ -117,38 +117,6 @@ const AppContent: React.FC = () => {
     selectedDistrictIdRef.current = selectedDistrictId;
   }, [selectedDistrictId]);
 
-  // Geolocation & Nearest District Matcher
-  const handleDetectLocation = async () => {
-    await detectUserLocation((foundCoords) => {
-      if (districts && districts.length > 0) {
-        let closest = districts[0];
-        let minDistance = Infinity;
-        for (const d of districts) {
-          if (typeof d.latitude === 'number' && typeof d.longitude === 'number') {
-            const dLat = ((d.latitude - foundCoords.lat) * Math.PI) / 180;
-            const dLon = ((d.longitude - foundCoords.lon) * Math.PI) / 180;
-            const a =
-              Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos((foundCoords.lat * Math.PI) / 180) *
-                Math.cos((d.latitude * Math.PI) / 180) *
-                Math.sin(dLon / 2) *
-                Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const dist = 6371 * c;
-            if (dist < minDistance) {
-              minDistance = dist;
-              closest = d;
-            }
-          }
-        }
-        if (closest) {
-          // Pass syncWeather = false so the real-time GPS telemetry is preserved
-          handleSelectDistrict(closest.district_id, false);
-        }
-      }
-    });
-  };
-
   // Synchronize HTML dark mode class
   useEffect(() => {
     if (isDarkMode) {
@@ -168,7 +136,7 @@ const AppContent: React.FC = () => {
       telemetry?.sourceProvenance?.includes('OpenWeather') ||
       telemetry?.sourceProvenance?.includes('Open-Meteo');
 
-    if (activeForecast && !userLocation && !isLiveWeather) {
+    if (activeForecast && selectedDistrictId !== 'gps_user_location' && !isLiveWeather) {
       setDistrictRegime(activeForecast.predicted_regime);
       const isBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
       const surf = (districtForecast as any)?.surface_telemetry;
@@ -370,11 +338,139 @@ const AppContent: React.FC = () => {
     };
   };
 
+  // Geolocation & High-Precision User Location Handler
+  const handleDetectLocation = async () => {
+    setDistrictLoading(true);
+    await detectUserLocation(async (foundCoords) => {
+      const { lat, lon, accuracy, name, city, state } = foundCoords;
+      const placeName = name || (city ? `${city}${state ? `, ${state}` : ''}` : `My Location (${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E)`);
+      const regionState = state || 'GPS Location';
+
+      // 1. Fetch real-time weather telemetry for these exact coordinates
+      const liveWeather = await fetchLocationWeather(lat, lon, placeName);
+
+      const dynamicRegime: SynopticRegime =
+        (liveWeather?.predictedRegime as SynopticRegime) ||
+        ((liveWeather?.rainRateMmH ?? 0) > 10
+          ? 'COASTAL_OROGRAPHIC'
+          : (liveWeather?.rainRateMmH ?? 0) > 0.5
+          ? 'ACTIVE_MONSOON'
+          : 'BREAK_MONSOON');
+
+      const liveForecast = buildLiveForecast(liveWeather || {}, dynamicRegime, placeName);
+      const gpsDistrictId = 'gps_user_location';
+
+      const userDistrictForecast: DistrictForecastResponse = {
+        district_id: gpsDistrictId,
+        name: placeName,
+        latitude: lat,
+        longitude: lon,
+        coverage_status: 'OPERATIONAL_ACTIVE',
+        forecast_mode: 'OPERATIONAL_LIVE_WEATHER',
+        sample_timestamp: new Date().toISOString(),
+        data_source: `High-Precision GPS (±${Math.round(accuracy || 10)}m) + NOAA GFS NWP`,
+        forecast: liveForecast,
+        surface_telemetry: liveWeather
+          ? {
+              temperature_c: liveWeather.temperatureC,
+              relative_humidity_pct: liveWeather.relativeHumidityPct,
+              surface_pressure_hpa: liveWeather.surfacePressureHpa,
+              wind_speed_ms: liveWeather.windSpeedMs,
+              wind_direction_deg: liveWeather.windDirectionDeg,
+              wind_direction_compass: liveWeather.windDirectionCompass,
+              rain_rate_mm_h: liveWeather.rainRateMmH,
+              condition_label: liveWeather.conditionLabel,
+              source_provenance: liveWeather.sourceProvenance,
+            }
+          : undefined,
+        message: `Operational regime-conditioned forecast for your live GPS coordinates (accuracy ±${Math.round(accuracy || 10)}m).`,
+        data_status: 'REAL_DATA',
+        source_latitude: lat,
+        source_longitude: lon,
+      };
+
+      // Add to districts list so all dropdowns, maps, and components find it seamlessly
+      const gpsDistrictItem: DistrictItem = {
+        district_id: gpsDistrictId,
+        name: `📍 ${placeName}`,
+        state: regionState,
+        latitude: lat,
+        longitude: lon,
+        coverage_status: 'OPERATIONAL_ACTIVE',
+        raw_nwp_rainfall_mm: liveForecast.raw_nwp_rainfall_mm,
+        corrected_rainfall_mm: liveForecast.corrected_rainfall_mm,
+        predicted_regime: dynamicRegime,
+      };
+
+      setDistricts((prev) => {
+        const filtered = prev.filter((d) => d.district_id !== gpsDistrictId);
+        return [gpsDistrictItem, ...filtered];
+      });
+
+      setSelectedDistrictId(gpsDistrictId);
+      selectedDistrictIdRef.current = gpsDistrictId;
+      setDistrictForecast(userDistrictForecast);
+      setActiveForecast(liveForecast);
+      if (liveWeather) {
+        setStationTelemetry(liveWeather);
+      }
+      setDistrictLoading(false);
+    });
+  };
+
   // District Selection with Anti-Stale State Transition & Real Weather Sync
   const handleSelectDistrict = async (districtId: string, syncWeather: boolean = true) => {
     setSelectedDistrictId(districtId);
     selectedDistrictIdRef.current = districtId;
     setDistrictLoading(true);
+
+    if (districtId === 'gps_user_location' && userLocation) {
+      const placeName = userLocation.name || `My Location (${userLocation.lat.toFixed(4)}°N, ${userLocation.lon.toFixed(4)}°E)`;
+      const liveWeather = await fetchLocationWeather(userLocation.lat, userLocation.lon, placeName);
+      const dynamicRegime: SynopticRegime =
+        (liveWeather?.predictedRegime as SynopticRegime) ||
+        ((liveWeather?.rainRateMmH ?? 0) > 10
+          ? 'COASTAL_OROGRAPHIC'
+          : (liveWeather?.rainRateMmH ?? 0) > 0.5
+          ? 'ACTIVE_MONSOON'
+          : 'BREAK_MONSOON');
+      const liveForecast = buildLiveForecast(liveWeather || {}, dynamicRegime, placeName);
+      const userDistrictForecast: DistrictForecastResponse = {
+        district_id: 'gps_user_location',
+        name: placeName,
+        latitude: userLocation.lat,
+        longitude: userLocation.lon,
+        coverage_status: 'OPERATIONAL_ACTIVE',
+        forecast_mode: 'OPERATIONAL_LIVE_WEATHER',
+        sample_timestamp: new Date().toISOString(),
+        data_source: `High-Precision GPS (±${Math.round(userLocation.accuracy || 10)}m) + NOAA GFS NWP`,
+        forecast: liveForecast,
+        surface_telemetry: liveWeather
+          ? {
+              temperature_c: liveWeather.temperatureC,
+              relative_humidity_pct: liveWeather.relativeHumidityPct,
+              surface_pressure_hpa: liveWeather.surfacePressureHpa,
+              wind_speed_ms: liveWeather.windSpeedMs,
+              wind_direction_deg: liveWeather.windDirectionDeg,
+              wind_direction_compass: liveWeather.windDirectionCompass,
+              rain_rate_mm_h: liveWeather.rainRateMmH,
+              condition_label: liveWeather.conditionLabel,
+              source_provenance: liveWeather.sourceProvenance,
+            }
+          : undefined,
+        message: `Operational regime-conditioned forecast for your live GPS coordinates.`,
+        data_status: 'REAL_DATA',
+        source_latitude: userLocation.lat,
+        source_longitude: userLocation.lon,
+      };
+      setDistrictForecast(userDistrictForecast);
+      setActiveForecast(liveForecast);
+      if (liveWeather) {
+        setStationTelemetry(liveWeather);
+      }
+      setDistrictLoading(false);
+      return;
+    }
 
     const matched = districts.find((d) => d.district_id.toLowerCase() === districtId.toLowerCase());
     const targetLat = matched?.latitude ?? 18.5204;
@@ -382,7 +478,6 @@ const AppContent: React.FC = () => {
     const targetName = matched?.name ?? districtId;
 
     if (syncWeather) {
-      clearUserLocation();
       setMode('AUTO');
     }
 

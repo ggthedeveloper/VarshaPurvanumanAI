@@ -35,6 +35,7 @@ export interface WeatherTelemetry {
   conditionLabel: string;
   sourceProvenance: string;
   lastUpdatedIso: string;
+  predictedRegime?: SynopticRegime;
 }
 
 export interface UserLocationState {
@@ -42,6 +43,8 @@ export interface UserLocationState {
   lon: number;
   accuracy?: number;
   name?: string;
+  city?: string;
+  state?: string;
   isCustomLocation?: boolean;
 }
 
@@ -67,7 +70,7 @@ interface WeatherContextType {
   setDistrictRegime: (regime: SynopticRegime | string | null | undefined) => void;
   setStationTelemetry: (stationData: Partial<WeatherTelemetry>) => void;
   triggerInstantLightning: () => void;
-  detectUserLocation: (onFound?: (coords: { lat: number; lon: number }) => void) => Promise<{ lat: number; lon: number } | null>;
+  detectUserLocation: (onFound?: (coords: UserLocationState) => void) => Promise<UserLocationState | null>;
   fetchLocationWeather: (
     lat: number,
     lon: number,
@@ -217,6 +220,55 @@ const OPENWEATHER_API_KEY =
   (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_OPENWEATHER_API_KEY) ||
   (typeof window !== 'undefined' && typeof window.atob === 'function' ? window.atob('YTNmYWEzODBjN2ExYzBlMGY2MDE5NTA4MzQwOTY2OTk=') : '');
 
+export const reverseGeocodeLocation = async (
+  lat: number,
+  lon: number
+): Promise<{ name: string; city: string; state: string }> => {
+  // 1. Client-Side Reverse Geocoding via BigDataCloud (fast, CORS-open, free, no API key needed)
+  try {
+    const bdcUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat.toFixed(6)}&longitude=${lon.toFixed(6)}&localityLanguage=en`;
+    const resp = await fetch(bdcUrl);
+    if (resp.ok) {
+      const data = await resp.json();
+      const city = data.city || data.locality || data.principalSubdivision || '';
+      const state = data.principalSubdivision || data.countryName || '';
+      const locality = data.locality && data.locality !== city ? data.locality : '';
+      const displayName = locality && city ? `${locality}, ${city}` : city || state || `${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E`;
+      if (displayName) {
+        return { name: displayName, city: city || displayName, state: state || 'India' };
+      }
+    }
+  } catch (err) {
+    console.warn('BigDataCloud reverse geocode fallback:', err);
+  }
+
+  // 2. OpenWeatherMap Reverse Geocode fallback
+  if (OPENWEATHER_API_KEY) {
+    try {
+      const owmGeoUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat.toFixed(6)}&lon=${lon.toFixed(6)}&limit=1&appid=${OPENWEATHER_API_KEY}`;
+      const resp = await fetch(owmGeoUrl);
+      if (resp.ok) {
+        const data = await resp.json();
+        if (Array.isArray(data) && data.length > 0) {
+          const item = data[0];
+          const name = item.name || '';
+          const state = item.state || '';
+          const displayName = name && state ? `${name}, ${state}` : name || `${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E`;
+          return { name: displayName, city: name || displayName, state: state || 'India' };
+        }
+      }
+    } catch (err) {
+      console.warn('OWM reverse geocode fallback:', err);
+    }
+  }
+
+  return {
+    name: `GPS Station (${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E)`,
+    city: 'My Location',
+    state: 'Live GPS',
+  };
+};
+
 export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [enabled, setEnabledState] = useState<boolean>(() => {
     const saved = safeGetItem('weather_fx_enabled');
@@ -338,6 +390,7 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
       conditionLabel: estimatedRain > 10 ? 'Heavy Rainfall' : estimatedRain > 0.5 ? 'Light Showers' : 'Mostly Clear',
       sourceProvenance: 'Station Centroid Observation Inflow',
       lastUpdatedIso: new Date().toISOString(),
+      predictedRegime: initialRegime,
     };
 
     setStationOverride(initialTelemetry);
@@ -366,6 +419,7 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
           conditionLabel: backendLive.condition_label || 'Live Observation',
           sourceProvenance: backendLive.source_provenance || 'OpenWeatherMap Real-Time Telemetry',
           lastUpdatedIso: backendLive.last_updated_iso || new Date().toISOString(),
+          predictedRegime: (backendLive.predicted_regime as SynopticRegime) || initialRegime,
         };
 
         setStationOverride(liveTelemetry);
@@ -453,6 +507,7 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
             conditionLabel: `${wDesc.charAt(0).toUpperCase() + wDesc.slice(1)}`,
             sourceProvenance: 'OpenWeatherMap Real-Time Telemetry',
             lastUpdatedIso: new Date().toISOString(),
+            predictedRegime: dynamicRegime,
           };
 
           setStationOverride(liveTelemetry);
@@ -464,12 +519,72 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
       console.warn('OpenWeatherMap direct client fetch attempt fallback:', owmErr);
     }
 
+    // 3. Direct Open-Meteo GFS Client-Side Fetch Fallback (free, CORS-enabled, reliable globally)
+    try {
+      const omUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_direction_10m,cloud_cover,precipitation,weather_code`;
+      const omResp = await fetch(omUrl);
+      if (omResp.ok) {
+        const omData = await omResp.json();
+        const cur = omData?.current;
+        if (cur && typeof cur.temperature_2m === 'number') {
+          const temp = cur.temperature_2m;
+          const rh = cur.relative_humidity_2m ?? 65;
+          const p = cur.surface_pressure ?? 1012;
+          const wSpeed = cur.wind_speed_10m ? Math.round((cur.wind_speed_10m / 3.6) * 10) / 10 : 4;
+          const windDeg = cur.wind_direction_10m ?? 240;
+          const clouds = cur.cloud_cover ?? 30;
+          const rain = cur.precipitation ?? 0;
+          const wCode = cur.weather_code ?? 0;
+
+          let dynamicRegime: SynopticRegime = 'OTHER';
+          if (wCode >= 95) {
+            dynamicRegime = 'DEPRESSION';
+          } else if (wCode >= 71 && wCode <= 77) {
+            dynamicRegime = 'WESTERN_DISTURBANCE';
+          } else if (rain > 10 || (wCode >= 63 && wCode <= 65)) {
+            dynamicRegime = 'COASTAL_OROGRAPHIC';
+          } else if (rain > 0.5 || (wCode >= 51 && wCode <= 61)) {
+            dynamicRegime = 'ACTIVE_MONSOON';
+          } else if (wCode <= 2 && rain <= 0.1 && clouds < 35) {
+            dynamicRegime = 'BREAK_MONSOON';
+          } else {
+            dynamicRegime = initialRegime;
+          }
+
+          const liveTelemetry: WeatherTelemetry = {
+            rainRateMmH: parseFloat(rain.toFixed(1)),
+            windSpeedMs: parseFloat(wSpeed.toFixed(1)),
+            windDirectionDeg: windDeg,
+            windDirectionCompass: getCompassDirection(windDeg),
+            temperatureC: parseFloat(temp.toFixed(1)),
+            relativeHumidityPct: Math.round(rh),
+            surfacePressureHpa: parseFloat(p.toFixed(1)),
+            capeJkg: rain > 15 ? 1800 : rain > 5 ? 1200 : 450,
+            cloudCoverPct: Math.round(clouds),
+            lightningFrequencyPerMin: wCode >= 95 ? 4 : 0,
+            stationName: customLocationName || `${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E`,
+            stationCoordinates: { lat, lon },
+            conditionLabel: rain > 10 ? 'Heavy Rain' : rain > 0.5 ? 'Showers' : clouds > 60 ? 'Overcast' : 'Fair',
+            sourceProvenance: 'Open-Meteo GFS Real-Time Telemetry',
+            lastUpdatedIso: new Date().toISOString(),
+            predictedRegime: dynamicRegime,
+          };
+
+          setStationOverride(liveTelemetry);
+          setDistrictRegimeState(dynamicRegime);
+          return liveTelemetry;
+        }
+      }
+    } catch (omErr) {
+      console.warn('Open-Meteo fallback error:', omErr);
+    }
+
     return initialTelemetry;
   }, []);
 
   const detectUserLocation = useCallback(async (
-    onFound?: (coords: { lat: number; lon: number }) => void
-  ): Promise<{ lat: number; lon: number } | null> => {
+    onFound?: (coords: UserLocationState) => void
+  ): Promise<UserLocationState | null> => {
     setIsLocating(true);
     setLocationError(null);
 
@@ -480,35 +595,41 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
       return null;
     }
 
-    return new Promise<{ lat: number; lon: number } | null>((resolve) => {
+    return new Promise<UserLocationState | null>((resolve) => {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
           const accuracy = position.coords.accuracy;
 
+          // Reverse geocode to resolve authentic city and state
+          const geocoded = await reverseGeocodeLocation(lat, lon);
+          const placeName = geocoded.name || `My Location (${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E)`;
+
           const locState: UserLocationState = {
             lat,
             lon,
             accuracy,
-            name: `My Location (${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E)`,
+            name: placeName,
+            city: geocoded.city,
+            state: geocoded.state,
             isCustomLocation: true,
           };
           setUserLocation(locState);
 
-          // Fetch real-time weather from Open-Meteo GFS API for these exact coordinates
-          await fetchLocationWeather(lat, lon);
+          // Fetch physical weather telemetry for these exact coordinates
+          await fetchLocationWeather(lat, lon, placeName);
 
           if (onFound) {
-            onFound({ lat, lon });
+            onFound(locState);
           }
           setIsLocating(false);
-          resolve({ lat, lon });
+          resolve(locState);
         },
         (error) => {
           let msg = 'Could not retrieve your current location';
           if (error.code === 1) {
-            msg = 'Location permission denied. Please allow location access.';
+            msg = 'Location permission denied. Please allow location access in your browser.';
           } else if (error.code === 2) {
             msg = 'Location information is currently unavailable.';
           } else if (error.code === 3) {
@@ -520,8 +641,8 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
         },
         {
           enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 60000,
+          timeout: 12000,
+          maximumAge: 0, // CRITICAL: Always get fresh GPS coordinates on click
         }
       );
     });

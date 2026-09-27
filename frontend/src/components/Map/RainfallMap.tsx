@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, GeoJSON, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, GeoJSON, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import {
   Layers,
@@ -12,6 +12,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { DistrictItem, CombinedForecastResponse } from '../../types/api';
+import { useWeather } from '../../context/WeatherContext';
 
 export type MapLayerType =
   | 'corrected'
@@ -103,6 +104,37 @@ const benchmarkIconUnselected = createBenchmarkStationIcon(false);
 const referenceIconSelected = createReferenceDistrictIcon(true);
 const referenceIconUnselected = createReferenceDistrictIcon(false);
 
+const createUserGpsIcon = () => {
+  return L.divIcon({
+    className: 'custom-gps-user-marker',
+    html: `
+      <div style="position:relative;width:28px;height:28px;display:flex;align-items:center;justify-content:center;">
+        <div style="position:absolute;width:28px;height:28px;border-radius:50%;background:rgba(37,99,235,0.4);animation:station-pulse 1.8s infinite;"></div>
+        <div style="width:14px;height:14px;border-radius:50%;background:#2563eb;border:2.5px solid #ffffff;box-shadow:0 0 10px rgba(37,99,235,0.85);z-index:2;"></div>
+        <div style="
+          position: absolute;
+          top: -24px;
+          white-space: nowrap;
+          background: #1e3a8a;
+          color: #bfdbfe;
+          font-size: 10px;
+          font-weight: 700;
+          padding: 2px 7px;
+          border-radius: 4px;
+          border: 1px solid #3b82f6;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+          pointer-events: none;
+        ">
+          MY LOCATION (GPS)
+        </div>
+      </div>
+    `,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+  });
+};
+const userGpsIcon = createUserGpsIcon();
+
 // Component to dynamically resize and fly map view ONLY on actual district change without shaking/jitter
 const MapViewportController: React.FC<{
   targetDistrictId: string;
@@ -177,6 +209,7 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
   geoJsonData,
   isDarkMode,
 }) => {
+  const { userLocation } = useWeather();
   const [activeLayer, setActiveLayer] = useState<MapLayerType>('corrected');
   // Default to terrain for optimal monsoon orographic visualization
   const [baseMap, setBaseMap] = useState<BaseMapType>('terrain');
@@ -192,12 +225,18 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
   );
 
   const mapCenter: [number, number] = useMemo(() => {
+    if (selectedDistrictId === 'gps_user_location' && userLocation && isValidCoord(userLocation.lat, userLocation.lon)) {
+      return [userLocation.lat, userLocation.lon];
+    }
     return selectedDistrict && isValidCoord(selectedDistrict.latitude, selectedDistrict.longitude)
       ? [selectedDistrict.latitude, selectedDistrict.longitude]
       : [18.5204, 73.8567]; // Pune default
-  }, [selectedDistrict]);
+  }, [selectedDistrict, selectedDistrictId, userLocation]);
 
   const mapZoom = useMemo(() => {
+    if (selectedDistrictId === 'gps_user_location') {
+      return 10;
+    }
     return selectedDistrict ? (selectedDistrictId === 'pune' ? 8 : 7) : 6;
   }, [selectedDistrict, selectedDistrictId]);
 
@@ -549,6 +588,58 @@ export const RainfallMap: React.FC<RainfallMapProps> = ({
 
           {/* District & Station Centroid Markers - Memoized to prevent 675 DivIcon reallocations on render */}
           {districtMarkers}
+
+          {/* Accurate GPS User Location Marker & Accuracy Circle */}
+          {userLocation && isValidCoord(userLocation.lat, userLocation.lon) && (
+            <>
+              <Marker
+                position={[userLocation.lat, userLocation.lon]}
+                icon={userGpsIcon}
+                zIndexOffset={1000}
+                eventHandlers={{
+                  click: () => onSelectDistrict('gps_user_location'),
+                }}
+              >
+                <Popup>
+                  <div className="p-1 space-y-1.5 text-xs font-sans">
+                    <div className="font-bold text-blue-700 text-sm flex items-center space-x-1">
+                      <span>📍 Accurate GPS Location</span>
+                    </div>
+                    <div className="font-semibold text-slate-800">
+                      {userLocation.name || 'Current User Coordinates'}
+                    </div>
+                    <div className="text-slate-500">
+                      {userLocation.lat.toFixed(4)}°N, {userLocation.lon.toFixed(4)}°E
+                      {userLocation.accuracy ? ` (Accuracy: ±${Math.round(userLocation.accuracy)}m)` : ''}
+                    </div>
+                    {activeForecast && selectedDistrictId === 'gps_user_location' && (
+                      <div className="bg-blue-50 p-2 rounded border border-blue-200 text-blue-950 space-y-1">
+                        <div>
+                          Rainfall: <strong>{activeForecast.corrected_rainfall_mm.toFixed(1)} mm</strong>
+                        </div>
+                        <div>
+                          Predicted Regime: <strong>{activeForecast.predicted_regime}</strong>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </Popup>
+              </Marker>
+              {userLocation.accuracy && userLocation.accuracy > 0 && userLocation.accuracy < 30000 && (
+                <Circle
+                  center={[userLocation.lat, userLocation.lon]}
+                  radius={userLocation.accuracy}
+                  pathOptions={{
+                    color: '#2563eb',
+                    fillColor: '#3b82f6',
+                    fillOpacity: 0.15,
+                    weight: 1.5,
+                    dashArray: '4, 4',
+                  }}
+                />
+              )}
+            </>
+          )}
         </MapContainer>
 
         {/* Map Legend Overlay */}

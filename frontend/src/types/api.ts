@@ -232,6 +232,7 @@ export interface DistrictForecastResponse {
   sample_timestamp?: string;
   data_status: DataStatus;
   data_source?: string | null;
+  surface_telemetry?: any;
   nwp_initialization_time?: string | null;
   forecast_valid_time?: string | null;
   forecast_lead_hours?: number | null;
@@ -264,10 +265,12 @@ export interface CategoricalThresholdMetrics {
     observed_events: number;
     forecast_events: number;
   };
-  POD: number;
-  FAR: number;
-  CSI: number;
-  ETS: number;
+  POD: number | string | null;
+  FAR: number | string | null;
+  CSI: number | string | null;
+  ETS: number | string | null;
+  fss?: string;
+  sample_sufficiency?: string;
 }
 
 export interface FSSStatusItem {

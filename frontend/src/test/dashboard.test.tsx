@@ -16,6 +16,7 @@ import { ProbabilityView } from '../views/ProbabilityView';
 import { DistrictsView } from '../views/DistrictsView';
 import { ProvenanceView } from '../views/ProvenanceView';
 import { SystemHealthView } from '../views/SystemHealthView';
+import { DashboardView } from '../views/DashboardView';
 import { LandingPage } from '../components/Landing/LandingPage';
 import { WeatherControllerPill } from '../components/Weather/WeatherControllerPill';
 import { RealtimeWeatherHUD } from '../components/Weather/RealtimeWeatherHUD';
@@ -938,6 +939,43 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
       expect(handleLoginSuccess).toHaveBeenCalledTimes(1);
       expect(handleLoginSuccess.mock.calls[0][0].name).toBe('Gaurav Gautam');
     });
+  });
+
+  it('28. Accurate geolocation: resolves user GPS coordinates and updates DashboardView with accurate location badge and coordinates', () => {
+    const mockGpsForecast = {
+      district_id: 'gps_user_location',
+      name: 'Raipur, Chhattisgarh',
+      latitude: 21.2514,
+      longitude: 81.6296,
+      coverage_status: 'OPERATIONAL_ACTIVE' as const,
+      forecast_mode: 'OPERATIONAL_LIVE_WEATHER',
+      forecast: mockForecast,
+      message: 'Operational forecast for GPS coordinates',
+      data_status: 'REAL_DATA' as const,
+    };
+
+    render(
+      <WeatherProvider>
+        <DashboardView
+          districts={mockDistricts}
+          selectedDistrictId="gps_user_location"
+          onSelectDistrict={vi.fn()}
+          districtForecast={mockGpsForecast}
+          activeForecast={mockForecast}
+          isLoading={false}
+          geoJsonData={null}
+          isDarkMode={false}
+          onNavigate={vi.fn()}
+        />
+      </WeatherProvider>
+    );
+
+    // Confirms accurate place name is displayed
+    expect(screen.getAllByText('Raipur, Chhattisgarh').length).toBeGreaterThanOrEqual(1);
+    // Confirms operational GPS Live badge is displayed
+    expect(screen.getByText(/Operational Active \(GPS Live\)/i)).toBeInTheDocument();
+    // Confirms accurate 4-decimal coordinates are rendered
+    expect(screen.getByText(/21.2514°N, 81.6296°E/i)).toBeInTheDocument();
   });
 });
 

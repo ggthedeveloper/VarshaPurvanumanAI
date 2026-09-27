@@ -246,8 +246,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           disabled={isLocating}
           title={
             userLocation
-              ? `GPS Active: ${userLocation.lat.toFixed(2)}°N, ${userLocation.lon.toFixed(2)}°E. Click to refresh location.`
-              : 'Use my current GPS location for real-time local weather'
+              ? `GPS Active: ${userLocation.name || `${userLocation.lat.toFixed(4)}°N, ${userLocation.lon.toFixed(4)}°E`}${
+                  userLocation.accuracy ? ` (±${Math.round(userLocation.accuracy)}m)` : ''
+                }. Click to refresh.`
+              : 'Use my accurate GPS location for real-time local weather'
           }
           className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
             userLocation
@@ -264,8 +266,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             />
           )}
-          <span className="hidden sm:inline font-sans">
-            {isLocating ? 'Locating...' : userLocation ? 'My Location' : 'Use Location'}
+          <span className="hidden sm:inline font-sans truncate max-w-[130px]">
+            {isLocating ? 'Locating...' : userLocation ? (userLocation.city || 'My Location') : 'Use Location'}
           </span>
         </button>
 

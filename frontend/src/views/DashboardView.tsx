@@ -78,7 +78,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   isDarkMode,
   onNavigate,
 }) => {
-  const { telemetry } = useWeather();
+  const { telemetry, userLocation } = useWeather();
 
   const isPuneBenchmark = districtForecast?.coverage_status === 'BENCHMARK_ACTIVE';
   const isOperational =
@@ -98,6 +98,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const districtName = districtForecast?.name || currentDistrict?.name || 'Selected Station';
 
   const quickStations = [
+    ...(userLocation
+      ? [
+          {
+            id: 'gps_user_location',
+            label: '📍 My Location',
+            badge: selectedDistrictId === 'gps_user_location' ? 'GPS' : undefined,
+          },
+        ]
+      : []),
     { id: 'pune', label: 'Pune', badge: 'Benchmark' },
     { id: 'mumbai', label: 'Mumbai' },
     { id: 'nagpur', label: 'Nagpur' },
@@ -143,6 +152,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
                     Benchmark Station
                   </span>
+                ) : selectedDistrictId === 'gps_user_location' ? (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-300/60 shrink-0">
+                    <span className="h-1.5 w-1.5 rounded-full bg-blue-500 mr-1.5 animate-pulse" />
+                    Operational Active (GPS Live)
+                  </span>
                 ) : isOperational ? (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-300/60 shrink-0">
                     <span className="h-1.5 w-1.5 rounded-full bg-sky-500 mr-1.5" />
@@ -156,7 +170,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 )}
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 whitespace-normal sm:whitespace-nowrap">
-                {currentDistrict?.state || 'India'} • {currentDistrict?.latitude ? `${currentDistrict.latitude.toFixed(2)}°N, ${currentDistrict.longitude.toFixed(2)}°E` : '18.52°N, 73.86°E'}
+                {currentDistrict?.state || (selectedDistrictId === 'gps_user_location' ? 'Live GPS Location' : 'India')} •{' '}
+                {districtForecast?.latitude && districtForecast?.longitude
+                  ? `${districtForecast.latitude.toFixed(4)}°N, ${districtForecast.longitude.toFixed(4)}°E${
+                      selectedDistrictId === 'gps_user_location' ? ' (Accurate GPS)' : ''
+                    }`
+                  : currentDistrict?.latitude && currentDistrict?.longitude
+                  ? `${currentDistrict.latitude.toFixed(4)}°N, ${currentDistrict.longitude.toFixed(4)}°E`
+                  : '18.5204°N, 73.8567°E'}
               </p>
             </div>
           </div>
