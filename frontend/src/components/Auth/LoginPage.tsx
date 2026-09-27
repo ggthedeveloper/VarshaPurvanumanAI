@@ -37,7 +37,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
   // Sign In state
   const [username, setUsername] = useState('Gaurav');
-  const [password, setPassword] = useState('Varsha@SIH2026');
+  const [password, setPassword] = useState('gaurav123');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
 
@@ -70,7 +70,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       const uLower = username.trim().toLowerCase();
       if (
         (uLower === 'gaurav' || uLower === 'sih_judge' || uLower === 'admin' || uLower === 'meteorologist' || uLower === 'evaluator') &&
-        (password === 'Varsha@SIH2026' || password === 'demo')
+        (password === 'gaurav123' || password === 'Varsha@SIH2026' || password === 'demo')
       ) {
         const fallbackUser: UserProfile = {
           username: username.trim(),
@@ -85,7 +85,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         return;
       }
       setError(
-        err.message || 'Invalid username or password. You can also use Quick Demo Access.'
+        err.message || 'Invalid username or password. Default evaluation password: "gaurav123", or click Quick Demo Access.'
       );
     } finally {
       setIsLoading(false);

@@ -311,18 +311,22 @@ def test_18_auth_endpoints(client):
     r_bad = client.post("/api/auth/login", json={"username": "wrong_user", "password": "wrong_password"})
     assert r_bad.status_code == 401
 
-    # Valid demo login accepted (legacy and default credentials)
-    r_good = client.post("/api/auth/login", json={"username": "sih_judge", "password": "Varsha@SIH2026"})
+    # Valid demo login accepted (gaurav123 and legacy credentials)
+    r_good = client.post("/api/auth/login", json={"username": "sih_judge", "password": "gaurav123"})
     assert r_good.status_code == 200
     data_good = r_good.json()
     assert "access_token" in data_good
     assert data_good["user"]["username"] == "sih_judge"
 
-    # Default login with Gaurav
-    r_gaurav = client.post("/api/auth/login", json={"username": "Gaurav", "password": "Varsha@SIH2026"})
+    # Default login with Gaurav using new default password gaurav123
+    r_gaurav = client.post("/api/auth/login", json={"username": "Gaurav", "password": "gaurav123"})
     assert r_gaurav.status_code == 200
     data_gaurav = r_gaurav.json()
     assert data_gaurav["user"]["username"] == "Gaurav"
+
+    # Backward compatibility with Varsha@SIH2026
+    r_compat = client.post("/api/auth/login", json={"username": "Gaurav", "password": "Varsha@SIH2026"})
+    assert r_compat.status_code == 200
 
     # Quick demo login accepted with default user Gaurav
     r_demo = client.post("/api/auth/demo-login")

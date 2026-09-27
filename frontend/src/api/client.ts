@@ -418,6 +418,7 @@ class ApiClient {
       const registered = localUsers[uKey];
 
       const validPassword =
+        req.password === 'gaurav123' ||
         req.password === 'Varsha@SIH2026' ||
         req.password === 'demo' ||
         (registered && registered.password === req.password);
@@ -449,7 +450,7 @@ class ApiClient {
       }
 
       throw new Error(
-        'Invalid username or password. Default evaluation account: username "Gaurav", password "Varsha@SIH2026", or click Quick Demo Access.'
+        'Invalid username or password. Default evaluation account: username "Gaurav", password "gaurav123", or click Quick Demo Access.'
       );
     }
   }

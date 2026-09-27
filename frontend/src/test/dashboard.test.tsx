@@ -897,15 +897,19 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
   });
 
   it('26. ApiClient authentication fallback: validates evaluator credentials offline & sets auth token', async () => {
-    // Authenticate with default evaluator account
-    const resp = await api.login({ username: 'Gaurav', password: 'Varsha@SIH2026' });
+    // Authenticate with default evaluator account and gaurav123 password
+    const resp = await api.login({ username: 'Gaurav', password: 'gaurav123' });
     expect(resp.user.name).toBe('Gaurav Gautam');
     expect(resp.user.role).toBe('Chief Meteorological Officer');
     expect(resp.access_token).toBeDefined();
     expect(api.getToken()).toBe(resp.access_token);
 
+    // Authenticate with legacy password for backward compatibility
+    const respLegacy = await api.login({ username: 'Gaurav', password: 'Varsha@SIH2026' });
+    expect(respLegacy.user.name).toBe('Gaurav Gautam');
+
     // Authenticate with sih_judge evaluator account
-    const respJudge = await api.login({ username: 'sih_judge', password: 'Varsha@SIH2026' });
+    const respJudge = await api.login({ username: 'sih_judge', password: 'gaurav123' });
     expect(respJudge.user.username).toBe('sih_judge');
     expect(respJudge.user.role).toBe('Operational Evaluator');
 
@@ -925,7 +929,7 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
       />
     );
 
-    // Form is pre-filled with Gaurav and Varsha@SIH2026
+    // Form is pre-filled with Gaurav and gaurav123
     const submitBtn = screen.getByRole('button', { name: /Sign In to Dashboard/i });
     fireEvent.click(submitBtn);
 

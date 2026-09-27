@@ -308,7 +308,7 @@ npm run dev
 ```
 
 Visit `http://localhost:3000` in your browser.
-- **Login Credentials:** Username: `Gaurav`, Password: (configured in `.env` via `DEMO_PASSWORD`, or demo password `Varsha@SIH2026`)
+- **Login Credentials:** Username: `Gaurav`, Password: `gaurav123` (or configured in `.env` via `DEMO_PASSWORD`, backward-compatible with `Varsha@SIH2026`)
 - **Or Click:** "Quick SIH Demo Access" for 1-click evaluation access.
 
 ---

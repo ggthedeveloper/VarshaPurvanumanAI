@@ -16,7 +16,7 @@ class Settings:
 
     # SIH Demo Authentication Credentials (environment-configured)
     DEMO_USERNAME: str = os.getenv("DEMO_USERNAME", "Gaurav")
-    DEMO_PASSWORD: str = os.getenv("DEMO_PASSWORD", "Varsha@SIH2026")
+    DEMO_PASSWORD: str = os.getenv("DEMO_PASSWORD", "gaurav123")
     DEMO_USER_NAME: str = os.getenv("DEMO_USER_NAME", "Gaurav Gautam")
     DEMO_USER_ROLE: str = os.getenv("DEMO_USER_ROLE", "Lead Meteorologist / SIH 2026 Evaluator")
 
