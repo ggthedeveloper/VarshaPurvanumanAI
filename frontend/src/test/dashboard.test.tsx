@@ -21,6 +21,7 @@ import { WeatherControllerPill } from '../components/Weather/WeatherControllerPi
 import { RealtimeWeatherHUD } from '../components/Weather/RealtimeWeatherHUD';
 import { Navbar } from '../components/Navigation/Navbar';
 import { WeatherProvider } from '../context/WeatherContext';
+import { api } from '../api/client';
 import {
   CombinedForecastResponse,
   DistrictItem,
@@ -894,5 +895,46 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
     fireEvent.click(locBtn);
     expect(handleDetectLocation).toHaveBeenCalledTimes(1);
   });
+
+  it('26. ApiClient authentication fallback: validates evaluator credentials offline & sets auth token', async () => {
+    // Authenticate with default evaluator account
+    const resp = await api.login({ username: 'Gaurav', password: 'Varsha@SIH2026' });
+    expect(resp.user.name).toBe('Gaurav Gautam');
+    expect(resp.user.role).toBe('Chief Meteorological Officer');
+    expect(resp.access_token).toBeDefined();
+    expect(api.getToken()).toBe(resp.access_token);
+
+    // Authenticate with sih_judge evaluator account
+    const respJudge = await api.login({ username: 'sih_judge', password: 'Varsha@SIH2026' });
+    expect(respJudge.user.username).toBe('sih_judge');
+    expect(respJudge.user.role).toBe('Operational Evaluator');
+
+    // Reject invalid password
+    await expect(api.login({ username: 'Gaurav', password: 'wrong_password' })).rejects.toThrow(
+      /Invalid username or password/i
+    );
+  });
+
+  it('27. LoginPage form submission: logs in with pre-configured evaluator credentials successfully', async () => {
+    const handleLoginSuccess = vi.fn();
+    render(
+      <LoginPage
+        onLoginSuccess={handleLoginSuccess}
+        isDarkMode={false}
+        onToggleTheme={vi.fn()}
+      />
+    );
+
+    // Form is pre-filled with Gaurav and Varsha@SIH2026
+    const submitBtn = screen.getByRole('button', { name: /Sign In to Dashboard/i });
+    fireEvent.click(submitBtn);
+
+    // Wait for async login callback
+    await vi.waitFor(() => {
+      expect(handleLoginSuccess).toHaveBeenCalledTimes(1);
+      expect(handleLoginSuccess.mock.calls[0][0].name).toBe('Gaurav Gautam');
+    });
+  });
 });
+
 
