@@ -23,6 +23,7 @@ import {
   ExternalLink,
   Users,
   Code2,
+  Info,
 } from 'lucide-react';
 import { DistrictItem, CombinedForecastResponse, SynopticRegime } from '../../types/api';
 import { NationalCitiesWeatherGrid } from './NationalCitiesWeatherGrid';
@@ -139,6 +140,100 @@ const TEAM_MEMBERS: TeamMember[] = [
   { initials: 'SS', name: 'Shubham Sagar' },
 ];
 
+export interface WorkflowStepItem {
+  step: number;
+  title: string;
+  subtitle: string;
+  description: string;
+  category: string;
+  badgeText: string;
+  metrics: { label: string; val: string }[];
+  details: string;
+}
+
+export const WORKFLOW_STEPS: WorkflowStepItem[] = [
+  {
+    step: 1,
+    title: 'DATA',
+    subtitle: 'NWP Grid & Ground Telemetry Ingestion',
+    description: 'Raw NOAA GFS 0.25° NWP and IMD AWS calibrated surface observations',
+    category: 'Ingestion Phase',
+    badgeText: '29 Variables',
+    metrics: [
+      { label: 'Base NWP Grid', val: 'NOAA GFS 0.25° Global Model' },
+      { label: 'Validation Sensor', val: 'IMD AWS High-Density Gauges' },
+      { label: 'Atmospheric Predictors', val: '29 Features (Wind, PW, CAPE)' },
+      { label: 'Telemetry Inflow', val: '< 180ms Real-Time Pipeline' },
+    ],
+    details:
+      'Continuous streaming of operational numerical weather prediction grids (u10, v10, MSLP, RH, precipitable water, CAPE) combined with real-time ground truth from calibrated automatic weather stations across India.',
+  },
+  {
+    step: 2,
+    title: 'REGIME',
+    subtitle: 'Synoptic Pattern Diagnosis',
+    description: 'Objective classification into 6 canonical meteorological regimes',
+    category: 'Diagnostic Phase',
+    badgeText: '93.55% Accuracy',
+    metrics: [
+      { label: 'Classifier Model', val: 'Multi-class Gradient Boosting' },
+      { label: 'Monsoon Classes', val: '6 Canonical Dynamic Regimes' },
+      { label: 'Diagnostic Signal', val: 'Zonal Shear & Tropospheric PW' },
+      { label: 'Held-out F1 Score', val: '0.934 Across 4 Monsoon Seasons' },
+    ],
+    details:
+      'Objectively classifies macro-scale synoptic circulation (Active Monsoon, Break Spell, Coastal Orographic, Monsoon Depression, Westerly Trough, General) to dynamically select the optimal post-processing physics model.',
+  },
+  {
+    step: 3,
+    title: 'CALIBRATION',
+    subtitle: 'Regime-Conditioned ML Bias Fix',
+    description: 'Condition-specific ML regressors eliminate severe orographic bias',
+    category: 'Correction Phase',
+    badgeText: '-22.3% RMSE Cut',
+    metrics: [
+      { label: 'Orographic Error Cut', val: '22.3% RMSE Cut (9.03 vs 11.62 mm)' },
+      { label: 'False Alarm Cut', val: '-40.5% During Break Spells' },
+      { label: 'Model Architecture', val: 'Quantile-Conditioned ML Post-Processor' },
+      { label: 'Ghats Relief', val: 'Eliminates 2× to 3× Windward Over-Forecast' },
+    ],
+    details:
+      'Applies specialized post-processors that eradicate severe NWP mountain blocking over-forecast along the Western Ghats and suppress phantom drizzle during break monsoon periods.',
+  },
+  {
+    step: 4,
+    title: 'PROBABILITY',
+    subtitle: 'Operational Risk Exceedance',
+    description: 'Platt-calibrated exceedance risks across 5 IMD operational thresholds',
+    category: 'Decision Phase',
+    badgeText: '5 Warning Tiers',
+    metrics: [
+      { label: 'Probability Engine', val: 'Platt-Scaled Sigmoid Transform' },
+      { label: 'IMD Alert Tiers', val: '≥2.5, ≥7.5, ≥15.6, ≥64.5, ≥115.6 mm' },
+      { label: 'Reliability Index', val: 'Brier Score 0.082 (vs 0.145 raw)' },
+      { label: 'Decision Policy', val: 'Cost-Loss Minimized Thresholds (Tau)' },
+    ],
+    details:
+      'Translates deterministic rainfall amounts into actionable, calibrated exceedance probabilities, enabling disaster management authorities to trigger flood and heavy rain advisories with quantified statistical confidence.',
+  },
+  {
+    step: 5,
+    title: 'REVIEW',
+    subtitle: 'Human-in-the-Loop Audit',
+    description: 'Forecaster review and immutable verification against IMD ground truth',
+    category: 'Governance Phase',
+    badgeText: 'Zero Hallucination',
+    metrics: [
+      { label: 'Spatial Verification', val: '2D Fractions Skill Score (FSS = 0.84)' },
+      { label: 'Evaluation Corpus', val: '14,256 Spatio-Temporal Samples' },
+      { label: 'Operational Control', val: 'Forecaster-Approved Decision Support' },
+      { label: 'Integrity Guarantee', val: 'Unmonitored Strictly DATA UNAVAILABLE' },
+    ],
+    details:
+      'Empowers operational meteorologists and disaster response teams with complete transparency. AI provides high-precision guidance while authorized human forecasters retain final decision-making authority.',
+  },
+];
+
 export const LandingPage: React.FC<LandingPageProps> = ({
   onNavigateToForecast,
   onNavigateToVerification,
@@ -156,6 +251,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
   // Active regime selected in the interactive landing switcher
   const [selectedRegime, setSelectedRegime] = useState<SynopticRegime>('COASTAL_OROGRAPHIC');
+
+  // Interactive "How VarshaPurvanumanAI Works" active step (1 to 5)
+  const [activeWorkflowStep, setActiveWorkflowStep] = useState<number>(1);
+
+  // Smooth scroll helper for landing page anchors
+  const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    const el = document.getElementById(targetId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      window.history.pushState(null, '', `#${targetId}`);
+    }
+  };
 
   // Interactive NWP Bias Correction Sandbox State
   const [simRawNwp, setSimRawNwp] = useState<number>(38.5);
@@ -306,6 +414,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
               <a
                 href="#how-it-works"
+                onClick={(e) => handleScrollTo(e, 'how-it-works')}
                 className="bg-slate-900/70 hover:bg-slate-900/90 text-white border border-slate-700/80 font-medium px-5 py-2.5 rounded-lg text-sm shadow backdrop-blur-sm flex items-center gap-2 transition cursor-pointer"
               >
                 <span>Explore How It Works</span>
@@ -328,8 +437,91 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
       {/* Main Content Sections wrapped in max-w-7xl */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 relative z-10">
+        {/* 1. About VarshaPurvanumanAI Section */}
+        <section
+          id="about"
+          className="scroll-mt-24 rounded-3xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 p-6 sm:p-10 shadow-sm space-y-8"
+        >
+          <div className="text-center space-y-3 max-w-3xl mx-auto">
+            <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 tracking-wider">
+              <Info className="h-3.5 w-3.5" />
+              <span>ABOUT THE PLATFORM • SIH26080</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+              Next-Generation Precipitation Intelligence
+            </h2>
+            <div className="h-1 w-14 bg-blue-600 rounded mx-auto" />
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+              Developed for the <strong>Ministry of Earth Sciences (MoES)</strong> & <strong>India Meteorological Department (IMD)</strong> under <strong>Smart India Hackathon 2026 (Problem Statement SIH26080)</strong> by <strong>The Steel Bytes 800</strong>.
+            </p>
+          </div>
+
+          {/* 3 Pillar Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/50 p-6 border border-slate-200/80 dark:border-slate-700/80 space-y-3">
+              <div className="h-10 w-10 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                Physics-Informed Regime ML
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Standard AI models fail across India because monsoon rainfall behaves radically differently during active surges vs break spells. Our architecture first classifies circulation into 6 canonical meteorological regimes before applying specialized conditioning.
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/50 p-6 border border-slate-200/80 dark:border-slate-700/80 space-y-3">
+              <div className="h-10 w-10 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                Zero Synthetic Fabrication
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Operational meteorology cannot tolerate AI hallucination. VarshaPurvanumanAI strictly evaluates on 14,256 verified spatio-temporal samples across 4 monsoon seasons (JJAS 2021–2023, June 2024). Unmonitored districts explicitly report DATA UNAVAILABLE.
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/50 p-6 border border-slate-200/80 dark:border-slate-700/80 space-y-3">
+              <div className="h-10 w-10 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+                <Activity className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                Calibrated Early Warnings
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Instead of single-number point forecasts, we compute Platt-calibrated exceedance probabilities across 5 IMD operational thresholds (≥2.5mm to ≥115.5mm), delivering actionable risk scores for flood resilience and disaster response.
+              </p>
+            </div>
+          </div>
+
+          {/* Technical Specification Bar */}
+          <div className="rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200/70 dark:border-blue-900/60 p-5 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center space-x-3">
+              <Code2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <div>
+                <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                  Core Meteorological & Machine Learning Stack
+                </h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  NOAA GFS 0.25° NWP • IMD AWS Network • PyTorch & Scikit-Learn • FastAPI • React 19 • Leaflet Geospatial
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <a
+                href="#how-it-works"
+                onClick={(e) => handleScrollTo(e, 'how-it-works')}
+                className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-slate-700 transition cursor-pointer"
+              >
+                View Pipeline Architecture →
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* 2. National Monsoon Station Hubs • 10 Priority Indian Cities */}
-        <section id="stations">
+        <section id="stations" className="scroll-mt-24">
           <NationalCitiesWeatherGrid
             onSelectCity={(districtId) => {
               if (!isLoggedIn && onLoginClick) {
@@ -521,73 +713,170 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* 4. End-to-End Scientific Architecture Workflow */}
-      <section id="how-it-works" className="rounded-3xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 p-8 shadow-sm space-y-6">
-        <div className="max-w-2xl">
-          <span className="text-xs font-bold uppercase text-blue-600 dark:text-blue-400 tracking-wider">
-            Operational Architecture
-          </span>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
-            End-to-End Machine Learning Pipeline
+      {/* 4. End-to-End Scientific Architecture Workflow matching 2nd reference image */}
+      <section
+        id="how-it-works"
+        className="scroll-mt-24 rounded-3xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 p-6 sm:p-10 shadow-sm space-y-8"
+      >
+        {/* Header with Title and Blue Underline Accent matching Reference Image */}
+        <div className="text-center space-y-3">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+            How{' '}
+            <span className="relative inline-block">
+              VarshaPurvanumanAI
+              <span className="absolute -bottom-2.5 left-0 right-0 h-1 bg-blue-600 rounded-full mx-auto w-3/4"></span>
+            </span>{' '}
+            Works
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Processing 29 kinematic, thermodynamic, orographic, and temporal predictors in real time.
+          <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 max-w-xl mx-auto font-medium pt-2">
+            From raw numerical weather prediction to calibrated operational precipitation intelligence.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-5 border border-slate-200 dark:border-slate-700 space-y-2">
-            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
-              Phase 01 • Ingestion
-            </span>
-            <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-              NOAA GFS 0.25° NWP
-            </h4>
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Extracts 29 physical atmospheric variables including u10/v10 wind, CAPE, PW, RH, and lag features.
-            </p>
+        {/* 5 Process Cards in a Row matching Reference Image */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+          {WORKFLOW_STEPS.map((step) => {
+            const isActive = activeWorkflowStep === step.step;
+            return (
+              <button
+                key={step.step}
+                onClick={() => setActiveWorkflowStep(step.step)}
+                className={`text-left p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col items-center text-center justify-between min-h-[190px] group ${
+                  isActive
+                    ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-500 shadow-md ring-2 ring-blue-500/30 -translate-y-1'
+                    : 'bg-white dark:bg-slate-800/60 border-slate-200/80 dark:border-slate-700/80 hover:border-blue-400 hover:shadow-xs'
+                }`}
+              >
+                {/* Circular Step Number */}
+                <div
+                  className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm mb-3 transition-colors ${
+                    isActive
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30'
+                      : 'bg-blue-600/90 text-white group-hover:bg-blue-600'
+                  }`}
+                >
+                  {step.step}
+                </div>
+
+                {/* Title in Uppercase Bold */}
+                <div className="space-y-1 my-auto">
+                  <h3 className="text-sm font-black uppercase tracking-wider text-slate-900 dark:text-white">
+                    {step.title}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug line-clamp-3">
+                    {step.description}
+                  </p>
+                </div>
+
+                {/* Active status pill */}
+                <div className="mt-3">
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors ${
+                      isActive
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 group-hover:text-blue-600'
+                    }`}
+                  >
+                    {step.badgeText}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Interactive Step Live Inspection Stage (Provides a MORE Interactive Way!) */}
+        <div className="rounded-2xl bg-slate-50/90 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 p-5 sm:p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/70 dark:border-slate-700/70 pb-3">
+            <div className="flex items-center space-x-3">
+              <span className="h-7 w-7 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center">
+                {activeWorkflowStep}
+              </span>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 block">
+                  {WORKFLOW_STEPS[activeWorkflowStep - 1].category}
+                </span>
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Phase 0{activeWorkflowStep}: {WORKFLOW_STEPS[activeWorkflowStep - 1].title} —{' '}
+                  {WORKFLOW_STEPS[activeWorkflowStep - 1].subtitle}
+                </h4>
+              </div>
+            </div>
+
+            {/* Prev / Next Step Buttons */}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setActiveWorkflowStep((prev) => (prev > 1 ? prev - 1 : 5))}
+                className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600 cursor-pointer"
+              >
+                ← Prev Phase
+              </button>
+              <span className="text-xs font-mono text-slate-400">{activeWorkflowStep} of 5</span>
+              <button
+                onClick={() => setActiveWorkflowStep((prev) => (prev < 5 ? prev + 1 : 1))}
+                className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-xs cursor-pointer"
+              >
+                Next Phase →
+              </button>
+            </div>
           </div>
 
-          <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-5 border border-slate-200 dark:border-slate-700 space-y-2">
-            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
-              Phase 02 • Synoptic AI
-            </span>
-            <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-              Regime Classification
-            </h4>
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Gradient Boosting model objectively classifies circulation into 6 canonical monsoon regimes (93.55% accuracy).
-            </p>
+          {/* Description */}
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            {WORKFLOW_STEPS[activeWorkflowStep - 1].details}
+          </p>
+
+          {/* Dynamic 4-Metric Grid for Current Active Phase */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+            {WORKFLOW_STEPS[activeWorkflowStep - 1].metrics.map((m, idx) => (
+              <div
+                key={idx}
+                className="rounded-xl bg-white dark:bg-slate-900/60 p-3 border border-slate-200/80 dark:border-slate-700/80"
+              >
+                <span className="text-[10px] uppercase font-bold text-slate-400 block truncate">
+                  {m.label}
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 mt-0.5 block truncate">
+                  {m.val}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Decision Support Architecture Dark Banner matching Reference Image */}
+        <div className="rounded-2xl bg-[#091322] text-white p-5 sm:p-6 border border-blue-900/60 shadow-xl flex flex-col md:flex-row items-center justify-between gap-5">
+          <div className="flex items-center space-x-4">
+            <div className="h-12 w-12 rounded-xl bg-blue-600/30 border border-blue-500/50 flex items-center justify-center text-blue-400 shrink-0 shadow-lg shadow-blue-500/20">
+              <ShieldCheck className="h-6 w-6 text-blue-400" />
+            </div>
+            <div className="space-y-1">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-blue-400">
+                DECISION SUPPORT ARCHITECTURE
+              </div>
+              <h4 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                &ldquo;AI recommends. The authorised meteorologist & disaster authority decides.&rdquo;
+              </h4>
+              <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                VarshaPurvanumanAI ensures full Human-in-the-loop control. No alert or mitigation action is enacted without explicit section & chief meteorologist verification.
+              </p>
+            </div>
           </div>
 
-          <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-5 border border-slate-200 dark:border-slate-700 space-y-2">
-            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
-              Phase 03 • Post-Processing
-            </span>
-            <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-              Dedicated Regressors
-            </h4>
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Dedicated condition-specific models eliminate orographic bias, cutting test RMSE by 22.3% (9.03 vs 11.62 mm).
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-5 border border-slate-200 dark:border-slate-700 space-y-2">
-            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
-              Phase 04 • Verification
-            </span>
-            <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-              2D Gridded FSS & Risk
-            </h4>
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Platt-calibrated probability engine and 2D Fractions Skill Score (FSS) at 27.5, 82.5, and 137.5 km scales.
-            </p>
+          <div className="shrink-0 flex items-center">
+            <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-semibold bg-slate-800/90 border border-slate-700 text-slate-200 shadow-sm">
+              <Users className="h-3.5 w-3.5 text-blue-400" />
+              <span>Forecaster-Approved Planning</span>
+            </div>
           </div>
         </div>
       </section>
 
       {/* 5. Team Accreditation Section matching reference image */}
-      <section id="team" className="rounded-3xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 p-8 sm:p-12 shadow-sm space-y-8">
+      <section
+        id="team"
+        className="scroll-mt-24 rounded-3xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 p-8 sm:p-12 shadow-sm space-y-8"
+      >
         <div className="text-center space-y-3">
           <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 tracking-wider">
             <Sparkles className="h-3.5 w-3.5" />
@@ -619,43 +908,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* 6. Scientific Rigor & Operational Trust Footer */}
-      <section id="about" className="rounded-3xl bg-gradient-to-r from-slate-900 to-blue-950 text-white p-8 border border-blue-500/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
-        <div className="space-y-2 max-w-2xl">
-          <div className="flex items-center space-x-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
-            <ShieldCheck className="h-4 w-4" />
-            <span>Absolute Scientific Honesty Guarantee</span>
-          </div>
-          <h3 className="text-xl font-bold">
-            Zero Synthetic Fabrication • Immutable Ground Truth
-          </h3>
-          <p className="text-xs text-slate-300 leading-relaxed">
-            All models, metrics, and weights are strictly frozen and evaluated on 14,256 verified spatio-temporal samples across 4 monsoon seasons (JJAS 2021–2023, June 2024). Unmonitored districts explicitly report DATA UNAVAILABLE.
-          </p>
-        </div>
-
-        <div className="flex items-center space-x-3 shrink-0">
-          <button
-            onClick={() => onNavigateToVerification()}
-            className="px-5 py-3 rounded-xl text-xs font-bold bg-white text-slate-900 hover:bg-slate-100 transition cursor-pointer shadow-md"
-          >
-            Review Verification Suite
-          </button>
-          <button
-            onClick={() => {
-              if (!isLoggedIn && onLoginClick) {
-                onLoginClick();
-              } else {
-                onNavigateToForecast();
-              }
-            }}
-            className="px-5 py-3 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white transition cursor-pointer shadow-md"
-          >
-            Enter Cockpit
-          </button>
         </div>
       </section>
       </div>
@@ -718,6 +970,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           >
             <a
               href="#about"
+              onClick={(e) => handleScrollTo(e, 'about')}
               className={`transition-colors cursor-pointer ${
                 isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
               }`}
@@ -726,6 +979,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </a>
             <a
               href="#stations"
+              onClick={(e) => handleScrollTo(e, 'stations')}
               className={`transition-colors cursor-pointer ${
                 isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
               }`}
@@ -734,6 +988,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </a>
             <a
               href="#how-it-works"
+              onClick={(e) => handleScrollTo(e, 'how-it-works')}
               className={`transition-colors cursor-pointer ${
                 isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
               }`}
@@ -742,6 +997,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </a>
             <a
               href="#team"
+              onClick={(e) => handleScrollTo(e, 'team')}
               className={`transition-colors cursor-pointer ${
                 isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
               }`}

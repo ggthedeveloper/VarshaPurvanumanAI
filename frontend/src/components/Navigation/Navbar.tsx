@@ -247,6 +247,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           title={
             userLocation
               ? `GPS Active: ${userLocation.name || `${userLocation.lat.toFixed(4)}°N, ${userLocation.lon.toFixed(4)}°E`}${
+                  userLocation.nearestDistrictName ? ` (Nearest District: ${userLocation.nearestDistrictName})` : ''
+                }${
                   userLocation.accuracy ? ` (±${Math.round(userLocation.accuracy)}m)` : ''
                 }. Click to refresh.`
               : 'Use my accurate GPS location for real-time local weather'
@@ -267,7 +269,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             />
           )}
           <span className="hidden sm:inline font-sans truncate max-w-[130px]">
-            {isLocating ? 'Locating...' : userLocation ? (userLocation.city || 'My Location') : 'Use Location'}
+            {isLocating ? 'Locating...' : userLocation ? (userLocation.city || userLocation.nearestDistrictName || 'My Location') : 'Use Location'}
           </span>
         </button>
 

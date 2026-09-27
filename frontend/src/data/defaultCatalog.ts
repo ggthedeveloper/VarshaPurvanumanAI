@@ -38,7 +38,13 @@ export const DEFAULT_DISTRICTS: DistrictItem[] = [
   { district_id: 'bengaluru_urban', name: 'Bengaluru', state: 'Karnataka', latitude: 12.9716, longitude: 77.5946, coverage_status: 'OPERATIONAL_NWP', raw_nwp_rainfall_mm: 4.5, corrected_rainfall_mm: 2.9, predicted_regime: 'OTHER' },
   { district_id: 'chennai', name: 'Chennai', state: 'Tamil Nadu', latitude: 13.0827, longitude: 80.2707, coverage_status: 'OPERATIONAL_NWP', raw_nwp_rainfall_mm: 8.9, corrected_rainfall_mm: 6.2, predicted_regime: 'DEPRESSION' },
   { district_id: 'hyderabad', name: 'Hyderabad', state: 'Telangana', latitude: 17.3850, longitude: 78.4867, coverage_status: 'OPERATIONAL_NWP', raw_nwp_rainfall_mm: 5.1, corrected_rainfall_mm: 3.3, predicted_regime: 'ACTIVE_MONSOON' },
+  { district_id: 'vijayawada', name: 'Vijayawada', state: 'Andhra Pradesh', latitude: 16.5062, longitude: 80.6480, coverage_status: 'OPERATIONAL_NWP', raw_nwp_rainfall_mm: 7.8, corrected_rainfall_mm: 5.2, predicted_regime: 'DEPRESSION' },
+  { district_id: 'guntur', name: 'Guntur', state: 'Andhra Pradesh', latitude: 16.3067, longitude: 80.4365, coverage_status: 'OPERATIONAL_NWP', raw_nwp_rainfall_mm: 6.9, corrected_rainfall_mm: 4.6, predicted_regime: 'ACTIVE_MONSOON' },
+  { district_id: 'amaravati', name: 'Amaravati', state: 'Andhra Pradesh', latitude: 16.5131, longitude: 80.5165, coverage_status: 'OPERATIONAL_NWP', raw_nwp_rainfall_mm: 7.2, corrected_rainfall_mm: 4.8, predicted_regime: 'DEPRESSION' },
   { district_id: 'visakhapatnam', name: 'Visakhapatnam', state: 'Andhra Pradesh', latitude: 17.6868, longitude: 83.2185, coverage_status: 'OPERATIONAL_NWP', raw_nwp_rainfall_mm: 9.3, corrected_rainfall_mm: 6.7, predicted_regime: 'DEPRESSION' },
+  { district_id: 'tirupati', name: 'Tirupati', state: 'Andhra Pradesh', latitude: 13.6288, longitude: 79.4192, coverage_status: 'OPERATIONAL_NWP', raw_nwp_rainfall_mm: 8.1, corrected_rainfall_mm: 5.7, predicted_regime: 'COASTAL_OROGRAPHIC' },
+  { district_id: 'kurnool', name: 'Kurnool', state: 'Andhra Pradesh', latitude: 15.8281, longitude: 78.0373, coverage_status: 'OPERATIONAL_NWP', raw_nwp_rainfall_mm: 5.3, corrected_rainfall_mm: 3.5, predicted_regime: 'ACTIVE_MONSOON' },
+  { district_id: 'raipur', name: 'Raipur', state: 'Chhattisgarh', latitude: 21.2514, longitude: 81.6296, coverage_status: 'OPERATIONAL_NWP', raw_nwp_rainfall_mm: 9.4, corrected_rainfall_mm: 6.8, predicted_regime: 'DEPRESSION' },
   { district_id: 'thiruvananthapuram', name: 'Thiruvananthapuram', state: 'Kerala', latitude: 8.5241, longitude: 76.9366, coverage_status: 'OPERATIONAL_NWP', raw_nwp_rainfall_mm: 11.4, corrected_rainfall_mm: 8.2, predicted_regime: 'COASTAL_OROGRAPHIC' },
   { district_id: 'kochi', name: 'Kochi', state: 'Kerala', latitude: 9.9312, longitude: 76.2673, coverage_status: 'OPERATIONAL_NWP', raw_nwp_rainfall_mm: 15.6, corrected_rainfall_mm: 11.8, predicted_regime: 'COASTAL_OROGRAPHIC' },
 
@@ -405,4 +411,48 @@ export const DEFAULT_VERIFICATION_REGIMES: VerificationRegimesResponse = {
     OTHER: { precision: 1.0, recall: 1.0, f1_score: 1.0, sample_count: 2 },
   },
   data_status: 'REAL_DATA',
+};
+
+export interface NearestDistrictResult {
+  district: DistrictItem;
+  distanceKm: number;
+}
+
+export const getNearestDistrict = (
+  lat: number,
+  lon: number,
+  districtList: DistrictItem[] = DEFAULT_DISTRICTS
+): NearestDistrictResult | null => {
+  if (!districtList || districtList.length === 0) return null;
+
+  let nearest: DistrictItem | null = null;
+  let minDistance = Infinity;
+
+  for (const d of districtList) {
+    if (d.district_id === 'gps_user_location') continue;
+    if (typeof d.latitude === 'number' && typeof d.longitude === 'number') {
+      const R = 6371; // Earth radius in km
+      const dLat = ((d.latitude - lat) * Math.PI) / 180;
+      const dLon = ((d.longitude - lon) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat * Math.PI) / 180) *
+          Math.cos((d.latitude * Math.PI) / 180) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const dist = R * c;
+
+      if (dist < minDistance) {
+        minDistance = dist;
+        nearest = d;
+      }
+    }
+  }
+
+  if (!nearest) return null;
+  return {
+    district: nearest,
+    distanceKm: Math.round(minDistance * 10) / 10,
+  };
 };

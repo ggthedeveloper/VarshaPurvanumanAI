@@ -25,6 +25,7 @@ import {
 import { RainfallMap } from '../components/Map/RainfallMap';
 import { ErrorBoundary } from '../components/Common/ErrorBoundary';
 import { useWeather } from '../context/WeatherContext';
+import { getNearestDistrict } from '../data/defaultCatalog';
 
 interface DashboardViewProps {
   districts: DistrictItem[];
@@ -97,12 +98,42 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const currentDistrict = districts.find((d) => d.district_id === selectedDistrictId);
   const districtName = districtForecast?.name || currentDistrict?.name || 'Selected Station';
 
+  // Nearest District calculation for accurate regional context
+  const nearestDistrict = useMemo(() => {
+    const lat = userLocation?.lat ?? districtForecast?.latitude;
+    const lon = userLocation?.lon ?? districtForecast?.longitude;
+    if (typeof lat === 'number' && typeof lon === 'number') {
+      return getNearestDistrict(lat, lon, districts);
+    }
+    return null;
+  }, [userLocation, districtForecast, districts]);
+
+  // Computed Hero Title for clean, untruncated display
+  const heroDisplayTitle = useMemo(() => {
+    if (selectedDistrictId === 'gps_user_location') {
+      if (userLocation?.city) {
+        const districtDetail = userLocation.district && userLocation.district !== userLocation.city
+          ? `, ${userLocation.district}`
+          : (nearestDistrict && nearestDistrict.district.name !== userLocation.city ? ` (Near ${nearestDistrict.district.name})` : '');
+        return `${userLocation.city}${districtDetail}`;
+      }
+      if (districtForecast?.name && !districtForecast.name.startsWith('GPS Station') && !districtForecast.name.startsWith('My Location (')) {
+        return districtForecast.name;
+      }
+      if (nearestDistrict) {
+        return `Near ${nearestDistrict.district.name} (${nearestDistrict.distanceKm} km)`;
+      }
+      return 'My Location';
+    }
+    return districtName;
+  }, [selectedDistrictId, userLocation, districtForecast, nearestDistrict, districtName]);
+
   const quickStations = [
-    ...(userLocation
+    ...(userLocation || selectedDistrictId === 'gps_user_location'
       ? [
           {
             id: 'gps_user_location',
-            label: '📍 My Location',
+            label: `🎯 My Location${nearestDistrict?.district?.name ? ` (${nearestDistrict.district.name})` : ''}`,
             badge: selectedDistrictId === 'gps_user_location' ? 'GPS' : undefined,
           },
         ]
@@ -130,8 +161,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     .reverse()
     .find((p) => p.advisory_status === 'ELEVATED_RISK');
 
-
-
   return (
     <div className="space-y-6">
       {/* 1. Realistic Hero Station Weather Overview Card */}
@@ -145,7 +174,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 min-w-0">
                 <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight truncate">
-                  {districtName}
+                  {heroDisplayTitle}
                 </h1>
                 {isPuneBenchmark ? (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-300/60 shrink-0">
@@ -153,10 +182,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     Benchmark Station
                   </span>
                 ) : selectedDistrictId === 'gps_user_location' ? (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-300/60 shrink-0">
-                    <span className="h-1.5 w-1.5 rounded-full bg-blue-500 mr-1.5 animate-pulse" />
-                    Operational Active (GPS Live)
-                  </span>
+                  <>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-300/60 shrink-0">
+                      <span className="h-1.5 w-1.5 rounded-full bg-blue-500 mr-1.5 animate-pulse" />
+                      Operational Active (GPS Live)
+                    </span>
+                    {nearestDistrict && (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-300/60 shrink-0">
+                        🎯 Nearest District: {nearestDistrict.district.name} ({nearestDistrict.distanceKm} km)
+                      </span>
+                    )}
+                  </>
                 ) : isOperational ? (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-300/60 shrink-0">
                     <span className="h-1.5 w-1.5 rounded-full bg-sky-500 mr-1.5" />
@@ -170,6 +206,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 )}
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 whitespace-normal sm:whitespace-nowrap">
+                {selectedDistrictId === 'gps_user_location' && nearestDistrict ? (
+                  <>
+                    <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+                      Nearest District: {nearestDistrict.district.name}, {nearestDistrict.district.state} (~{nearestDistrict.distanceKm} km away)
+                    </span>
+                    {' • '}
+                  </>
+                ) : null}
                 {currentDistrict?.state || (selectedDistrictId === 'gps_user_location' ? 'Live GPS Location' : 'India')} •{' '}
                 {districtForecast?.latitude && districtForecast?.longitude
                   ? `${districtForecast.latitude.toFixed(4)}°N, ${districtForecast.longitude.toFixed(4)}°E${
@@ -208,11 +252,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               onChange={(e) => onSelectDistrict(e.target.value)}
               className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 cursor-pointer"
             >
-              {districts.map((d) => (
-                <option key={d.district_id} value={d.district_id}>
-                  {d.name} ({d.state})
+              {(userLocation || selectedDistrictId === 'gps_user_location') && (
+                <option value="gps_user_location">
+                  🎯 My Location{nearestDistrict ? ` (Near ${nearestDistrict.district.name})` : ''}
                 </option>
-              ))}
+              )}
+              {districts
+                .filter((d) => d.district_id !== 'gps_user_location')
+                .map((d) => (
+                  <option key={d.district_id} value={d.district_id}>
+                    {d.name} ({d.state})
+                  </option>
+                ))}
             </select>
           </div>
         </div>

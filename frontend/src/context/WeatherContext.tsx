@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { SynopticRegime } from '../types/api';
 import { api } from '../api/client';
+import { getNearestDistrict } from '../data/defaultCatalog';
 
 export type WeatherMode = 'AUTO' | SynopticRegime | 'CLEAR';
 export type WeatherIntensity = 'subtle' | 'normal' | 'dramatic';
@@ -45,6 +46,9 @@ export interface UserLocationState {
   name?: string;
   city?: string;
   state?: string;
+  district?: string;
+  nearestDistrictName?: string;
+  nearestDistrictDistanceKm?: number;
   isCustomLocation?: boolean;
 }
 
@@ -223,7 +227,18 @@ const OPENWEATHER_API_KEY =
 export const reverseGeocodeLocation = async (
   lat: number,
   lon: number
-): Promise<{ name: string; city: string; state: string }> => {
+): Promise<{
+  name: string;
+  city: string;
+  state: string;
+  district?: string;
+  nearestDistrictName?: string;
+  nearestDistrictDistanceKm?: number;
+}> => {
+  const nearest = getNearestDistrict(lat, lon);
+  const nearestName = nearest?.district?.name;
+  const nearestDist = nearest?.distanceKm;
+
   // 1. Client-Side Reverse Geocoding via BigDataCloud (fast, CORS-open, free, no API key needed)
   try {
     const bdcUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat.toFixed(6)}&longitude=${lon.toFixed(6)}&localityLanguage=en`;
@@ -233,10 +248,41 @@ export const reverseGeocodeLocation = async (
       const city = data.city || data.locality || data.principalSubdivision || '';
       const state = data.principalSubdivision || data.countryName || '';
       const locality = data.locality && data.locality !== city ? data.locality : '';
-      const displayName = locality && city ? `${locality}, ${city}` : city || state || `${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E`;
-      if (displayName) {
-        return { name: displayName, city: city || displayName, state: state || 'India' };
+
+      // Extract administrative district from localityInfo
+      let adminDistrict = '';
+      if (Array.isArray(data.localityInfo?.administrative)) {
+        const distObj = data.localityInfo.administrative.find((a: any) =>
+          (a.description?.toLowerCase().includes('district') || a.name?.toLowerCase().includes('district'))
+        );
+        if (distObj?.name) {
+          adminDistrict = distObj.name.replace(/\s+district$/i, '').trim();
+        }
       }
+
+      const resolvedDistrict = adminDistrict || nearestName || '';
+
+      let displayName = '';
+      if (locality && city && resolvedDistrict && resolvedDistrict !== city) {
+        displayName = `${locality}, ${resolvedDistrict} (${state})`;
+      } else if (city && resolvedDistrict && resolvedDistrict !== city) {
+        displayName = `${city}, ${resolvedDistrict} (${state})`;
+      } else if (city) {
+        displayName = `${city}, ${state}`;
+      } else if (nearestName) {
+        displayName = `Near ${nearestName}, ${nearest?.district?.state || state} (~${nearestDist} km)`;
+      } else {
+        displayName = `GPS Station (${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E)`;
+      }
+
+      return {
+        name: displayName,
+        city: city || resolvedDistrict || displayName,
+        state: state || 'India',
+        district: resolvedDistrict,
+        nearestDistrictName: nearestName,
+        nearestDistrictDistanceKm: nearestDist,
+      };
     }
   } catch (err) {
     console.warn('BigDataCloud reverse geocode fallback:', err);
@@ -253,8 +299,24 @@ export const reverseGeocodeLocation = async (
           const item = data[0];
           const name = item.name || '';
           const state = item.state || '';
-          const displayName = name && state ? `${name}, ${state}` : name || `${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E`;
-          return { name: displayName, city: name || displayName, state: state || 'India' };
+          const resolvedDistrict = nearestName || name;
+          const displayName =
+            name && nearestName && nearestName !== name
+              ? `${name}, ${nearestName} (${state})`
+              : name && state
+              ? `${name}, ${state}`
+              : nearestName
+              ? `Near ${nearestName} (~${nearestDist} km)`
+              : `${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E`;
+
+          return {
+            name: displayName,
+            city: name || displayName,
+            state: state || 'India',
+            district: resolvedDistrict,
+            nearestDistrictName: nearestName,
+            nearestDistrictDistanceKm: nearestDist,
+          };
         }
       }
     } catch (err) {
@@ -262,10 +324,24 @@ export const reverseGeocodeLocation = async (
     }
   }
 
+  if (nearest) {
+    return {
+      name: `Near ${nearest.district.name}, ${nearest.district.state} (~${nearest.distanceKm} km)`,
+      city: `Near ${nearest.district.name}`,
+      state: nearest.district.state,
+      district: nearest.district.name,
+      nearestDistrictName: nearest.district.name,
+      nearestDistrictDistanceKm: nearest.distanceKm,
+    };
+  }
+
   return {
     name: `GPS Station (${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E)`,
     city: 'My Location',
     state: 'Live GPS',
+    district: nearestName,
+    nearestDistrictName: nearestName,
+    nearestDistrictDistanceKm: nearestDist,
   };
 };
 
@@ -613,6 +689,9 @@ export const WeatherProvider: React.FC<{ children: ReactNode }> = ({ children })
             name: placeName,
             city: geocoded.city,
             state: geocoded.state,
+            district: geocoded.district,
+            nearestDistrictName: geocoded.nearestDistrictName,
+            nearestDistrictDistanceKm: geocoded.nearestDistrictDistanceKm,
             isCustomLocation: true,
           };
           setUserLocation(locState);

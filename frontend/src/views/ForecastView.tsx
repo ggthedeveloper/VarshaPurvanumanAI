@@ -25,6 +25,7 @@ import { DistrictDetailPanel } from '../components/Panels/DistrictDetailPanel';
 import { WeatherRegimePanel } from '../components/Panels/WeatherRegimePanel';
 import { ProbabilityPanel } from '../components/Panels/ProbabilityPanel';
 import { ErrorBoundary } from '../components/Common/ErrorBoundary';
+import { getNearestDistrict } from '../data/defaultCatalog';
 
 interface ForecastViewProps {
   districts: DistrictItem[];
@@ -62,12 +63,21 @@ export const ForecastView: React.FC<ForecastViewProps> = ({
   const currentDistrict = districts.find((d) => d.district_id === selectedDistrictId);
   const districtName = districtForecast?.name || currentDistrict?.name || 'Selected Station';
 
+  const nearestDistrict = React.useMemo(() => {
+    const lat = userLocation?.lat ?? districtForecast?.latitude;
+    const lon = userLocation?.lon ?? districtForecast?.longitude;
+    if (typeof lat === 'number' && typeof lon === 'number') {
+      return getNearestDistrict(lat, lon, districts);
+    }
+    return null;
+  }, [userLocation, districtForecast, districts]);
+
   const quickStations = [
-    ...(userLocation
+    ...(userLocation || selectedDistrictId === 'gps_user_location'
       ? [
           {
             id: 'gps_user_location',
-            label: '📍 My Location',
+            label: `🎯 My Location${nearestDistrict?.district?.name ? ` (${nearestDistrict.district.name})` : ''}`,
             isBenchmark: false,
           },
         ]

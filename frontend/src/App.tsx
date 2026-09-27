@@ -29,6 +29,7 @@ import { UserProfileModal } from './components/Modals/UserProfileModal';
 import { ErrorBoundary } from './components/Common/ErrorBoundary';
 import { WeatherProvider, useWeather, WeatherTelemetry } from './context/WeatherContext';
 import { LiveWeatherBackground } from './components/Weather/LiveWeatherBackground';
+import { getNearestDistrict } from './data/defaultCatalog';
 import {
   AlertTriangle,
   ShieldCheck,
@@ -342,9 +343,15 @@ const AppContent: React.FC = () => {
   const handleDetectLocation = async () => {
     setDistrictLoading(true);
     await detectUserLocation(async (foundCoords) => {
-      const { lat, lon, accuracy, name, city, state } = foundCoords;
-      const placeName = name || (city ? `${city}${state ? `, ${state}` : ''}` : `My Location (${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E)`);
-      const regionState = state || 'GPS Location';
+      const { lat, lon, accuracy, name, city, state, district, nearestDistrictName, nearestDistrictDistanceKm } = foundCoords;
+      const nearest = getNearestDistrict(lat, lon, districts);
+      const resolvedNearestName = nearestDistrictName || district || nearest?.district?.name;
+      const resolvedNearestDist = nearestDistrictDistanceKm ?? nearest?.distanceKm;
+
+      const placeName =
+        name ||
+        (city ? `${city}${state ? `, ${state}` : ''}` : nearest ? `Near ${nearest.district.name}` : `My Location (${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E)`);
+      const regionState = state || nearest?.district?.state || 'GPS Location';
 
       // 1. Fetch real-time weather telemetry for these exact coordinates
       const liveWeather = await fetchLocationWeather(lat, lon, placeName);
@@ -383,7 +390,9 @@ const AppContent: React.FC = () => {
               source_provenance: liveWeather.sourceProvenance,
             }
           : undefined,
-        message: `Operational regime-conditioned forecast for your live GPS coordinates (accuracy ±${Math.round(accuracy || 10)}m).`,
+        message: resolvedNearestName
+          ? `Operational forecast for live GPS coordinates. Nearest district station: ${resolvedNearestName}${resolvedNearestDist !== undefined ? ` (~${resolvedNearestDist} km away)` : ''}.`
+          : `Operational regime-conditioned forecast for your live GPS coordinates (accuracy ±${Math.round(accuracy || 10)}m).`,
         data_status: 'REAL_DATA',
         source_latitude: lat,
         source_longitude: lon,
@@ -392,7 +401,7 @@ const AppContent: React.FC = () => {
       // Add to districts list so all dropdowns, maps, and components find it seamlessly
       const gpsDistrictItem: DistrictItem = {
         district_id: gpsDistrictId,
-        name: `📍 ${placeName}`,
+        name: `🎯 ${placeName}`,
         state: regionState,
         latitude: lat,
         longitude: lon,
@@ -425,7 +434,17 @@ const AppContent: React.FC = () => {
     setDistrictLoading(true);
 
     if (districtId === 'gps_user_location' && userLocation) {
-      const placeName = userLocation.name || `My Location (${userLocation.lat.toFixed(4)}°N, ${userLocation.lon.toFixed(4)}°E)`;
+      const nearest = getNearestDistrict(userLocation.lat, userLocation.lon, districts);
+      const resolvedNearestName = userLocation.nearestDistrictName || userLocation.district || nearest?.district?.name;
+      const resolvedNearestDist = userLocation.nearestDistrictDistanceKm ?? nearest?.distanceKm;
+      const placeName =
+        userLocation.name ||
+        (userLocation.city
+          ? `${userLocation.city}${userLocation.state ? `, ${userLocation.state}` : ''}`
+          : nearest
+          ? `Near ${nearest.district.name}`
+          : `My Location (${userLocation.lat.toFixed(4)}°N, ${userLocation.lon.toFixed(4)}°E)`);
+
       const liveWeather = await fetchLocationWeather(userLocation.lat, userLocation.lon, placeName);
       const dynamicRegime: SynopticRegime =
         (liveWeather?.predictedRegime as SynopticRegime) ||
@@ -458,7 +477,9 @@ const AppContent: React.FC = () => {
               source_provenance: liveWeather.sourceProvenance,
             }
           : undefined,
-        message: `Operational regime-conditioned forecast for your live GPS coordinates.`,
+        message: resolvedNearestName
+          ? `Operational forecast for live GPS coordinates. Nearest district station: ${resolvedNearestName}${resolvedNearestDist !== undefined ? ` (~${resolvedNearestDist} km away)` : ''}.`
+          : `Operational regime-conditioned forecast for your live GPS coordinates.`,
         data_status: 'REAL_DATA',
         source_latitude: userLocation.lat,
         source_longitude: userLocation.lon,
@@ -629,6 +650,11 @@ const AppContent: React.FC = () => {
           >
             <a
               href="#about"
+              onClick={(e) => {
+                e.preventDefault();
+                const el = document.getElementById('about');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
               className={`transition-colors cursor-pointer ${
                 isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
               }`}
@@ -636,15 +662,12 @@ const AppContent: React.FC = () => {
               About
             </a>
             <a
-              href="#stations"
-              className={`transition-colors cursor-pointer ${
-                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
-              }`}
-            >
-              Stations
-            </a>
-            <a
               href="#how-it-works"
+              onClick={(e) => {
+                e.preventDefault();
+                const el = document.getElementById('how-it-works');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
               className={`transition-colors cursor-pointer ${
                 isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
               }`}
@@ -652,7 +675,38 @@ const AppContent: React.FC = () => {
               How It Works
             </a>
             <a
+              href="#stations"
+              onClick={(e) => {
+                e.preventDefault();
+                const el = document.getElementById('stations');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+              className={`transition-colors cursor-pointer ${
+                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
+              }`}
+            >
+              Stations
+            </a>
+            <a
+              href="#sandbox"
+              onClick={(e) => {
+                e.preventDefault();
+                const el = document.getElementById('sandbox');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+              className={`transition-colors cursor-pointer ${
+                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
+              }`}
+            >
+              Model Sandbox
+            </a>
+            <a
               href="#team"
+              onClick={(e) => {
+                e.preventDefault();
+                const el = document.getElementById('team');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
               className={`transition-colors cursor-pointer ${
                 isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
               }`}
