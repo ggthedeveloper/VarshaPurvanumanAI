@@ -26,6 +26,7 @@ import { ProvenanceView } from './views/ProvenanceView';
 import { SystemHealthView } from './views/SystemHealthView';
 import { DemoModeModal } from './components/Panels/DemoModeModal';
 import { UserProfileModal } from './components/Modals/UserProfileModal';
+import { DataStatusModal } from './components/Modals/DataStatusModal';
 import { ErrorBoundary } from './components/Common/ErrorBoundary';
 import { WeatherProvider, useWeather, WeatherTelemetry } from './context/WeatherContext';
 import { LiveWeatherBackground } from './components/Weather/LiveWeatherBackground';
@@ -75,6 +76,7 @@ const AppContent: React.FC = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
+  const [isDataStatusModalOpen, setIsDataStatusModalOpen] = useState<boolean>(false);
 
   // Connection & Data Status
   const [apiConnected, setApiConnected] = useState<boolean>(false);
@@ -837,6 +839,7 @@ const AppContent: React.FC = () => {
           isRefreshing={isRefreshing}
           onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
           onOpenInfoModal={() => setIsInfoModalOpen(true)}
+          onOpenDataStatusModal={() => setIsDataStatusModalOpen(true)}
           user={user}
           onLogout={handleLogout}
           onDetectLocation={handleDetectLocation}
@@ -1040,6 +1043,13 @@ const AppContent: React.FC = () => {
         onClose={() => setIsProfileModalOpen(false)}
         user={user}
         onUpdateUser={(updated) => setUser(updated)}
+        isDarkMode={isDarkMode}
+      />
+
+      {/* National Data Status Matrix Modal */}
+      <DataStatusModal
+        isOpen={isDataStatusModalOpen}
+        onClose={() => setIsDataStatusModalOpen(false)}
         isDarkMode={isDarkMode}
       />
 

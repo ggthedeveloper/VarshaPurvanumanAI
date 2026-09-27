@@ -26,6 +26,7 @@ import { WeatherRegimePanel } from '../components/Panels/WeatherRegimePanel';
 import { ProbabilityPanel } from '../components/Panels/ProbabilityPanel';
 import { ErrorBoundary } from '../components/Common/ErrorBoundary';
 import { getNearestDistrict } from '../data/defaultCatalog';
+import { HierarchicalForecastNavigator } from '../components/Navigation/HierarchicalForecastNavigator';
 
 interface ForecastViewProps {
   districts: DistrictItem[];
@@ -92,6 +93,14 @@ export const ForecastView: React.FC<ForecastViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Hierarchical Forecast Navigation (India -> State -> District -> Grid) */}
+      <HierarchicalForecastNavigator
+        districts={districts}
+        selectedDistrictId={selectedDistrictId}
+        onSelectDistrict={onSelectDistrict}
+        isDarkMode={isDarkMode}
+      />
+
       {/* Station Selector Bar */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center space-x-3 w-full md:w-auto">

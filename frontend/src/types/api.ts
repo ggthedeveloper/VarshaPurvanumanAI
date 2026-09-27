@@ -412,3 +412,69 @@ export interface GriddedRainfallResponse {
   data_status: DataStatus;
 }
 
+export interface StateSummaryItem {
+  state_name: string;
+  district_count: number;
+  data_status: string;
+  mean_rainfall_mm: number | null;
+  max_rainfall_mm: number | null;
+  dominant_regime: string | null;
+  warning_category: {
+    level: string;
+    color: string;
+    label: string;
+  };
+}
+
+export interface IndiaOverviewResponse {
+  product: string;
+  forecast_date: string;
+  generated_at: string;
+  total_states: number;
+  total_districts: number;
+  national_warning_headline: string;
+  macro_monsoon_status: string;
+  benchmark_districts: number;
+  states: StateSummaryItem[];
+  provenance: {
+    nwp_model: string;
+    boundary_source: string;
+    regime_taxonomy: string;
+  };
+}
+
+export interface DistrictSummaryItem {
+  district_id: string;
+  district_name: string;
+  data_status: string;
+  raw_nwp_rainfall_mm: number | null;
+  corrected_rainfall_mm: number | null;
+  rainfall_anomaly_mm: number | null;
+  percentage_departure: number | null;
+  predicted_regime: string | null;
+  warning_category: {
+    level: string;
+    color: string;
+    label: string;
+  };
+}
+
+export interface StateForecastResponse {
+  state: string;
+  district_count: number;
+  forecast_date: string;
+  data_status: string;
+  districts: DistrictSummaryItem[];
+}
+
+export interface NationalDataStatusMatrix {
+  total_supported_districts: number;
+  validated_benchmark_districts: number;
+  forecast_available_unverified: number;
+  data_unavailable_districts: number;
+  benchmark_region: string;
+  benchmark_observation_source: string;
+  operational_nwp_source: string;
+  boundary_source: string;
+}
+

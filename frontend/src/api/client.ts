@@ -25,6 +25,9 @@ import {
   LoginResponse,
   UserProfile,
   SynopticRegime,
+  IndiaOverviewResponse,
+  StateForecastResponse,
+  NationalDataStatusMatrix,
 } from '../types/api';
 
 import {
@@ -394,6 +397,30 @@ class ApiClient {
     } catch {
       return DEFAULT_VERIFICATION_PROBABILITY;
     }
+  }
+
+  async getIndiaOverview(date?: string): Promise<IndiaOverviewResponse> {
+    const q = date ? `?date=${encodeURIComponent(date)}` : '';
+    return this.fetchJson<IndiaOverviewResponse>(`/forecast/india${q}`);
+  }
+
+  async getStateForecast(state: string, date?: string): Promise<StateForecastResponse> {
+    const q = date ? `?date=${encodeURIComponent(date)}` : '';
+    return this.fetchJson<StateForecastResponse>(`/forecast/state/${encodeURIComponent(state)}${q}`);
+  }
+
+  async getDistrictProduct(district: string, date?: string): Promise<any> {
+    const q = date ? `?date=${encodeURIComponent(date)}` : '';
+    return this.fetchJson<any>(`/forecast/district/${encodeURIComponent(district)}${q}`);
+  }
+
+  async getNationalGrid(date?: string): Promise<any> {
+    const q = date ? `?date=${encodeURIComponent(date)}` : '';
+    return this.fetchJson<any>(`/forecast/grid${q}`);
+  }
+
+  async getDataStatusMatrix(): Promise<NationalDataStatusMatrix> {
+    return this.fetchJson<NationalDataStatusMatrix>('/data-status');
   }
 
   async login(req: LoginRequest): Promise<LoginResponse> {

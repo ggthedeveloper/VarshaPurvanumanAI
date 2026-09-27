@@ -24,6 +24,7 @@ from src.ingestion.observations.imd_district.district_centroids import (
 )
 from src.ingestion.gfs.reader import GFSReader
 from src.preprocessing.temporal_alignment import TemporalAligner
+from src.data.adapters.boundary_provider import IndiaDistrictBoundaryProvider
 
 
 def _get_compass_direction(deg: float) -> str:
@@ -417,6 +418,28 @@ class DistrictService:
                 predicted_regime=regime,
             ))
 
+        # Augment with all remaining official districts from the India boundary provider (total 763)
+        try:
+            boundary_provider = IndiaDistrictBoundaryProvider.get_instance()
+            seen_ids = {item.district_id for item in items}
+            for d in boundary_provider.get_all_districts():
+                d_id = d["district_id"]
+                if d_id not in seen_ids:
+                    seen_ids.add(d_id)
+                    items.append(DistrictItem(
+                        district_id=d_id,
+                        name=d["district_name"],
+                        state=d["state"],
+                        latitude=d["latitude"],
+                        longitude=d["longitude"],
+                        coverage_status="DATA_UNAVAILABLE",
+                        raw_nwp_rainfall_mm=None,
+                        corrected_rainfall_mm=None,
+                        predicted_regime=None,
+                    ))
+        except Exception as e:
+            logger.warning(f"Could not load full India boundary districts: {e}")
+
         active_count = sum(1 for item in items if item.coverage_status in ["BENCHMARK_ACTIVE", "OPERATIONAL_NWP", "PROCESSED_BENCHMARK"])
         return DistrictListResponse(
             total_districts=len(items),
@@ -444,6 +467,26 @@ class DistrictService:
                 break
 
         if matched_name is None:
+            # Check national boundary provider before concluding unknown district
+            try:
+                info = IndiaDistrictBoundaryProvider.get_instance().get_district_info(district_id)
+                if info is not None:
+                    return DistrictForecastResponse(
+                        district_id=district_id,
+                        name=info["district_name"],
+                        latitude=info["latitude"],
+                        longitude=info["longitude"],
+                        coverage_status="DATA_UNAVAILABLE",
+                        forecast_mode="DATA_UNAVAILABLE",
+                        sample_timestamp=None,
+                        forecast=None,
+                        spatial_aggregation=None,
+                        message=f"Live observation and NWP feeds currently pending for {info['district_name']}, {info['state']}. Operational policy strictly prohibits synthetic data generation.",
+                        data_status="DATA_UNAVAILABLE",
+                    )
+            except Exception as e:
+                logger.warning(f"Boundary provider lookup failed for {district_id}: {e}")
+
             return DistrictForecastResponse(
                 district_id=district_id,
                 name=district_id.title(),

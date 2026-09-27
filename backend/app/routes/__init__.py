@@ -7,11 +7,12 @@ from .regime import router as regime_router
 from .rainfall import router as rainfall_router
 from .forecast import router as forecast_router
 from .districts import router as districts_router
-from .verification import router as verification_router
+from .verification import router as verification_router, top_router as top_verification_router
 from .auth import router as auth_router
 from .grid import router as grid_router
 from .data import router as data_router
 from .weather import router as weather_router
+from .national_forecast import router as national_forecast_router, api_router as api_national_forecast_router
 
 __all__ = [
     "health_router",
@@ -21,9 +22,12 @@ __all__ = [
     "forecast_router",
     "districts_router",
     "verification_router",
+    "top_verification_router",
     "auth_router",
     "grid_router",
     "data_router",
     "weather_router",
+    "national_forecast_router",
+    "api_national_forecast_router",
 ]
 

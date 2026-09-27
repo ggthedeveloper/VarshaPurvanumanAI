@@ -28,6 +28,15 @@ class RegimeAwarePostProcessor:
 
     MIN_SAMPLES_FOR_DEDICATED = 15
 
+    REGIME_FALLBACK_MAP: Dict[str, str] = {
+        "MONSOON_LOW": "DEPRESSION",
+        "OROGRAPHIC": "COASTAL_OROGRAPHIC",
+        "OROGRAPHIC_RAINFALL": "COASTAL_OROGRAPHIC",
+        "COASTAL_RAINFALL": "COASTAL_OROGRAPHIC",
+        "WESTERN_DISTURBANCE": "OTHER",
+        "OTHER": "OTHER",
+    }
+
     def __init__(
         self,
         classifier: Optional[RegimeClassifier] = None,
@@ -197,12 +206,27 @@ class RegimeAwarePostProcessor:
                 selected_model_desc = "Soft_Probability_Ensemble"
                 max_prob = float(np.max(probs[i]))
             else:
-                # Hard routing: route to dedicated model of the assigned regime
-                m = self.regime_models_.get(assigned_reg, self.fallback_model_.estimator)
+                # Hard routing: route to dedicated model of the assigned regime with hierarchical fallback
+                PARENT_REGIME_MAP = {
+                    "MONSOON_LOW": "DEPRESSION",
+                    "OROGRAPHIC_RAINFALL": "COASTAL_OROGRAPHIC",
+                    "COASTAL_RAINFALL": "COASTAL_OROGRAPHIC",
+                    "WESTERN_DISTURBANCE": "OTHER",
+                }
+                if assigned_reg in self.regime_models_:
+                    m = self.regime_models_[assigned_reg]
+                    prov = self.model_provenance_.get(assigned_reg, {})
+                    selected_model_desc = f"{prov.get('model_type', 'dedicated')}_{assigned_reg}"
+                elif assigned_reg in PARENT_REGIME_MAP and PARENT_REGIME_MAP[assigned_reg] in self.regime_models_:
+                    parent_reg = PARENT_REGIME_MAP[assigned_reg]
+                    m = self.regime_models_[parent_reg]
+                    selected_model_desc = f"hierarchical_parent_{parent_reg}_for_{assigned_reg}"
+                else:
+                    m = self.fallback_model_.estimator
+                    selected_model_desc = f"global_fallback_for_{assigned_reg}"
+
                 raw_p = float(m.predict(x_row)[0])
                 pred_val = max(0.0, raw_p)
-                prov = self.model_provenance_.get(assigned_reg, {})
-                selected_model_desc = f"{prov.get('model_type', 'dedicated')}_{assigned_reg}"
                 max_prob = float(np.max(probs[i])) if routing.lower() == "operational" else 1.0
 
             preds[i] = pred_val

@@ -102,7 +102,7 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-3xl">
-              Catalog of {districts.length || 81} representative meteorological station locations across Indian states and union territories. Real NWP telemetry and regime-aware AI evaluation active with authentic NOAA GFS data.
+              Official catalog of {districts.length || 763} administrative districts across 40 Indian states and union territories. Verified IMD Pune ground truth benchmark (AWS 43063) and operational NOAA GFS 0.25° NWP models active with strict zero synthetic data policy.
             </p>
           </div>
 
@@ -164,7 +164,7 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
             >
               {states.map((st) => (
                 <option key={st} value={st}>
-                  {st === 'ALL' ? 'All States (78 Districts)' : st}
+                  {st === 'ALL' ? `All States (${districts.length || 763} Districts)` : st}
                 </option>
               ))}
             </select>

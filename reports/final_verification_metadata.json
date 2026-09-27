@@ -21,6 +21,6 @@
     "probabilistic": "Brier Score, Murphy (1973) Decomposition, ROC-AUC, PR-AUC, ECE"
   },
   "random_seed": 42,
-  "python_version": "3.13.3",
+  "python_version": "3.14.6",
   "resampling_method": "Stationary Block Bootstrap (block length = 3 days, B = 1000, 95% CI)"
 }

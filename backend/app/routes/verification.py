@@ -13,9 +13,13 @@ from backend.app.schemas.verification import (
 from backend.app.services.verification_service import VerificationService
 
 router = APIRouter(prefix="/api/verification", tags=["Scientific Verification"])
+top_router = APIRouter(prefix="/verification", tags=["Scientific Verification"])
 
 
+@router.get("", response_model=VerificationSummaryResponse, summary="Consolidated Verification Summary")
+@top_router.get("", response_model=VerificationSummaryResponse, summary="Consolidated Verification Summary")
 @router.get("/summary", response_model=VerificationSummaryResponse, summary="Consolidated Verification Summary")
+@top_router.get("/summary", response_model=VerificationSummaryResponse, summary="Consolidated Verification Summary")
 def get_verification_summary():
     """
     Returns official continuous, categorical, bootstrap uncertainty, and FSS status metrics.
@@ -28,6 +32,9 @@ def get_verification_summary():
 
 
 @router.get("/thresholds", response_model=VerificationThresholdsResponse, summary="Threshold-by-Threshold Verification")
+@top_router.get("/thresholds", response_model=VerificationThresholdsResponse, summary="Threshold-by-Threshold Verification")
+@router.get("/threshold", response_model=VerificationThresholdsResponse, summary="Threshold-by-Threshold Verification")
+@top_router.get("/threshold", response_model=VerificationThresholdsResponse, summary="Threshold-by-Threshold Verification")
 def get_threshold_verification():
     """
     Returns complete 2x2 contingency tables, CSI, POD, FAR, and ETS across all thresholds.
@@ -39,6 +46,9 @@ def get_threshold_verification():
 
 
 @router.get("/regimes", response_model=VerificationRegimesResponse, summary="Regime-Wise Verification Breakdown")
+@top_router.get("/regimes", response_model=VerificationRegimesResponse, summary="Regime-Wise Verification Breakdown")
+@router.get("/regime", response_model=VerificationRegimesResponse, summary="Regime-Wise Verification Breakdown")
+@top_router.get("/regime", response_model=VerificationRegimesResponse, summary="Regime-Wise Verification Breakdown")
 def get_regime_verification():
     """
     Returns verified performance metrics stratified by synoptic weather regime.

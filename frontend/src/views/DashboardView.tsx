@@ -26,6 +26,7 @@ import { RainfallMap } from '../components/Map/RainfallMap';
 import { ErrorBoundary } from '../components/Common/ErrorBoundary';
 import { useWeather } from '../context/WeatherContext';
 import { getNearestDistrict } from '../data/defaultCatalog';
+import { HierarchicalForecastNavigator } from '../components/Navigation/HierarchicalForecastNavigator';
 
 interface DashboardViewProps {
   districts: DistrictItem[];
@@ -163,6 +164,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* 0. Hierarchical Forecast Navigation (India -> State -> District -> Grid) */}
+      <HierarchicalForecastNavigator
+        districts={districts}
+        selectedDistrictId={selectedDistrictId}
+        onSelectDistrict={onSelectDistrict}
+        isDarkMode={isDarkMode}
+      />
+
       {/* 1. Realistic Hero Station Weather Overview Card */}
       <div className="bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5 transition-all">
         {/* Top Meta Bar & Fast Station Switcher */}

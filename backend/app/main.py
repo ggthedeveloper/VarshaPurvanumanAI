@@ -21,10 +21,13 @@ from backend.app.routes import (
     forecast_router,
     districts_router,
     verification_router,
+    top_verification_router,
     auth_router,
     grid_router,
     data_router,
     weather_router,
+    national_forecast_router,
+    api_national_forecast_router,
 )
 
 
@@ -112,10 +115,13 @@ app.include_router(rainfall_router)
 app.include_router(forecast_router)
 app.include_router(districts_router)
 app.include_router(verification_router)
+app.include_router(top_verification_router)
 app.include_router(auth_router)
 app.include_router(grid_router)
 app.include_router(data_router)
 app.include_router(weather_router)
+app.include_router(national_forecast_router)
+app.include_router(api_national_forecast_router)
 
 
 @app.get("/", summary="Root Status")

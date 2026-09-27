@@ -25,6 +25,7 @@ import {
   Activity,
   User,
   LogOut,
+  ShieldCheck,
 } from 'lucide-react';
 import { AppRoute, DataStatus, UserProfile, SynopticRegime } from '../../types/api';
 import { useWeather, WeatherMode, WeatherIntensity } from '../../context/WeatherContext';
@@ -43,6 +44,7 @@ interface NavbarProps {
   isRefreshing: boolean;
   onOpenMobileMenu: () => void;
   onOpenInfoModal?: () => void;
+  onOpenDataStatusModal?: () => void;
   user: UserProfile | null;
   onLogout?: () => void;
   onDetectLocation?: () => void;
@@ -102,6 +104,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   isRefreshing,
   onOpenMobileMenu,
   onOpenInfoModal,
+  onOpenDataStatusModal,
   user,
   onLogout,
   onDetectLocation,
@@ -568,6 +571,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                     >
                       <User className="h-3.5 w-3.5" />
                       <span>Edit Profile & Credentials</span>
+                    </button>
+                  )}
+
+                  {onOpenDataStatusModal && (
+                    <button
+                      onClick={() => {
+                        setIsUserDropdownOpen(false);
+                        onOpenDataStatusModal();
+                      }}
+                      className="w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition cursor-pointer"
+                    >
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      <span>National Data Status (763 Dist.)</span>
                     </button>
                   )}
 
