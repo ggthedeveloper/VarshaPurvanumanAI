@@ -8,7 +8,7 @@ from typing import List
 
 class Settings:
     SERVICE_NAME: str = "VarshaPurvanumanAI Backend"
-    API_VERSION: str = "1.0.0"
+    API_VERSION: str = "2.0.0"
     HOST: str = os.getenv("BACKEND_HOST", "127.0.0.1")
     PORT: int = int(os.getenv("BACKEND_PORT", "8000"))
     APP_ENV: str = os.getenv("APP_ENV", "production")
