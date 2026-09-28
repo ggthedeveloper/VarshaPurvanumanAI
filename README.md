@@ -227,3 +227,6 @@ Visit `http://localhost:5173` (or `http://localhost:3000`) in your browser.
 - [`METHODOLOGY.md`](METHODOLOGY.md): Mathematical formulations for regime classification, post-processing, probability calibration, and spatial aggregation.
 - [`VERIFICATION_REPORT.md`](VERIFICATION_REPORT.md): Held-out test verification report with contingency tables and Brier decompositions.
 - [`LIMITATIONS.md`](LIMITATIONS.md): Mesoscale domain bounds, convective physics limits, and development roadmap.
+
+## 10. Developer
+- Gaurav Gautam
