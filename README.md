@@ -452,14 +452,12 @@ Open your browser at **`http://localhost:3000`** (or `http://localhost:5173`).
 
 Developed for **Smart India Hackathon 2026** under **Problem Statement SIH26080** for the **Ministry of Earth Sciences (MoES)** & **India Meteorological Department (IMD)**.
 
-| Member | Role | Core Contributions |
-|:---|:---|:---|
-| **Gaurav Gautam** | **Team Lead & Lead ML Architect** | End-to-end architecture, regime-aware ML post-processing, backend FastAPI microservices, and system integration |
-| **Debosmita Mukhopadhyay** | **Full-Stack & Geospatial Engineer** | Interactive 763-district GIS visualization, GeoJSON streaming pipeline, and React dashboard state orchestration |
-| **Shashwat Sahu** | **Meteorological Feature Engineer** | 29 atmospheric predictor pipelines (kinematics, thermodynamics, moisture fluxes), NOAA GFS ingestion |
-| **Parinita Ramsagar** | **UI/UX & Design Systems Lead** | Modern responsive design system, dynamic weather HUD, WCAG 2.1 AA accessibility, and component styling |
-| **Likhitha Mylavarapu** | **Statistical Verification Engineer** | 2D Fractions Skill Score (FSS) engine, contingency matrix (POD, FAR, CSI, ETS), and Platt calibration |
-| **Shubham Sagar** | **DevOps & Scientific QA Engineer** | CI/CD test automation (150 tests), model serialization integrity, API benchmarking, and documentation |
+- **Gaurav Gautam**
+- **Debosmita Mukhopadhyay**
+- **Shashwat Sahu**
+- **Parinita Ramsagar**
+- **Likhitha Mylavarapu**
+- **Shubham Sagar**
 
 ---
 
