@@ -230,4 +230,4 @@ Visit `http://localhost:5173` (or `http://localhost:3000`) in your browser.
 
 ## 10. Developer
 - Gaurav Gautam
-- Team The Steel Bytes 800
+- Team: The Steel Bytes 800
