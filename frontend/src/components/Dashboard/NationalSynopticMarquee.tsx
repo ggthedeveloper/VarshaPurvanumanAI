@@ -61,11 +61,11 @@ export const NationalSynopticMarquee: React.FC<NationalSynopticMarqueeProps> = (
             </span>
           </div>
 
-          {/* Model AI Compression Status */}
+          {/* Model AI Status */}
           <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-xl bg-slate-800/80 border border-slate-700/80 text-slate-200">
             <Cpu className="h-3.5 w-3.5 text-purple-400" />
             <span className="text-slate-400 font-medium">Model:</span>
-            <span className="font-mono font-semibold text-purple-300">CoFi + QA-LoRA Post-Processor</span>
+            <span className="font-mono font-semibold text-purple-300">Regime-Aware Post-Processor</span>
           </div>
 
           {/* National Coverage */}

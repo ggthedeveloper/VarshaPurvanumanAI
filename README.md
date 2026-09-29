@@ -465,7 +465,6 @@ Developed for **Smart India Hackathon 2026** under **Problem Statement SIH26080*
 
 1. **Academic & Research Prototype:** This software system was developed as an applied artificial intelligence research prototype for the Smart India Hackathon (SIH 2026). It does not replace official meteorological forecasts, warnings, or bulletins issued by the India Meteorological Department (IMD) or the Ministry of Earth Sciences (MoES).
 2. **Advisory Warning Notice:** Color-coded rainfall alerts and threshold exceedance probabilities on the platform represent statistical machine learning outputs conditioned on historical observations; they must not be interpreted as official disaster warnings.
-3. **Structured Pruning Research Reference:** In related neural compression benchmarks, the term **CoFi** refers strictly to **CoFi-Pruning** (*"Structured Pruning Learns Compact and Accurate Models"*, Xia et al.), a structured neural parameter pruning framework.
 
 ---
 

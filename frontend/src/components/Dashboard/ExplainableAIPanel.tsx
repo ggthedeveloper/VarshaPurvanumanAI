@@ -53,7 +53,7 @@ export const ExplainableAIPanel: React.FC<ExplainableAIPanelProps> = ({
         </div>
 
         <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-purple-50 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/60">
-          CoFi + QA-LoRA
+          Regime-Aware Post-Processor
         </span>
       </div>
 
@@ -144,7 +144,7 @@ export const ExplainableAIPanel: React.FC<ExplainableAIPanelProps> = ({
           <span>Validated against IMD High-Density 0.25° Gridded Ground Truth (1901–2023)</span>
         </div>
         <div className="font-mono text-[10px] text-slate-400">
-          Inference Latency: 11.4 ms • FP16 Quantized
+          Inference Latency: 11.4 ms • Calibrated Scikit-Learn Ensemble
         </div>
       </div>
     </div>
