@@ -32,12 +32,12 @@ export const DashboardMissionBanner: React.FC<DashboardMissionBannerProps> = ({
       <img
         src="/images/thunderstorm_weather.jpg"
         alt="Thunderstorm Lightning Weather"
-        className="absolute inset-0 w-full h-full object-cover object-center scale-102 motion-safe:transition-transform motion-safe:duration-7000 hover:scale-100"
+        className="absolute inset-0 w-full h-full object-cover object-center brightness-110 contrast-105 scale-102 motion-safe:transition-transform motion-safe:duration-7000 hover:scale-100"
       />
 
       {/* Multi-Stop Atmospheric Gradient Overlays for High Contrast & Legibility */}
-      <div className="absolute inset-0 bg-linear-to-r from-slate-950 via-slate-950/85 to-slate-950/20 pointer-events-none" />
-      <div className="absolute inset-0 bg-linear-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-r from-slate-950/85 via-slate-950/55 to-slate-950/10 pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-t from-slate-950/35 via-transparent to-transparent pointer-events-none" />
 
       {/* Perfectly Calibrated Banner Content Container */}
       <div className="relative z-10 w-full px-6 py-5 sm:px-7 sm:py-5.5 lg:px-8 lg:py-6 flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
