@@ -175,7 +175,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     .find((p) => p.advisory_status === 'ELEVATED_RISK');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
       {/* 0. Top Panoramic Mission Hero Banner */}
       <DashboardMissionBanner
         currentRegime={regime}
@@ -184,9 +184,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       />
 
       {/* 1. Realistic Hero Station Weather Overview Card */}
-      <div className="bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5 transition-all">
+      <div className="bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4 transition-all">
         {/* Top Meta Bar & Fast Station Switcher */}
-        <div className="space-y-3.5 pb-4 border-b border-slate-100 dark:border-slate-800">
+        <div className="space-y-3 pb-3.5 border-b border-slate-100 dark:border-slate-800">
           {/* Row 1: Station Title & Info (Left) + Dropdown Selector (Right) */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-3 min-w-0">
