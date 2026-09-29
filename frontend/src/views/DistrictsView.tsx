@@ -160,11 +160,11 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
                 setSelectedState(e.target.value);
                 setCurrentPage(1);
               }}
-              className="py-1.5 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="py-1.5 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-700 dark:text-slate-300 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 cursor-pointer"
             >
               {states.map((st) => (
                 <option key={st} value={st}>
-                  {st === 'ALL' ? `All States (${districts.length || 763} Districts)` : st}
+                  {st === 'ALL' ? `All States (${states.length - 1} States)` : st}
                 </option>
               ))}
             </select>
