@@ -28,9 +28,6 @@ import { RainfallMap } from '../components/Map/RainfallMap';
 import { ErrorBoundary } from '../components/Common/ErrorBoundary';
 import { useWeather } from '../context/WeatherContext';
 import { getNearestDistrict } from '../data/defaultCatalog';
-import { HierarchicalForecastNavigator } from '../components/Navigation/HierarchicalForecastNavigator';
-import { NationalSynopticMarquee } from '../components/Dashboard/NationalSynopticMarquee';
-import { SevereWeatherAdvisoryBanner } from '../components/Dashboard/SevereWeatherAdvisoryBanner';
 import { DiurnalForecastChart } from '../components/Dashboard/DiurnalForecastChart';
 import { ExplainableAIPanel } from '../components/Dashboard/ExplainableAIPanel';
 import { SectoralImpactGrid } from '../components/Dashboard/SectoralImpactGrid';
@@ -178,31 +175,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 0. Top National Synoptic Live Ingest Marquee */}
-      <NationalSynopticMarquee
-        currentRegime={regime}
-        isDarkMode={isDarkMode}
-        activeDistrictsCount={districts.length || 742}
-        elevatedAlertsCount={elevatedProb ? 14 : 6}
-      />
-
-      {/* 1. IMD-Standard Color Coded Severe Weather Advisory Banner */}
-      <SevereWeatherAdvisoryBanner
-        districtName={districtName}
-        activeForecast={activeForecast}
-        isDarkMode={isDarkMode}
-        onExploreProbability={() => onNavigate('probability')}
-      />
-
-      {/* 2. Hierarchical Forecast Navigation (India -> State -> District -> Grid) */}
-      <HierarchicalForecastNavigator
-        districts={districts}
-        selectedDistrictId={selectedDistrictId}
-        onSelectDistrict={onSelectDistrict}
-        isDarkMode={isDarkMode}
-      />
-
-      {/* 3. Hero Station Weather Overview Command Center */}
+      {/* 1. Realistic Hero Station Weather Overview Card */}
       <div className="bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5 transition-all">
         {/* Top Meta Bar & Fast Station Switcher */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
