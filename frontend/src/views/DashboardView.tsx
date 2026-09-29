@@ -32,6 +32,7 @@ import { DiurnalForecastChart } from '../components/Dashboard/DiurnalForecastCha
 import { ExplainableAIPanel } from '../components/Dashboard/ExplainableAIPanel';
 import { SectoralImpactGrid } from '../components/Dashboard/SectoralImpactGrid';
 import { ScenarioSimulatorDrawer } from '../components/Dashboard/ScenarioSimulatorDrawer';
+import { DashboardMissionBanner } from '../components/Dashboard/DashboardMissionBanner';
 
 interface DashboardViewProps {
   districts: DistrictItem[];
@@ -175,6 +176,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* 0. Top Panoramic Mission Hero Banner */}
+      <DashboardMissionBanner
+        currentRegime={regime}
+        onRefresh={() => onSelectDistrict(selectedDistrictId)}
+        isRefreshing={isLoading}
+      />
+
       {/* 1. Realistic Hero Station Weather Overview Card */}
       <div className="bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5 transition-all">
         {/* Top Meta Bar & Fast Station Switcher */}
