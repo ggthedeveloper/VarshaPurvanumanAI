@@ -28,6 +28,7 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedState, setSelectedState] = useState('ALL');
+  const [selectedDistrict, setSelectedDistrict] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'BENCHMARK' | 'UNAVAILABLE'>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
@@ -40,6 +41,15 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
     });
     return ['ALL', ...Array.from(s).sort()];
   }, [districts]);
+
+  // Available districts conditioned on selected state
+  const availableDistricts = useMemo(() => {
+    const list =
+      selectedState === 'ALL'
+        ? districts
+        : districts.filter((d) => d.state === selectedState);
+    return list.slice().sort((a, b) => a.name.localeCompare(b.name));
+  }, [districts, selectedState]);
 
   const isCovered = (d: DistrictItem) =>
     d.coverage_status === 'BENCHMARK_ACTIVE' ||
@@ -56,6 +66,7 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
           (d.state && d.state.toLowerCase().includes(searchTerm.toLowerCase()));
 
         const matchesState = selectedState === 'ALL' || d.state === selectedState;
+        const matchesDistrict = selectedDistrict === 'ALL' || d.district_id === selectedDistrict;
 
         const covered = isCovered(d);
         const matchesStatus =
@@ -63,7 +74,7 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
           (statusFilter === 'BENCHMARK' && covered) ||
           (statusFilter === 'UNAVAILABLE' && !covered);
 
-        return matchesSearch && matchesState && matchesStatus;
+        return matchesSearch && matchesState && matchesDistrict && matchesStatus;
       })
       .sort((a, b) => {
         // Active benchmark always at top
@@ -71,7 +82,7 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
         if (b.coverage_status === 'BENCHMARK_ACTIVE') return 1;
         return a.name.localeCompare(b.name);
       });
-  }, [districts, searchTerm, selectedState, statusFilter]);
+  }, [districts, searchTerm, selectedState, selectedDistrict, statusFilter]);
 
   const totalPages = Math.ceil(filteredDistricts.length / pageSize) || 1;
   const paginatedDistricts = filteredDistricts.slice(
@@ -150,14 +161,16 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
           />
         </div>
 
-        {/* State Filter & Coverage Status Filter */}
+        {/* State Filter, District Filter & Coverage Status Filter */}
         <div className="flex flex-wrap items-center gap-3">
+          {/* State Filter */}
           <div className="flex items-center space-x-2">
             <span className="text-xs text-slate-400 font-medium">State:</span>
             <select
               value={selectedState}
               onChange={(e) => {
                 setSelectedState(e.target.value);
+                setSelectedDistrict('ALL');
                 setCurrentPage(1);
               }}
               className="py-1.5 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-700 dark:text-slate-300 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 cursor-pointer"
@@ -165,6 +178,30 @@ export const DistrictsView: React.FC<DistrictsViewProps> = ({
               {states.map((st) => (
                 <option key={st} value={st}>
                   {st === 'ALL' ? `All States (${states.length - 1} States)` : st}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* District Filter (Cascades with selected State) */}
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-slate-400 font-medium">District:</span>
+            <select
+              value={selectedDistrict}
+              onChange={(e) => {
+                setSelectedDistrict(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="py-1.5 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-700 dark:text-slate-300 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 cursor-pointer max-w-[220px] truncate"
+            >
+              <option value="ALL">
+                {selectedState === 'ALL'
+                  ? `All Districts (${availableDistricts.length})`
+                  : `All ${selectedState} (${availableDistricts.length})`}
+              </option>
+              {availableDistricts.map((d) => (
+                <option key={d.district_id} value={d.district_id}>
+                  {d.name} ({d.state})
                 </option>
               ))}
             </select>
