@@ -12,24 +12,17 @@ import {
   Award,
   Zap,
   Sun,
-  Waves,
-  Snowflake,
   Wind,
   Layers,
   CheckCircle2,
-  Sliders,
-  Play,
-  RotateCcw,
   ExternalLink,
   Users,
   Code2,
   Info,
 } from 'lucide-react';
-import { DistrictItem, CombinedForecastResponse, SynopticRegime } from '../../types/api';
+import { DistrictItem, CombinedForecastResponse } from '../../types/api';
 import { NationalCitiesWeatherGrid } from './NationalCitiesWeatherGrid';
 import { ErrorBoundary } from '../Common/ErrorBoundary';
-import { LiveWeatherBackground } from '../Weather/LiveWeatherBackground';
-import { useWeather } from '../../context/WeatherContext';
 
 interface LandingPageProps {
   onNavigateToForecast: (districtId?: string) => void;
@@ -44,87 +37,6 @@ interface LandingPageProps {
   onQuickDemo?: () => void;
   isLoggedIn?: boolean;
 }
-
-interface RegimeCardMeta {
-  id: SynopticRegime;
-  name: string;
-  shortName: string;
-  icon: React.ReactNode;
-  synopticMechanism: string;
-  signature: string;
-  biasTendency: string;
-  aiRemedy: string;
-  color: string;
-}
-
-const REGIME_METAS: RegimeCardMeta[] = [
-  {
-    id: 'ACTIVE_MONSOON',
-    name: 'Active Monsoon',
-    shortName: 'Active',
-    icon: <CloudRain className="h-4 w-4" />,
-    synopticMechanism: 'Low-level monsoon trough positioned south of normal over central India with strong south-westerly Arabian Sea surge.',
-    signature: 'Core Monsoon Zone z-score ≥ +1.0, high atmospheric precipitable water (PW > 55 mm)',
-    biasTendency: 'Raw NWP over-predicts rainfall intensity and false alarm rates at heavy thresholds.',
-    aiRemedy: 'Applies positive non-linear compression to curtail excessive peak rainfall spikes.',
-    color: 'sky',
-  },
-  {
-    id: 'BREAK_MONSOON',
-    name: 'Break Monsoon Spell',
-    shortName: 'Break Spell',
-    icon: <Sun className="h-4 w-4" />,
-    synopticMechanism: 'Monsoon trough shifts northwards to the Himalayan foothills, causing dry spells over central India and peninsula.',
-    signature: 'Core Monsoon Zone z-score ≤ -1.0, heavy rain localized to Himalayan foothills and NE India',
-    biasTendency: 'Raw NWP routinely produces spurious light-to-moderate rain over peninsular India during dry spells.',
-    aiRemedy: 'Zero-inflated suppression dampens phantom rain below 0.5 mm, reducing false alarms by ~40%.',
-    color: 'amber',
-  },
-  {
-    id: 'COASTAL_OROGRAPHIC',
-    name: 'Coastal & Offshore Trough',
-    shortName: 'Coastal / Ghats',
-    icon: <Waves className="h-4 w-4" />,
-    synopticMechanism: 'Offshore trough along the Konkan-Goa coast and strong onshore windward jet hitting the Western Ghats escarpment.',
-    signature: 'Zonal wind u10 ≥ 5.0 m/s, wind speed ≥ 6.5 m/s, relative humidity ≥ 78%, terrain elevation > 400m',
-    biasTendency: 'Severe orographic over-forecast: Raw GFS dumps 2× to 3× rain on windward mountain slopes.',
-    aiRemedy: 'Ortho-downscaling rectifies terrain blocking errors, cutting RMSE by 22.3% (9.03 vs 11.62 mm).',
-    color: 'teal',
-  },
-  {
-    id: 'DEPRESSION',
-    name: 'Monsoon Depression',
-    shortName: 'Depression',
-    icon: <Zap className="h-4 w-4" />,
-    synopticMechanism: 'Low-pressure system or depression originating in Bay of Bengal moving west-northwestward across central India.',
-    signature: 'Cyclonic vorticity, low central pressure (MSLP dip > 4 hPa), organized squall line bands',
-    biasTendency: 'Displacement error: Rain center displaced 50–150 km away from observed torrential core.',
-    aiRemedy: 'Spatial neighborhood smoothing preserves peak flood risk while realigning storm center.',
-    color: 'purple',
-  },
-  {
-    id: 'WESTERN_DISTURBANCE',
-    name: 'Western Disturbance',
-    shortName: 'Westerly Trough',
-    icon: <Snowflake className="h-4 w-4" />,
-    synopticMechanism: 'Mid-latitude upper-tropospheric westerly trough propagating across North/Northwest India (lat ≥ 26.0°N).',
-    signature: 'Upper-level 200 hPa jet streak, cold air advection, negative geopotential anomalies',
-    biasTendency: 'Monsoon NWP blends westerly shear poorly, mistiming convective triggers.',
-    aiRemedy: 'Temperature-gradient routing models winter-monsoon boundary interactions accurately.',
-    color: 'cyan',
-  },
-  {
-    id: 'OTHER',
-    name: 'General Monsoon Circulation',
-    shortName: 'General',
-    icon: <Wind className="h-4 w-4" />,
-    synopticMechanism: 'Transitional synoptic circulation without an intense synoptic trigger or extreme gradient.',
-    signature: 'Moderate tropospheric winds, near-climatological pressure field, isolated convective cells',
-    biasTendency: 'Random localized scatter errors and moderate background drizzle over-prediction.',
-    aiRemedy: 'Global random forest post-processor provides generalized bias calibration.',
-    color: 'indigo',
-  },
-];
 
 interface TeamMember {
   initials: string;
@@ -247,11 +159,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onQuickDemo,
   isLoggedIn = false,
 }) => {
-  const { setMode } = useWeather();
-
-  // Active regime selected in the interactive landing switcher
-  const [selectedRegime, setSelectedRegime] = useState<SynopticRegime>('COASTAL_OROGRAPHIC');
-
   // Interactive "How VarshaPurvanumanAI Works" active step (1 to 5)
   const [activeWorkflowStep, setActiveWorkflowStep] = useState<number>(1);
 
@@ -265,98 +172,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     }
   };
 
-  // Interactive NWP Bias Correction Sandbox State
-  const [simRawNwp, setSimRawNwp] = useState<number>(38.5);
-  const [simRegime, setSimRegime] = useState<SynopticRegime>('COASTAL_OROGRAPHIC');
-
-  // Calculate live simulated AI correction based on regime physics
-  const calculateSimulatedCorrection = (raw: number, regime: SynopticRegime) => {
-    let corrected = raw;
-    let reductionPct = 0;
-
-    switch (regime) {
-      case 'COASTAL_OROGRAPHIC':
-        // Orographic over-prediction correction (~28% reduction)
-        corrected = Math.max(0, raw * 0.72 - (raw > 50 ? 6.0 : 0));
-        reductionPct = raw > 0 ? ((raw - corrected) / raw) * 100 : 0;
-        break;
-      case 'ACTIVE_MONSOON':
-        // Peak surge dampening (~18% reduction)
-        corrected = Math.max(0, raw * 0.82);
-        reductionPct = raw > 0 ? ((raw - corrected) / raw) * 100 : 0;
-        break;
-      case 'BREAK_MONSOON':
-        // False positive dampening (~45% reduction for light/moderate)
-        corrected = raw < 15 ? Math.max(0, raw * 0.45) : Math.max(0, raw * 0.65);
-        reductionPct = raw > 0 ? ((raw - corrected) / raw) * 100 : 0;
-        break;
-      case 'DEPRESSION':
-        // Spatial refocusing (~12% calibration)
-        corrected = Math.max(0, raw * 0.88);
-        reductionPct = raw > 0 ? ((raw - corrected) / raw) * 100 : 0;
-        break;
-      case 'WESTERN_DISTURBANCE':
-        corrected = Math.max(0, raw * 0.85);
-        reductionPct = raw > 0 ? ((raw - corrected) / raw) * 100 : 0;
-        break;
-      case 'OTHER':
-      default:
-        corrected = Math.max(0, raw * 0.78);
-        reductionPct = raw > 0 ? ((raw - corrected) / raw) * 100 : 0;
-        break;
-    }
-
-    // Platt Calibrated Exceedance Probabilities (Sigmoid approximation)
-    const prob2_5 = 1 / (1 + Math.exp(-(corrected - 2.5) / 4.0));
-    const prob7_5 = 1 / (1 + Math.exp(-(corrected - 7.5) / 6.0));
-    const prob15_6 = 1 / (1 + Math.exp(-(corrected - 15.6) / 10.0));
-    const prob64_5 = 1 / (1 + Math.exp(-(corrected - 64.5) / 18.0));
-    const prob115_6 = 1 / (1 + Math.exp(-(corrected - 115.6) / 24.0));
-
-    return {
-      corrected: parseFloat(corrected.toFixed(1)),
-      reductionPct: parseFloat(reductionPct.toFixed(1)),
-      probabilities: [
-        { label: '≥ 2.5 mm (Rainy Day)', prob: Math.min(100, Math.round(prob2_5 * 100)) },
-        { label: '≥ 7.5 mm (Surge)', prob: Math.min(100, Math.round(prob7_5 * 100)) },
-        { label: '≥ 15.6 mm (Moderate)', prob: Math.min(100, Math.round(prob15_6 * 100)) },
-        { label: '≥ 64.5 mm (Heavy)', prob: Math.min(100, Math.round(prob64_5 * 100)) },
-        { label: '≥ 115.6 mm (Very Heavy)', prob: Math.min(100, Math.round(prob115_6 * 100)) },
-      ],
-    };
-  };
-
-  const simResult = calculateSimulatedCorrection(simRawNwp, simRegime);
-
   return (
     <div className="space-y-16 relative">
-      {/* Mountain Panoramic Background across the Entire Landing Page */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <img
-          src="/images/green_mountain_clear.jpg"
-          alt="Monsoon Mountains Background"
-          className="w-full h-full object-cover object-center scale-105"
-        />
-        <div
-          className={`absolute inset-0 transition-colors duration-300 ${
-            isDarkMode
-              ? 'bg-slate-950/45 backdrop-blur-[1px]'
-              : 'bg-slate-100/40 backdrop-blur-[1px]'
-          }`}
-        />
-      </div>
-
-      {/* 1. Full-Bleed Hero Section with Clear Green Mountain Background */}
+      {/* 1. Full-Bleed Hero Section with Clear Green Mountain Background and Live Weather Effects */}
       <section
         id="hero"
         className="relative overflow-hidden w-full min-h-[560px] sm:min-h-[640px] lg:min-h-[680px] flex items-center border-b border-slate-800/80 transition-all duration-300 z-10"
       >
-        {/* Background Image: Lush Green Mountains under Cool Monsoon Overcast */}
-        <img
-          src="/images/green_mountain_clear.jpg"
-          alt="Lush green mountains under monsoon rain clouds"
-          className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
-        />
 
         {/* Subtle cool atmospheric vignette on the left for maximum text contrast, keeping the mountains 100% visible and vivid */}
         <div
@@ -524,9 +346,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <section id="stations" className="scroll-mt-24">
           <NationalCitiesWeatherGrid
             onSelectCity={(districtId) => {
-              if (!isLoggedIn && onLoginClick) {
-                onLoginClick();
-              } else {
+              if (isLoggedIn) {
                 onNavigateToForecast(districtId);
               }
             }}
@@ -534,188 +354,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           />
         </section>
 
-        {/* 3. Interactive NWP Bias Correction Sandbox */}
-        <section id="sandbox" className="rounded-3xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 p-8 shadow-sm space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-5">
-          <div>
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 mb-2">
-              <Sliders className="h-3.5 w-3.5 text-indigo-500" />
-              <span>Interactive Model Sandbox</span>
-            </div>
-            <h2 className="text-xl font-black text-slate-900 dark:text-white">
-              Test Regime-Conditioned Bias Correction Live
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
-              Drag the raw NWP rainfall accumulation slider to observe how our specialized machine learning models rectify over-forecast errors and calculate calibrated risk probabilities in real time.
-            </p>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <span className="text-xs font-semibold text-slate-500">Regime Model:</span>
-            <select
-              value={simRegime}
-              onChange={(e) => {
-                const r = e.target.value as SynopticRegime;
-                setSimRegime(r);
-                setSelectedRegime(r);
-                setMode(r);
-              }}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 cursor-pointer"
-            >
-              {REGIME_METAS.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Interactive Slider & Gauge */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-6 space-y-6">
-            <div className="space-y-2">
-              <div className="flex justify-between items-center text-sm font-bold">
-                <span className="text-slate-700 dark:text-slate-300 flex items-center space-x-1.5">
-                  <CloudRain className="h-4 w-4 text-indigo-500" />
-                  <span>Raw NOAA GFS Forecast Accumulation:</span>
-                </span>
-                <span className="text-lg font-mono text-indigo-600 dark:text-indigo-400">
-                  {simRawNwp.toFixed(1)} mm
-                </span>
-              </div>
-
-              <input
-                type="range"
-                min="0"
-                max="120"
-                step="0.5"
-                value={simRawNwp}
-                onChange={(e) => setSimRawNwp(parseFloat(e.target.value))}
-                className="w-full h-3 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-              />
-
-              <div className="flex justify-between text-[11px] text-slate-400 font-mono">
-                <span>0 mm (Dry)</span>
-                <span>35.5 mm (Moderate)</span>
-                <span>64.5 mm (Heavy)</span>
-                <span>120 mm (Extreme)</span>
-              </div>
-            </div>
-
-            {/* Comparison Metrics */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-4 border border-slate-200 dark:border-slate-700 text-center">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                  Raw GFS NWP
-                </span>
-                <span className="text-xl font-mono font-bold text-slate-800 dark:text-slate-200">
-                  {simRawNwp.toFixed(1)} <span className="text-xs font-normal">mm</span>
-                </span>
-                <span className="text-[10px] text-rose-500 font-semibold block mt-1">
-                  Over-predicted
-                </span>
-              </div>
-
-              <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 p-4 border border-emerald-300 dark:border-emerald-800 text-center">
-                <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">
-                  AI Corrected
-                </span>
-                <span className="text-xl font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                  {simResult.corrected} <span className="text-xs font-normal">mm</span>
-                </span>
-                <span className="text-[10px] text-emerald-600 font-semibold block mt-1">
-                  Truth-Calibrated
-                </span>
-              </div>
-
-              <div className="rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 p-4 border border-indigo-200 dark:border-indigo-800 text-center">
-                <span className="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400 block mb-1">
-                  Bias Reduced
-                </span>
-                <span className="text-xl font-mono font-bold text-indigo-600 dark:text-indigo-400">
-                  {simResult.reductionPct}%
-                </span>
-                <span className="text-[10px] text-indigo-500 font-semibold block mt-1">
-                  Systematic Fix
-                </span>
-              </div>
-            </div>
-
-            {/* Visual Differential Bar */}
-            <div className="space-y-1.5">
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
-                Accumulation Delta Comparison
-              </span>
-              <div className="h-6 w-full rounded-xl bg-slate-100 dark:bg-slate-800 overflow-hidden flex">
-                <div
-                  style={{ width: `${Math.min(100, Math.max(8, (simResult.corrected / 120) * 100))}%` }}
-                  className="bg-emerald-500 h-full flex items-center justify-center text-[10px] font-bold text-white transition-all duration-200 truncate px-1.5"
-                >
-                  AI Output ({simResult.corrected} mm)
-                </div>
-                <div
-                  style={{
-                    width: `${Math.min(
-                      100,
-                      Math.max(8, ((simRawNwp - simResult.corrected) / 120) * 100)
-                    )}%`,
-                  }}
-                  className="bg-rose-400/80 h-full flex items-center justify-center text-[10px] font-bold text-white transition-all duration-200 truncate px-1.5"
-                >
-                  Bias Cut (-{(simRawNwp - simResult.corrected).toFixed(1)} mm)
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Probabilities Output Panel */}
-          <div className="lg:col-span-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 p-6 border border-slate-200 dark:border-slate-700 space-y-4">
-            <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center space-x-2">
-                <Activity className="h-4 w-4 text-emerald-500" />
-                <span>Calibrated Risk Exceedance Probabilities</span>
-              </h4>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
-                Platt Scaled
-              </span>
-            </div>
-
-            <div className="space-y-3">
-              {simResult.probabilities.map((item, idx) => (
-                <div key={idx} className="space-y-1">
-                  <div className="flex justify-between text-xs font-semibold">
-                    <span className="text-slate-700 dark:text-slate-300">{item.label}</span>
-                    <span className="font-mono text-indigo-600 dark:text-indigo-400">
-                      {item.prob}%
-                    </span>
-                  </div>
-                  <div className="h-2 w-full rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                    <div
-                      style={{ width: `${item.prob}%` }}
-                      className={`h-full transition-all duration-300 ${
-                        item.prob > 60
-                          ? 'bg-rose-500'
-                          : item.prob > 30
-                          ? 'bg-amber-500'
-                          : 'bg-emerald-500'
-                      }`}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <p className="text-[11px] text-slate-400 pt-2 border-t border-slate-200 dark:border-slate-700">
-              *Calibrated using Platt-scaled sigmoid transformation fitted strictly to held-out IMD 0.25° gridded observation ground truth.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. End-to-End Scientific Architecture Workflow matching 2nd reference image */}
-      <section
-        id="how-it-works"
+        {/* 3. End-to-End Scientific Architecture Workflow matching 2nd reference image */}
+        <section
+          id="how-it-works"
         className="scroll-mt-24 rounded-3xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 p-6 sm:p-10 shadow-sm space-y-8"
       >
         {/* Header with Title and Blue Underline Accent matching Reference Image */}

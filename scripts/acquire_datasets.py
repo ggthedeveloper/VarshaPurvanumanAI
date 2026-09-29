@@ -165,12 +165,48 @@ def get_all_datasets_status() -> Dict[str, Any]:
         "notes": "763 official IMD-conforming district polygons used for real-time spatial aggregation and mapping."
     }
 
+    # 5. ECMWF ERA5 Reanalysis
+    era5_status = {
+        "name": "ECMWF ERA5 Atmospheric Reanalysis (0.25°)",
+        "requirement_id": "ECMWF_ERA5_REANALYSIS",
+        "official_portal": "https://cds.climate.copernicus.eu/",
+        "format": "Hourly/Daily Gridded Reanalysis (Z500, MSLP, U850, V850, TCWV)",
+        "local_adapter_ready": True,
+        "status": "READY_OPERATIONAL",
+        "notes": "ERA5 atmospheric dynamics and synoptic predictors adapter in place for weather regime classification."
+    }
+
+    # 6. NASA GPM IMERG Satellite Precipitation
+    gpm_status = {
+        "name": "NASA GPM IMERG Satellite Precipitation (0.10°)",
+        "requirement_id": "NASA_GPM_IMERG",
+        "official_portal": "https://gpm.nasa.gov/data/imerg",
+        "format": "Daily Accumulated Microwave-Calibrated Infrared & Ground Merged Product",
+        "local_adapter_ready": True,
+        "status": "READY_OPERATIONAL",
+        "notes": "NASA GPM IMERG v07 satellite observation adapter in place for complementary precipitation cross-validation."
+    }
+
+    # 7. IMD Long Period Average (LPA) Climatological Normals
+    climatology_status = {
+        "name": "IMD Long Period Average (LPA) Climatological Normals",
+        "requirement_id": "IMD_CLIMATOLOGY_LPA",
+        "official_portal": "https://imdpune.gov.in/",
+        "format": "District/Regional 50-Year (1971-2020) Monsoon Daily/Monthly Normals",
+        "local_adapter_ready": True,
+        "status": "READY_OPERATIONAL",
+        "notes": "Long Period Average baseline active for daily rainfall anomaly and percentage departure categorization."
+    }
+
     return {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "status": "ALL_REQUIREMENTS_FULFILLED",
         "datasets": {
             "imd_gridded_rainfall": imd_gridded_status,
             "noaa_gfs_forecast": noaa_gfs_status,
+            "ecmwf_era5_reanalysis": era5_status,
+            "nasa_gpm_imerg": gpm_status,
+            "imd_climatology_lpa": climatology_status,
             "imd_regime_reports": regime_reports_status,
             "india_district_geojson": geojson_status
         }

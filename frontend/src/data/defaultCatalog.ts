@@ -404,11 +404,71 @@ export const DEFAULT_VERIFICATION_PROBABILITY: VerificationProbabilityResponse =
 
 export const DEFAULT_VERIFICATION_REGIMES: VerificationRegimesResponse = {
   regimes: {
-    ACTIVE_MONSOON: { precision: 0.933, recall: 0.933, f1_score: 0.933, sample_count: 15 },
-    BREAK_MONSOON: { precision: 1.0, recall: 1.0, f1_score: 1.0, sample_count: 6 },
-    COASTAL_OROGRAPHIC: { precision: 0.833, recall: 0.833, f1_score: 0.833, sample_count: 6 },
-    DEPRESSION: { precision: 1.0, recall: 1.0, f1_score: 1.0, sample_count: 2 },
-    OTHER: { precision: 1.0, recall: 1.0, f1_score: 1.0, sample_count: 2 },
+    ACTIVE_MONSOON: {
+      sample_count: 41223,
+      status: 'EVALUATED',
+      raw_rmse: 15.09,
+      global_rmse: 13.05,
+      regime_rmse: 11.47,
+      improvement_percent: 24.0,
+      models: {
+        'Raw NWP': { rmse: 15.09, sample_count: 41223 },
+        'Global ML': { rmse: 13.05, sample_count: 41223 },
+        'Regime-Aware ML': { rmse: 11.47, sample_count: 41223 },
+      },
+    },
+    BREAK_MONSOON: {
+      sample_count: 31055,
+      status: 'EVALUATED',
+      raw_rmse: 9.62,
+      global_rmse: 6.41,
+      regime_rmse: 6.92,
+      improvement_percent: 28.0,
+      models: {
+        'Raw NWP': { rmse: 9.62, sample_count: 31055 },
+        'Global ML': { rmse: 6.41, sample_count: 31055 },
+        'Regime-Aware ML': { rmse: 6.92, sample_count: 31055 },
+      },
+    },
+    COASTAL_OROGRAPHIC: {
+      sample_count: 54652,
+      status: 'EVALUATED',
+      raw_rmse: 32.46,
+      global_rmse: 24.83,
+      regime_rmse: 24.40,
+      improvement_percent: 24.8,
+      models: {
+        'Raw NWP': { rmse: 32.46, sample_count: 54652 },
+        'Global ML': { rmse: 24.83, sample_count: 54652 },
+        'Regime-Aware ML': { rmse: 24.40, sample_count: 54652 },
+      },
+    },
+    DEPRESSION: {
+      sample_count: 15199,
+      status: 'EVALUATED',
+      raw_rmse: 29.22,
+      global_rmse: 30.31,
+      regime_rmse: 25.72,
+      improvement_percent: 12.0,
+      models: {
+        'Raw NWP': { rmse: 29.22, sample_count: 15199 },
+        'Global ML': { rmse: 30.31, sample_count: 15199 },
+        'Regime-Aware ML': { rmse: 25.72, sample_count: 15199 },
+      },
+    },
+    OTHER: {
+      sample_count: 157871,
+      status: 'EVALUATED',
+      raw_rmse: 8.93,
+      global_rmse: 6.12,
+      regime_rmse: 7.73,
+      improvement_percent: 13.4,
+      models: {
+        'Raw NWP': { rmse: 8.93, sample_count: 157871 },
+        'Global ML': { rmse: 6.12, sample_count: 157871 },
+        'Regime-Aware ML': { rmse: 7.73, sample_count: 157871 },
+      },
+    },
   },
   data_status: 'REAL_DATA',
 };

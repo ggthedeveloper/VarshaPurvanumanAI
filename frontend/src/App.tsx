@@ -137,7 +137,8 @@ const AppContent: React.FC = () => {
     const isLiveWeather =
       telemetry?.sourceProvenance?.includes('Real-Time') ||
       telemetry?.sourceProvenance?.includes('OpenWeather') ||
-      telemetry?.sourceProvenance?.includes('Open-Meteo');
+      telemetry?.sourceProvenance?.includes('Open-Meteo') ||
+      telemetry?.sourceProvenance?.includes('NationalCitiesWeatherGrid');
 
     if (activeForecast && selectedDistrictId !== 'gps_user_location' && !isLiveWeather) {
       setDistrictRegime(activeForecast.predicted_regime);
@@ -611,16 +612,23 @@ const AppContent: React.FC = () => {
           <img
             src="/images/green_mountain_clear.jpg"
             alt="Monsoon Mountains Background"
-            className="w-full h-full object-cover object-center scale-105"
+            className="w-full h-full object-cover object-center"
           />
           <div
             className={`absolute inset-0 transition-colors duration-300 ${
               isDarkMode
-                ? 'bg-slate-950/45 backdrop-blur-[1px]'
-                : 'bg-slate-100/40 backdrop-blur-[1px]'
+                ? 'bg-slate-950/45'
+                : 'bg-slate-100/40'
             }`}
           />
         </div>
+        {/* Fixed Ambient Live Weather Canvas Background across Landing Page */}
+        <LiveWeatherBackground
+          fixed={true}
+          transparentBg={true}
+          isDarkMode={isDarkMode}
+          interactive={false}
+        />
 
         {/* Guest Header with visible light and dark mode effects */}
         <header
@@ -688,19 +696,6 @@ const AppContent: React.FC = () => {
               }`}
             >
               Stations
-            </a>
-            <a
-              href="#sandbox"
-              onClick={(e) => {
-                e.preventDefault();
-                const el = document.getElementById('sandbox');
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }}
-              className={`transition-colors cursor-pointer ${
-                isDarkMode ? 'hover:text-white' : 'hover:text-blue-600'
-              }`}
-            >
-              Model Sandbox
             </a>
             <a
               href="#team"
@@ -780,19 +775,19 @@ const AppContent: React.FC = () => {
   return (
     <div className="min-h-screen text-slate-900 dark:text-slate-100 flex transition-colors relative overflow-x-hidden">
       {/* Mountain Panoramic Background across Dashboard & Cockpit:
-          Uses the dramatic monsoon hills mountain image with cloud rain (monsoon_hills_rain.jpg) */}
+          Uses the reference HD monsoon mountain image globally across all routes */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <img
-          src="/images/monsoon_hills_rain.jpg"
-          alt="Dramatic Western Ghats Monsoon Mountain with Cloud Rain"
-          className="w-full h-full object-cover object-center scale-105 transition-transform duration-1000"
+          src="/images/green_mountain_clear.jpg"
+          alt="Monsoon Mountain Panoramic Background"
+          className="w-full h-full object-cover object-center transition-transform duration-1000"
         />
         {/* Subtle atmospheric veil ensuring mountain visibility + 100% chart/table readability in both light & dark mode */}
         <div
           className={`absolute inset-0 transition-colors duration-300 ${
             isDarkMode
-              ? 'bg-slate-950/35 backdrop-blur-[0.5px]'
-              : 'bg-slate-900/25 backdrop-blur-[0.5px]'
+              ? 'bg-slate-950/35'
+              : 'bg-slate-900/25'
           }`}
         />
       </div>
@@ -800,6 +795,7 @@ const AppContent: React.FC = () => {
       {/* Fixed Ambient Live Weather Canvas Background across Interface */}
       <LiveWeatherBackground
         fixed={true}
+        transparentBg={true}
         isDarkMode={isDarkMode}
         interactive={true}
       />

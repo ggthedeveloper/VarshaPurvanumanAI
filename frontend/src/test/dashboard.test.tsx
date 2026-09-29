@@ -719,14 +719,12 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
 
     expect(screen.getByText(/Ministry of Earth Sciences \(MoES\) \/ IMD/i)).toBeInTheDocument();
     expect(screen.getByText(/Regime-Aware AI Post-Processing of/i)).toBeInTheDocument();
-    expect(screen.getByText(/Test Regime-Conditioned Bias Correction Live/i)).toBeInTheDocument();
-    expect(screen.getByText(/Raw NOAA GFS Forecast Accumulation:/i)).toBeInTheDocument();
     expect(screen.getByText(/National Monsoon Station Hubs/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /How.*VarshaPurvanumanAI.*Works/i })).toBeInTheDocument();
 
-    // Test bias correction slider interaction
-    const slider = screen.getByRole('slider');
-    fireEvent.change(slider, { target: { value: '60' } });
-    expect(screen.getAllByText(/60\.0/)[0]).toBeInTheDocument();
+    // Verify Interactive Model Sandbox section is completely removed from Landing Page
+    expect(screen.queryByText(/Test Regime-Conditioned Bias Correction Live/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Raw NOAA GFS Forecast Accumulation:/i)).not.toBeInTheDocument();
   });
 
   it('22. WeatherControllerPill renders and allows interactive regime selection and toggling', () => {
@@ -749,6 +747,11 @@ describe('VarshaPurvanumanAI Frontend Component Suite', () => {
     const toggleBtn = screen.getByRole('button', { name: /^Active$/i });
     fireEvent.click(toggleBtn);
     expect(screen.getByText(/Disabled/i)).toBeInTheDocument();
+
+    // Toggle back to active so subsequent tests have WeatherProvider enabled
+    const disabledBtn = screen.getByRole('button', { name: /^Disabled$/i });
+    fireEvent.click(disabledBtn);
+    expect(screen.getByRole('button', { name: /^Active$/i })).toBeInTheDocument();
   });
 
   it('23. RealtimeWeatherHUD renders live meteorological gauges, ticking clock, and lightning trigger', () => {

@@ -376,32 +376,58 @@ export const RegimeView: React.FC<RegimeViewProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-                {Object.entries(verificationRegimes.regimes).map(([regimeKey, metrics]) => {
-                  const rawRmse = metrics['Raw NWP']?.rmse ?? 0;
-                  const globalRmse = metrics['Global ML']?.rmse ?? 0;
-                  const regimeRmse = metrics['Regime-Aware ML']?.rmse ?? 0;
-                  const sampleCount = metrics['Regime-Aware ML']?.sample_count ?? metrics['Global ML']?.sample_count ?? '—';
-                  const improvement = rawRmse > 0 ? (((rawRmse - regimeRmse) / rawRmse) * 100).toFixed(1) : '—';
+                {Object.entries(verificationRegimes.regimes).map(([regimeKey, metrics]: [string, any]) => {
+                  const models = metrics?.models || (typeof metrics === 'object' && !('status' in metrics) ? metrics : {});
+                  const rawRmse = typeof models['Raw NWP']?.rmse === 'number'
+                    ? models['Raw NWP'].rmse
+                    : typeof metrics?.raw_rmse === 'number'
+                      ? metrics.raw_rmse
+                      : null;
+                  const globalRmse = typeof models['Global ML']?.rmse === 'number'
+                    ? models['Global ML'].rmse
+                    : typeof metrics?.global_rmse === 'number'
+                      ? metrics.global_rmse
+                      : null;
+                  const regimeRmse = typeof models['Regime-Aware ML']?.rmse === 'number'
+                    ? models['Regime-Aware ML'].rmse
+                    : typeof metrics?.regime_rmse === 'number'
+                      ? metrics.regime_rmse
+                      : typeof metrics?.corrected_rmse === 'number'
+                        ? metrics.corrected_rmse
+                        : null;
+                  const sampleCount = metrics?.sample_count ?? models['Regime-Aware ML']?.sample_count ?? models['Global ML']?.sample_count ?? 'N/A';
+
+                  const improvement = typeof metrics?.improvement_percent === 'number'
+                    ? metrics.improvement_percent.toFixed(1)
+                    : rawRmse !== null && regimeRmse !== null && rawRmse > 0
+                      ? (((rawRmse - regimeRmse) / rawRmse) * 100).toFixed(1)
+                      : null;
 
                   return (
                     <tr key={regimeKey} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
                       <td className="py-2.5 px-3 font-semibold text-slate-900 dark:text-white">
-                        {regimeKey}
+                        {regimeKey.replace(/_/g, ' ')}
                       </td>
-                      <td className="py-2.5 px-3 font-mono">{sampleCount}</td>
+                      <td className="py-2.5 px-3 font-mono">
+                        {typeof sampleCount === 'number' ? sampleCount.toLocaleString() : sampleCount}
+                      </td>
                       <td className="py-2.5 px-3 font-mono text-rose-600 dark:text-rose-400">
-                        {rawRmse ? rawRmse.toFixed(2) : '—'}
+                        {rawRmse !== null ? rawRmse.toFixed(2) : 'N/A'}
                       </td>
                       <td className="py-2.5 px-3 font-mono text-blue-600 dark:text-blue-400">
-                        {globalRmse ? globalRmse.toFixed(2) : '—'}
+                        {globalRmse !== null ? globalRmse.toFixed(2) : 'N/A'}
                       </td>
                       <td className="py-2.5 px-3 font-mono text-emerald-600 dark:text-emerald-400 font-bold">
-                        {regimeRmse ? regimeRmse.toFixed(2) : '—'}
+                        {regimeRmse !== null ? regimeRmse.toFixed(2) : 'N/A'}
                       </td>
                       <td className="py-2.5 px-3">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                          +{improvement}% error drop
-                        </span>
+                        {improvement !== null ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                            +{improvement}% error drop
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 font-mono text-[11px]">N/A</span>
+                        )}
                       </td>
                     </tr>
                   );

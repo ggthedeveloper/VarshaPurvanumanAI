@@ -186,13 +186,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         <img
           src="/images/green_mountain_clear.jpg"
           alt="Monsoon Mountains Background"
-          className="w-full h-full object-cover object-center scale-105"
+          className="w-full h-full object-cover object-center"
         />
         <div
           className={`absolute inset-0 transition-colors duration-300 ${
             isDarkMode
-              ? 'bg-slate-950/45 backdrop-blur-xs'
-              : 'bg-slate-900/40 backdrop-blur-xs'
+              ? 'bg-slate-950/45'
+              : 'bg-slate-900/40'
           }`}
         />
       </div>

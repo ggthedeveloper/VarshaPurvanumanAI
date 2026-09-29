@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useWeather } from '../../context/WeatherContext';
 import { SynopticRegime } from '../../types/api';
+import { WeatherVisualCondition, resolveWeatherVisualState } from '../../utils/weatherVisualState';
 
 interface LiveWeatherBackgroundProps {
   isDarkMode?: boolean;
@@ -8,6 +9,8 @@ interface LiveWeatherBackgroundProps {
   fixed?: boolean;
   interactive?: boolean;
   overrideRegime?: SynopticRegime;
+  transparentBg?: boolean;
+  weatherVisualState?: WeatherVisualCondition;
 }
 
 interface RainDrop {
@@ -104,6 +107,8 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
   fixed = true,
   interactive = true,
   overrideRegime,
+  transparentBg = false,
+  weatherVisualState,
 }) => {
   const {
     enabled,
@@ -284,42 +289,69 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
     // Realistic Live Meteorological Parameter Binding
     // Sync animation strictly to current station/region/location weather conditions
     // -------------------------------------------------------------------------
+    const resolvedVisual: WeatherVisualCondition =
+      weatherVisualState ||
+      (telemetry?.conditionLabel
+        ? resolveWeatherVisualState(telemetry.conditionLabel, telemetry.rainRateMmH, activeRegime)
+        : (activeRegime === 'ACTIVE_MONSOON' || activeRegime === 'COASTAL_OROGRAPHIC' || activeRegime === 'DEPRESSION')
+        ? (rainRate > 0.1 ? 'RAIN' : 'CLOUDY')
+        : activeRegime === 'BREAK_MONSOON'
+        ? 'CLEAR'
+        : 'CLEAR');
+
     const isStationRaining =
-      rainRate > 0.15 ||
-      condition.includes('rain') ||
-      condition.includes('drizzle') ||
-      condition.includes('shower') ||
-      condition.includes('thunderstorm') ||
-      ((activeRegime === 'ACTIVE_MONSOON' || activeRegime === 'COASTAL_OROGRAPHIC' || activeRegime === 'DEPRESSION') && rainRate > 0.1);
+      resolvedVisual === 'RAIN' ||
+      resolvedVisual === 'RAIN_MIST' ||
+      resolvedVisual === 'STORM' ||
+      (!weatherVisualState && (
+        rainRate > 0.15 ||
+        condition.includes('rain') ||
+        condition.includes('drizzle') ||
+        condition.includes('shower') ||
+        condition.includes('thunderstorm') ||
+        ((activeRegime === 'ACTIVE_MONSOON' || activeRegime === 'COASTAL_OROGRAPHIC' || activeRegime === 'DEPRESSION') && rainRate > 0.1)
+      ));
+
+    const isStationMisting =
+      resolvedVisual === 'MIST' ||
+      resolvedVisual === 'RAIN_MIST' ||
+      (!weatherVisualState && (
+        condition.includes('mist') ||
+        condition.includes('fog') ||
+        condition.includes('haze')
+      ));
 
     let dropCount = 0;
     let baseDropSpeed = 16;
     let moteCount = 0;
 
-    if (!isStationRaining) {
-      // Station is dry, sunny, clear, or partly cloudy: ZERO raindrops!
-      dropCount = 0;
-      moteCount = activeRegime === 'BREAK_MONSOON'
-        ? Math.round(45 * intensityMultiplier)
-        : Math.round(25 * intensityMultiplier);
-    } else {
-      // Station is actively experiencing rain:
+    if (isStationRaining) {
+      const isHeavy = rainRate > 15 || condition.includes('heavy') || condition.includes('downpour') || resolvedVisual === 'STORM';
       const multiplier =
+        resolvedVisual === 'STORM' ? 22 :
         activeRegime === 'DEPRESSION' ? 20 :
         activeRegime === 'COASTAL_OROGRAPHIC' ? 18 :
         activeRegime === 'ACTIVE_MONSOON' ? 16 : 14;
-      dropCount = Math.round(Math.min(360, Math.max(70, rainRate * multiplier)) * intensityMultiplier);
-      baseDropSpeed = Math.min(26, 14 + rainRate * 0.4);
+      dropCount = Math.round((resolvedVisual === 'RAIN_MIST' ? 110 : Math.min(340, Math.max(90, (rainRate || 4) * multiplier))) * intensityMultiplier);
+      baseDropSpeed = isHeavy ? 22 : Math.min(26, 14 + (rainRate || 3) * 0.4);
       moteCount = 0;
+    } else {
+      dropCount = 0;
+      moteCount = (resolvedVisual === 'CLEAR' || activeRegime === 'BREAK_MONSOON')
+        ? Math.round(25 * intensityMultiplier)
+        : 0;
     }
 
     // Wind speed, cloud puffs, and drifting mist banks
     let baseWind = Math.max(0.8, Math.min(14, windSpeed * 0.35));
-    let cloudCount = cloudCover < 15 ? (fixed ? 3 : 0) : cloudCover < 40 ? 5 : cloudCover < 70 ? 7 : 10;
+    let cloudCount = resolvedVisual === 'CLOUDY' ? 9 : cloudCover < 15 ? (fixed ? 3 : 0) : cloudCover < 40 ? 5 : cloudCover < 70 ? 7 : 10;
 
-    let mistCount = isStationRaining && (telemetry?.relativeHumidityPct || 70) > 80
-      ? Math.max(3, Math.round(((telemetry?.relativeHumidityPct || 80) - 70) * 0.2))
-      : 0;
+    let mistCount = 0;
+    if (isStationMisting) {
+      mistCount = Math.round((resolvedVisual === 'RAIN_MIST' ? 5 : 7) * intensityMultiplier);
+    } else if (isStationRaining && (telemetry?.relativeHumidityPct || 70) > 80) {
+      mistCount = Math.max(2, Math.round(((telemetry?.relativeHumidityPct || 80) - 70) * 0.2));
+    }
 
     // 1. Initialize 3-Tier Raindrops
     const rainDrops: RainDrop[] = [];
@@ -382,11 +414,11 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
     for (let i = 0; i < mistCount; i++) {
       mistBanks.push({
         x: Math.random() * width,
-        y: height * (0.6 + Math.random() * 0.35),
-        width: 350 + Math.random() * 500,
-        height: 90 + Math.random() * 160,
-        speed: (0.8 + Math.random() * 1.5) * (baseWind > 5 ? 1.8 : 1),
-        opacity: isDarkMode ? 0.06 + Math.random() * 0.07 : 0.14 + Math.random() * 0.1,
+        y: height * (0.15 + Math.random() * 0.70),
+        width: 400 + Math.random() * 600,
+        height: 110 + Math.random() * 200,
+        speed: (0.6 + Math.random() * 1.2) * (baseWind > 5 ? 1.6 : 1),
+        opacity: isDarkMode ? 0.22 + Math.random() * 0.18 : 0.26 + Math.random() * 0.20,
       });
     }
 
@@ -552,9 +584,27 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
       }
 
       // When not fixed (e.g. preview cards), fill sky gradient. When fixed, canvas is transparent so mountain background shines through!
-      if (!fixed) {
+      if (!fixed && !transparentBg) {
         ctx.fillStyle = skyGrad;
         ctx.fillRect(0, 0, width, height);
+      } else {
+        // Atmospheric weather-responsive treatment over the mountain background
+        if (resolvedVisual === 'STORM') {
+          ctx.fillStyle = isDarkMode ? 'rgba(5, 8, 20, 0.40)' : 'rgba(15, 23, 42, 0.28)';
+          ctx.fillRect(0, 0, width, height);
+        } else if (resolvedVisual === 'RAIN' || resolvedVisual === 'RAIN_MIST') {
+          const isHeavy = rainRate > 15 || condition.includes('heavy') || condition.includes('downpour');
+          ctx.fillStyle = isDarkMode
+            ? (isHeavy ? 'rgba(5, 10, 22, 0.32)' : 'rgba(7, 14, 29, 0.22)')
+            : (isHeavy ? 'rgba(15, 23, 42, 0.22)' : 'rgba(15, 23, 42, 0.14)');
+          ctx.fillRect(0, 0, width, height);
+        } else if (resolvedVisual === 'MIST') {
+          ctx.fillStyle = isDarkMode ? 'rgba(148, 163, 184, 0.12)' : 'rgba(226, 232, 240, 0.16)';
+          ctx.fillRect(0, 0, width, height);
+        } else if (resolvedVisual === 'CLOUDY') {
+          ctx.fillStyle = isDarkMode ? 'rgba(15, 23, 42, 0.14)' : 'rgba(241, 245, 249, 0.12)';
+          ctx.fillRect(0, 0, width, height);
+        }
       }
 
       // Render night stars (active during nocturnal clear/partly cloudy skies)
@@ -613,15 +663,16 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
       // -------------------------------------------------------------
       // 1. Lightning Bolt Engine & Ambient Flash Strobe
       // -------------------------------------------------------------
-      if (lightningEnabled && (activeRegime === 'DEPRESSION' || activeRegime === 'ACTIVE_MONSOON')) {
+      const isStormActive = resolvedVisual === 'STORM' || condition.includes('thunder') || condition.includes('lightning');
+      if ((lightningEnabled || isStormActive) && (activeRegime === 'DEPRESSION' || activeRegime === 'ACTIVE_MONSOON' || isStormActive)) {
         if (now - lastLightningTime > nextLightningInterval) {
           lastLightningTime = now;
           nextLightningInterval =
-            (activeRegime === 'DEPRESSION' ? 4 + Math.random() * 6 : 8 + Math.random() * 12) * 1000;
+            (activeRegime === 'DEPRESSION' || isStormActive ? 5 + Math.random() * 6 : 9 + Math.random() * 12) * 1000;
 
           // Generate a photorealistic branching lightning bolt
           activeBoltsRef.current.push(createLightningBolt());
-          flashAlphaRef.current = 0.48;
+          flashAlphaRef.current = 0.45;
         }
       }
 
@@ -947,6 +998,8 @@ export const LiveWeatherBackground: React.FC<LiveWeatherBackgroundProps> = ({
     telemetry?.relativeHumidityPct,
     telemetry?.conditionLabel,
     telemetry?.stationName,
+    transparentBg,
+    weatherVisualState,
   ]);
 
   if (!enabled && !fixed) return null;

@@ -18,7 +18,9 @@ from src.data.base_provider import (
     ClimatologyProvider,
 )
 from src.data.adapters.nwp_gfs_provider import NOAA_GFS_Provider
+from src.data.adapters.nwp_era5_provider import ECMWF_ERA5_Provider
 from src.data.adapters.observation_imd_provider import IMD_Observation_Provider
+from src.data.adapters.observation_gpm_provider import GPM_IMERG_Provider
 from src.data.adapters.boundary_provider import IndiaDistrictBoundaryProvider
 from src.data.adapters.climatology_provider import IMD_Climatology_Provider
 
@@ -26,7 +28,13 @@ from src.data.adapters.climatology_provider import IMD_Climatology_Provider
 class DataManager:
     """
     Central hub managing meteorological ingestion, spatial indexing,
-    and truthful verification status determination.
+    and truthful verification status determination across all 6 authoritative datasets:
+    1. NOAA GFS 0.25° NWP
+    2. ECMWF ERA5 Reanalysis
+    3. IMD Ground Truth Observations
+    4. NASA GPM IMERG Satellite Precipitation
+    5. IMD Long Period Average (LPA) Climatological Normals
+    6. Survey of India / IMD 763 District Boundaries
     """
 
     def __init__(
@@ -35,9 +43,13 @@ class DataManager:
         obs_provider: Optional[ObservationProvider] = None,
         boundary_provider: Optional[DistrictBoundaryProvider] = None,
         climatology_provider: Optional[ClimatologyProvider] = None,
+        era5_provider: Optional[NWPProvider] = None,
+        gpm_provider: Optional[ObservationProvider] = None,
     ):
         self.nwp = nwp_provider or NOAA_GFS_Provider()
+        self.era5 = era5_provider or ECMWF_ERA5_Provider()
         self.obs = obs_provider or IMD_Observation_Provider()
+        self.gpm = gpm_provider or GPM_IMERG_Provider()
         self.boundary = boundary_provider or IndiaDistrictBoundaryProvider.get_instance()
         self.climatology = climatology_provider or IMD_Climatology_Provider()
 
@@ -97,5 +109,8 @@ class DataManager:
             "benchmark_region": "Western Ghats Mesoscale Domain (18.0N - 19.25N, 73.0E - 74.25E)",
             "benchmark_observation_source": "IMD Pune NDC (Zenodo 10.5281/zenodo.20177433)",
             "operational_nwp_source": self.nwp.provider_name,
+            "reanalysis_source": self.era5.provider_name,
+            "satellite_source": self.gpm.provider_name,
+            "climatology_source": "IMD Long Period Average (LPA 1971-2020 / 1981-2010)",
             "boundary_source": "Survey of India / IMD Bundled GeoJSON (763 districts)",
         }

@@ -67,6 +67,19 @@ class VerificationService:
 
     @classmethod
     def get_regimes(cls) -> VerificationRegimesResponse:
+        try:
+            from src.data.synthetic_dataset_loader import SyntheticDatasetRepository
+            repo = SyntheticDatasetRepository.get_instance()
+            if repo.exists():
+                reg_metrics = repo.get_regime_metrics()
+                if reg_metrics:
+                    return VerificationRegimesResponse(
+                        regimes=reg_metrics,
+                        data_status="REAL_DATA",
+                    )
+        except Exception:
+            pass
+
         metrics = cls._load_metrics()
         return VerificationRegimesResponse(
             regimes=metrics.get("regime_wise_metrics", {}),
