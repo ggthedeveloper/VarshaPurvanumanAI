@@ -178,68 +178,99 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* 1. Realistic Hero Station Weather Overview Card */}
       <div className="bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5 transition-all">
         {/* Top Meta Bar & Fast Station Switcher */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center space-x-3 min-w-0">
-            <div className="h-10 w-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-xs shrink-0">
-              <MapPin className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2 min-w-0">
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight truncate">
-                  {heroDisplayTitle}
-                </h1>
-                {isPuneBenchmark ? (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-300/60 shrink-0">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
-                    Benchmark Station
-                  </span>
-                ) : selectedDistrictId === 'gps_user_location' ? (
-                  <>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-300/60 shrink-0">
-                      <span className="h-1.5 w-1.5 rounded-full bg-blue-500 mr-1.5 animate-pulse" />
-                      Operational Active (GPS Live)
-                    </span>
-                    {nearestDistrict && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-300/60 shrink-0">
-                        🎯 Nearest District: {nearestDistrict.district.name} ({nearestDistrict.distanceKm} km)
-                      </span>
-                    )}
-                  </>
-                ) : isOperational ? (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-300/60 shrink-0">
-                    <span className="h-1.5 w-1.5 rounded-full bg-sky-500 mr-1.5" />
-                    Operational Active (NOAA GFS)
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-300/60 shrink-0">
-                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500 mr-1.5" />
-                    Data Unavailable
-                  </span>
-                )}
+        <div className="space-y-3.5 pb-4 border-b border-slate-100 dark:border-slate-800">
+          {/* Row 1: Station Title & Info (Left) + Dropdown Selector (Right) */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center space-x-3 min-w-0">
+              <div className="h-10 w-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-xs shrink-0">
+                <MapPin className="h-5 w-5" />
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 whitespace-normal sm:whitespace-nowrap">
-                {selectedDistrictId === 'gps_user_location' && nearestDistrict ? (
-                  <>
-                    <span className="font-semibold text-indigo-600 dark:text-indigo-400">
-                      Nearest District: {nearestDistrict.district.name}, {nearestDistrict.district.state} (~{nearestDistrict.distanceKm} km away)
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2 min-w-0">
+                  <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight truncate">
+                    {heroDisplayTitle}
+                  </h1>
+                  {isPuneBenchmark ? (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-300/60 shrink-0">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
+                      Benchmark Station
                     </span>
-                    {' • '}
-                  </>
-                ) : null}
-                {currentDistrict?.state || (selectedDistrictId === 'gps_user_location' ? 'Live GPS Location' : 'India')} •{' '}
-                {districtForecast?.latitude && districtForecast?.longitude
-                  ? `${districtForecast.latitude.toFixed(4)}°N, ${districtForecast.longitude.toFixed(4)}°E${
-                      selectedDistrictId === 'gps_user_location' ? ' (Accurate GPS)' : ''
-                    }`
-                  : currentDistrict?.latitude && currentDistrict?.longitude
-                  ? `${currentDistrict.latitude.toFixed(4)}°N, ${currentDistrict.longitude.toFixed(4)}°E`
-                  : '18.5204°N, 73.8567°E'}
-              </p>
+                  ) : selectedDistrictId === 'gps_user_location' ? (
+                    <>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-300/60 shrink-0">
+                        <span className="h-1.5 w-1.5 rounded-full bg-blue-500 mr-1.5 animate-pulse" />
+                        Operational Active (GPS Live)
+                      </span>
+                      {nearestDistrict && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-300/60 shrink-0">
+                          🎯 Nearest District: {nearestDistrict.district.name} ({nearestDistrict.distanceKm} km)
+                        </span>
+                      )}
+                    </>
+                  ) : isOperational ? (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-300/60 shrink-0">
+                      <span className="h-1.5 w-1.5 rounded-full bg-sky-500 mr-1.5" />
+                      Operational Active (NOAA GFS)
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-300/60 shrink-0">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500 mr-1.5" />
+                      Data Unavailable
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 whitespace-normal sm:whitespace-nowrap">
+                  {selectedDistrictId === 'gps_user_location' && nearestDistrict ? (
+                    <>
+                      <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+                        Nearest District: {nearestDistrict.district.name}, {nearestDistrict.district.state} (~{nearestDistrict.distanceKm} km away)
+                      </span>
+                      {' • '}
+                    </>
+                  ) : null}
+                  {currentDistrict?.state || (selectedDistrictId === 'gps_user_location' ? 'Live GPS Location' : 'India')} •{' '}
+                  {districtForecast?.latitude && districtForecast?.longitude
+                    ? `${districtForecast.latitude.toFixed(4)}°N, ${districtForecast.longitude.toFixed(4)}°E${
+                        selectedDistrictId === 'gps_user_location' ? ' (Accurate GPS)' : ''
+                      }`
+                    : currentDistrict?.latitude && currentDistrict?.longitude
+                    ? `${currentDistrict.latitude.toFixed(4)}°N, ${currentDistrict.longitude.toFixed(4)}°E`
+                    : '18.5204°N, 73.8567°E'}
+                </p>
+              </div>
+            </div>
+
+            {/* Dropdown Select on Right */}
+            <div className="shrink-0 flex items-center gap-2">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 hidden sm:inline">
+                Station:
+              </span>
+              <select
+                value={selectedDistrictId}
+                onChange={(e) => onSelectDistrict(e.target.value)}
+                className="w-full sm:w-60 px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 cursor-pointer shadow-xs"
+              >
+                {(userLocation || selectedDistrictId === 'gps_user_location') && (
+                  <option value="gps_user_location">
+                    🎯 My Location{nearestDistrict ? ` (Near ${nearestDistrict.district.name})` : ''}
+                  </option>
+                )}
+                {districts
+                  .filter((d) => d.district_id !== 'gps_user_location')
+                  .map((d) => (
+                    <option key={d.district_id} value={d.district_id}>
+                      {d.name} ({d.state})
+                    </option>
+                  ))}
+              </select>
             </div>
           </div>
 
-          {/* Quick Station Switcher Pills & Dropdown */}
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Row 2: Quick Station Switcher Pills in their own dedicated row */}
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100/60 dark:border-slate-800/60">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 shrink-0">
+              Quick Stations:
+            </span>
             <div className="flex flex-wrap items-center gap-1.5">
               {quickStations.map((st) => (
                 <button
@@ -258,25 +289,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </button>
               ))}
             </div>
-
-            <select
-              value={selectedDistrictId}
-              onChange={(e) => onSelectDistrict(e.target.value)}
-              className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-            >
-              {(userLocation || selectedDistrictId === 'gps_user_location') && (
-                <option value="gps_user_location">
-                  🎯 My Location{nearestDistrict ? ` (Near ${nearestDistrict.district.name})` : ''}
-                </option>
-              )}
-              {districts
-                .filter((d) => d.district_id !== 'gps_user_location')
-                .map((d) => (
-                  <option key={d.district_id} value={d.district_id}>
-                    {d.name} ({d.state})
-                  </option>
-                ))}
-            </select>
           </div>
         </div>
 
