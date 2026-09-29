@@ -14,6 +14,8 @@ import {
   Sparkles,
   Waves,
   Zap,
+  Layers,
+  ArrowRight,
 } from 'lucide-react';
 import {
   DistrictItem,
@@ -27,6 +29,12 @@ import { ErrorBoundary } from '../components/Common/ErrorBoundary';
 import { useWeather } from '../context/WeatherContext';
 import { getNearestDistrict } from '../data/defaultCatalog';
 import { HierarchicalForecastNavigator } from '../components/Navigation/HierarchicalForecastNavigator';
+import { NationalSynopticMarquee } from '../components/Dashboard/NationalSynopticMarquee';
+import { SevereWeatherAdvisoryBanner } from '../components/Dashboard/SevereWeatherAdvisoryBanner';
+import { DiurnalForecastChart } from '../components/Dashboard/DiurnalForecastChart';
+import { ExplainableAIPanel } from '../components/Dashboard/ExplainableAIPanel';
+import { SectoralImpactGrid } from '../components/Dashboard/SectoralImpactGrid';
+import { ScenarioSimulatorDrawer } from '../components/Dashboard/ScenarioSimulatorDrawer';
 
 interface DashboardViewProps {
   districts: DistrictItem[];
@@ -92,7 +100,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       districtForecast?.forecast_mode === 'PROCESSED_DATA_REPLAY' ||
       districtForecast?.forecast_mode === 'OPERATIONAL_NWP' ||
       Boolean(activeForecast));
-  const isProcessedBenchmark = isOperational;
   const isAvailable = Boolean(activeForecast);
 
   // Selected district metadata
@@ -113,12 +120,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const heroDisplayTitle = useMemo(() => {
     if (selectedDistrictId === 'gps_user_location') {
       if (userLocation?.city) {
-        const districtDetail = userLocation.district && userLocation.district !== userLocation.city
-          ? `, ${userLocation.district}`
-          : (nearestDistrict && nearestDistrict.district.name !== userLocation.city ? ` (Near ${nearestDistrict.district.name})` : '');
+        const districtDetail =
+          userLocation.district && userLocation.district !== userLocation.city
+            ? `, ${userLocation.district}`
+            : nearestDistrict && nearestDistrict.district.name !== userLocation.city
+            ? ` (Near ${nearestDistrict.district.name})`
+            : '';
         return `${userLocation.city}${districtDetail}`;
       }
-      if (districtForecast?.name && !districtForecast.name.startsWith('GPS Station') && !districtForecast.name.startsWith('My Location (')) {
+      if (
+        districtForecast?.name &&
+        !districtForecast.name.startsWith('GPS Station') &&
+        !districtForecast.name.startsWith('My Location (')
+      ) {
         return districtForecast.name;
       }
       if (nearestDistrict) {
@@ -151,7 +165,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const rawRain = activeForecast?.raw_nwp_rainfall_mm ?? 0;
   const correctedRain = activeForecast?.corrected_rainfall_mm ?? 0;
   const delta = correctedRain - rawRain;
-  const regime = activeForecast?.predicted_regime ?? '';
+  const regime = activeForecast?.predicted_regime ?? 'ACTIVE_MONSOON';
   const regimeConfidence = activeForecast?.regime_probabilities[regime]
     ? Math.round(activeForecast.regime_probabilities[regime] * 100)
     : 0;
@@ -164,7 +178,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 0. Hierarchical Forecast Navigation (India -> State -> District -> Grid) */}
+      {/* 0. Top National Synoptic Live Ingest Marquee */}
+      <NationalSynopticMarquee
+        currentRegime={regime}
+        isDarkMode={isDarkMode}
+        activeDistrictsCount={districts.length || 742}
+        elevatedAlertsCount={elevatedProb ? 14 : 6}
+      />
+
+      {/* 1. IMD-Standard Color Coded Severe Weather Advisory Banner */}
+      <SevereWeatherAdvisoryBanner
+        districtName={districtName}
+        activeForecast={activeForecast}
+        isDarkMode={isDarkMode}
+        onExploreProbability={() => onNavigate('probability')}
+      />
+
+      {/* 2. Hierarchical Forecast Navigation (India -> State -> District -> Grid) */}
       <HierarchicalForecastNavigator
         districts={districts}
         selectedDistrictId={selectedDistrictId}
@@ -172,7 +202,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         isDarkMode={isDarkMode}
       />
 
-      {/* 1. Realistic Hero Station Weather Overview Card */}
+      {/* 3. Hero Station Weather Overview Command Center */}
       <div className="bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5 transition-all">
         {/* Top Meta Bar & Fast Station Switcher */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
@@ -361,12 +391,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {telemetry.surfacePressureHpa.toFixed(0)}{' '}
               <span className="text-xs font-medium text-slate-600 dark:text-slate-400">hPa</span>
             </div>
-            <span className="text-[10px] text-slate-600 dark:text-slate-400 font-medium truncate block">Barometric Normal</span>
+            <span className="text-[10px] text-slate-600 dark:text-slate-400 font-medium truncate block">
+              Barometric Normal
+            </span>
           </div>
         </div>
       </div>
 
-      {/* 2. Four Clean, Impactful Key Metric Cards */}
+      {/* 4. Four Key Intelligence Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: AI Rainfall Forecast */}
         <div className="bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition">
@@ -494,7 +526,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* 3. Main Hero Grid: Interactive Map (8 cols) + Meteorological Risk & Bias Panel (4 cols) */}
+      {/* 5. Main Hero Grid: Interactive Map (8 cols) + Meteorological Risk & Bias Panel (4 cols) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column (8 cols): Interactive GIS Cartography Map */}
         <div className="lg:col-span-8 space-y-4">
@@ -665,6 +697,34 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* 6. Interactive 24-Hour Diurnal Evolution & Bias Chart (Recharts) */}
+      <DiurnalForecastChart
+        activeForecast={activeForecast}
+        telemetry={telemetry}
+        districtName={districtName}
+        isDarkMode={isDarkMode}
+      />
+
+      {/* 7. Side-by-Side: Explainable AI Residual Decomposition (Left) + Multi-Sector Impact Decision Matrix (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ExplainableAIPanel
+          activeForecast={activeForecast}
+          isDarkMode={isDarkMode}
+        />
+        <SectoralImpactGrid
+          districtName={districtName}
+          activeForecast={activeForecast}
+          isDarkMode={isDarkMode}
+        />
+      </div>
+
+      {/* 8. Interactive "What-If" Meteorological Stress-Testing Sandbox */}
+      <ScenarioSimulatorDrawer
+        activeForecast={activeForecast}
+        districtName={districtName}
+        isDarkMode={isDarkMode}
+      />
     </div>
   );
 };
