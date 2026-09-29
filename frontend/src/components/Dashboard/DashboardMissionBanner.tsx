@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, CloudLightning, Cpu, RotateCw, Zap } from 'lucide-react';
+import { Play, Cpu, RotateCw, Zap } from 'lucide-react';
 
 interface DashboardMissionBannerProps {
   currentRegime?: string | null;
@@ -27,7 +27,7 @@ export const DashboardMissionBanner: React.FC<DashboardMissionBannerProps> = ({
   const formattedRegime = (currentRegime || 'ACTIVE_MONSOON').replace(/_/g, ' ');
 
   return (
-    <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-800/80 shadow-xl bg-slate-950 min-h-[160px] sm:min-h-[175px] flex items-center">
+    <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-800/80 shadow-xl bg-slate-950 min-h-[200px] sm:min-h-[205px] lg:min-h-[210px] flex items-center">
       {/* Background Thunderstorm & Lightning Landscape Photo */}
       <img
         src="/images/thunderstorm_weather.jpg"
@@ -35,23 +35,23 @@ export const DashboardMissionBanner: React.FC<DashboardMissionBannerProps> = ({
         className="absolute inset-0 w-full h-full object-cover object-center scale-102 motion-safe:transition-transform motion-safe:duration-7000 hover:scale-100"
       />
 
-      {/* Multi-Stop Atmospheric Gradient Overlays for Razor-Sharp Readability */}
+      {/* Multi-Stop Atmospheric Gradient Overlays for High Contrast & Legibility */}
       <div className="absolute inset-0 bg-linear-to-r from-slate-950 via-slate-950/85 to-slate-950/20 pointer-events-none" />
       <div className="absolute inset-0 bg-linear-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
 
-      {/* Balanced Banner Content Container */}
+      {/* Perfectly Calibrated Banner Content Container */}
       <div className="relative z-10 w-full px-6 py-5 sm:px-7 sm:py-5.5 lg:px-8 lg:py-6 flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
         {/* Left Column: Mission Overline, Headline, Value Prop & Action Buttons */}
-        <div className="space-y-2 sm:space-y-2.5 max-w-2xl">
+        <div className="space-y-2.5 max-w-2xl">
           {/* Overline Tag */}
           <div className="flex items-center space-x-2 text-[10.5px] sm:text-xs font-bold uppercase tracking-wider text-sky-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping" />
+            <span className="h-2 w-2 rounded-full bg-amber-400 animate-ping mr-0.5" />
             <Zap className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
             <span>OPERATIONAL MONSOON PRECIPITATION AI • SIH26080</span>
           </div>
 
           {/* Main Headline */}
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight leading-tight">
+          <h2 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold text-white tracking-tight leading-tight">
             Smarter Forecasting. <span className="text-slate-200">Resilient Communities.</span>
           </h2>
 
@@ -98,11 +98,11 @@ export const DashboardMissionBanner: React.FC<DashboardMissionBannerProps> = ({
 
         {/* Right Column: Floating Frosted Glassmorphism Card */}
         <div className="relative shrink-0 md:max-w-xs w-full sm:w-auto self-start md:self-center">
-          <div className="backdrop-blur-md bg-white/10 dark:bg-slate-900/40 border border-white/20 rounded-2xl p-4 sm:p-4.5 shadow-2xl text-center transition-all hover:bg-white/15">
+          <div className="backdrop-blur-md bg-white/10 dark:bg-slate-900/40 border border-white/20 rounded-2xl p-4 sm:p-5 shadow-2xl text-center transition-all hover:bg-white/15">
             <p className="text-xs sm:text-sm italic font-medium text-white/95 leading-relaxed tracking-wide">
               &ldquo;Accurate forecasts today, a safer tomorrow.&rdquo;
             </p>
-            <div className="h-px w-14 mx-auto bg-white/25 my-2" />
+            <div className="h-px w-14 mx-auto bg-white/25 my-2.5" />
             <div className="text-sky-300 text-xs font-semibold tracking-wide">
               Ministry of Earth Sciences
             </div>
